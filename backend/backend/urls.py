@@ -14,16 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet
-
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'questions', QuestionViewSet)
-router.register(r'attempts', AttemptViewSet)
-router.register(r'history', QuestionHistoryViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
 ]
