@@ -6,6 +6,11 @@ from rest_framework.decorators import action
 from .models import Question, Attempt, QuestionHistory
 from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer
 import openai
+import os
+import json
+
+# Load the OpenAI API key from the environment
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")
@@ -72,14 +77,25 @@ class QuestionViewSet(viewsets.ModelViewSet):
         Please provide a new question following this format.
         """
 
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            max_tokens=1000
-        )
-        
-        question_data = response.choices[0].text.strip()
-        return Response(question_data, status=status.HTTP_200_OK)
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are an AI assistant."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            question_data = response.choices[0].message['content'].strip()
+            question_json = json.loads(question_data)
+            
+            return Response({"question": question_json}, status=status.HTTP_200_OK)
+        except json.JSONDecodeError as e:
+            print("JSONDecodeError:", str(e))
+            return Response({"error": "Failed to decode JSON from the OpenAI response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print("Exception:", str(e))
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
