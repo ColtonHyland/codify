@@ -86,7 +86,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 ]
             )
             
-            question_data = response.choices[0].message['content'].strip()
+            question_data = response.choices[0].message.content
             question_json = json.loads(question_data)
             
             return Response({"question": question_json}, status=status.HTTP_200_OK)
