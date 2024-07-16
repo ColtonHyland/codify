@@ -87,9 +87,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
             )
             
             question_data = response.choices[0].message.content
+            print(f"Raw question data: {question_data}") # Debugging
             question_json = json.loads(question_data)
+            print(f"Parsed question JSON: {question_json}") # Debugging
             
-            return Response({"question": question_json}, status=status.HTTP_200_OK)
+            return Response(question_json['question'], status=status.HTTP_200_OK)
         except json.JSONDecodeError as e:
             print("JSONDecodeError:", str(e))
             return Response({"error": "Failed to decode JSON from the OpenAI response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -25,20 +25,24 @@ class QuestionTests(APITestCase):
 
     def test_generate_question(self):
         response = self.client.post('/api/questions/generate/')
+        print(f"Response data: {response.data}")  # Debugging statement
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('question', response.data)
-        self.assertIn('title', response.data['question'])
-        self.assertIn('description', response.data['question'])
-        self.assertIn('task', response.data['question'])
-        self.assertIn('design', response.data['question'])
-        self.assertIn('explanation', response.data['question'])
-        self.assertIn('input_constraints', response.data['question'])
-        self.assertIn('example_input', response.data['question'])
-        self.assertIn('example_output', response.data['question'])
-        self.assertIn('tests', response.data['question'])
-        self.assertIn('answer', response.data['question'])
-        self.assertIn('design_solution', response.data['question'])
-        self.assertIn('explanation_answer', response.data['question'])
+        
+        # Access the nested 'question' dictionary
+        question_data = response.data
+        
+        self.assertIn('title', question_data)
+        self.assertIn('description', question_data)
+        self.assertIn('task', question_data)
+        self.assertIn('design', question_data)
+        self.assertIn('explanation', question_data)
+        self.assertIn('input_constraints', question_data)
+        self.assertIn('example_input', question_data)
+        self.assertIn('example_output', question_data)
+        self.assertIn('tests', question_data)
+        self.assertIn('answer', question_data)
+        self.assertIn('design_solution', question_data)
+        self.assertIn('explanation_answer', question_data)
 
 class AttemptTests(APITestCase):
     def setUp(self):
