@@ -5,7 +5,12 @@ from .models import Question, Attempt, QuestionHistory
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
+        fields = ['id', 'username', 'email']
+
+class UserSignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

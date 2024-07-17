@@ -10,5 +10,7 @@ router.register(r'history', QuestionHistoryViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('users/', UserCreate.as_view(), name='user-create'),
+    path('signup/', UserCreate.as_view(), name='signup'),
 ]
+
+urlpatterns += router.urls

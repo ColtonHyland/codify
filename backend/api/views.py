@@ -4,7 +4,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Question, Attempt, QuestionHistory
-from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer
+from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer, UserSignupSerializer
 import openai
 import os
 import json
@@ -21,7 +21,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserSignupSerializer
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
