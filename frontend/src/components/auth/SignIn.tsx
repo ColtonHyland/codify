@@ -14,16 +14,30 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 const theme = createTheme();
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Handle sign-in logic here
+    try {
+      const response = await axios.post('http://localhost:8000/accounts/login/', {
+        email,
+        password,
+      }, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
+      });
+      console.log(response.data);
+      // Handle successful login (e.g., redirect, store token, etc.)
+    } catch (error) {
+      setError('Sign-in failed');
+    }
   };
 
   return (
@@ -75,6 +89,11 @@ const SignIn: React.FC = () => {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
+            {error && (
+              <Typography color="error" variant="body2">
+                {error}
+              </Typography>
+            )}
             <Button
               type="submit"
               fullWidth
@@ -90,7 +109,7 @@ const SignIn: React.FC = () => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/signup" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
