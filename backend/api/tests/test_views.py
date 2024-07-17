@@ -15,25 +15,57 @@ class UserTests(APITestCase):
             'email': 'testuser@example.com',
             'password': 'password123'
         })
+        print(f"Signup response status code: {response.status_code}")
+        print(f"Signup response data: {response.data}")
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(User.objects.get().username, 'testuser')
 
         # Check if the confirmation email is sent
+        print(f"Mail outbox length: {len(mail.outbox)}")
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn('testuser@example.com', mail.outbox[0].to)
+        if len(mail.outbox) > 0:
+            print(f"Mail outbox content: {mail.outbox[0].body}")
+            self.assertIn('testuser@example.com', mail.outbox[0].to)
         
-        # Extract the confirmation link from the email
-        email_body = mail.outbox[0].body
-        confirm_link = email_body.split('http://localhost:8000')[1].split('\n')[0]
+            # Extract the confirmation link from the email
+            email_body = mail.outbox[0].body
+            confirm_link = email_body.split('http://localhost:8000')[1].split('\n')[0]
         
-        # Visit the confirmation link
-        response = self.client.get(confirm_link)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Visit the confirmation link
+            response = self.client.get(confirm_link)
+            print(f"Email confirmation response status code: {response.status_code}")
+            print(f"Email confirmation response content: {response.content}")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Check if the user is now active
-        user = User.objects.get(username='testuser')
-        self.assertTrue(user.is_active)
+            # Check if the user is now active
+            user = User.objects.get(username='testuser')
+            self.assertTrue(user.is_active)
+
+    def test_signin_user(self):
+        user = User.objects.create_user(username='testuser', password='password123')
+        user.is_active = True
+        user.save()
+        response = self.client.post('/accounts/login/', {
+            'login': 'testuser',
+            'password': 'password123'
+        })
+        print(f"Signin response status code: {response.status_code}")
+        print(f"Signin response URL: {response.url}")
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.url, '/')
+
+    def test_signout_user(self):
+        user = User.objects.create_user(username='testuser', password='password123')
+        user.is_active = True
+        user.save()
+        self.client.force_authenticate(user=user)
+        response = self.client.post('/accounts/logout/')
+        print(f"Signout response status code: {response.status_code}")
+        print(f"Signout response URL: {response.url}")
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.url, '/')
 
 class QuestionTests(APITestCase):
     def setUp(self):
