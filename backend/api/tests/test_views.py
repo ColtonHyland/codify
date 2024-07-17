@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from api.models import Question, Attempt, QuestionHistory
 import unittest
+from django.core import mail
 
 class UserTests(APITestCase):
     def setUp(self):
@@ -17,6 +18,22 @@ class UserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(User.objects.get().username, 'testuser')
+
+        # Check if the confirmation email is sent
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('testuser@example.com', mail.outbox[0].to)
+        
+        # Extract the confirmation link from the email
+        email_body = mail.outbox[0].body
+        confirm_link = email_body.split('http://localhost:8000')[1].split('\n')[0]
+        
+        # Visit the confirmation link
+        response = self.client.get(confirm_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check if the user is now active
+        user = User.objects.get(username='testuser')
+        self.assertTrue(user.is_active)
 
 class QuestionTests(APITestCase):
     def setUp(self):
