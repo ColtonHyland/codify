@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Question, Attempt, QuestionHistory
@@ -16,6 +16,10 @@ def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")
 
 class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
