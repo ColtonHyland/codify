@@ -26,17 +26,22 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/accounts/login/', {
-        email,
-        password,
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        'http://localhost:8000/accounts/login/',
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
       console.log(response.data);
-      // Handle successful login (e.g., redirect, store token, etc.)
-    } catch (error) {
-      setError('Sign-in failed');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'An error occurred');
     }
   };
 
@@ -90,7 +95,7 @@ const SignIn: React.FC = () => {
               label="Remember me"
             />
             {error && (
-              <Typography color="error" variant="body2">
+              <Typography color="error" variant="body2" sx={{ mt: 2 }}>
                 {error}
               </Typography>
             )}
@@ -109,7 +114,7 @@ const SignIn: React.FC = () => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="/signup" variant="body2">
+                <Link href="#" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

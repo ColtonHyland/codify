@@ -49,7 +49,26 @@
     ]
   },
   "devDependencies": {
-    "jest": "^27.5.1"
+    "@babel/core": "^7.24.9",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.24.8",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "babel-jest": "^29.7.0",
+    "jest": "^27.5.1",
+    "jest-watch-typeahead": "^2.2.2",
+    "ts-jest": "^29.2.2"
   },
-  "proxy": "http://localhost:8000"
+  "proxy": "http://localhost:8000",
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!axios/)"
+    ]
+  }
 }

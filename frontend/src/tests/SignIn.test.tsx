@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SignIn from '../components/auth/SignIn';
 import axios from 'axios';
-import { act } from 'react-dom/test-utils';
+import SignIn from '../components/auth/SignIn';
 
 jest.mock('axios');
 
@@ -21,14 +20,14 @@ describe('SignIn Component', () => {
 
     render(<SignIn />);
 
-    // Fill in the form
-    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
-
-    // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    // Fill out and submit the form
+    fireEvent.change(screen.getByLabelText(/email address/i), {
+      target: { value: 'test@example.com' },
     });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: 'password123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     // Check if axios.post was called with correct arguments
     expect(axios.post).toHaveBeenCalledWith(
@@ -38,27 +37,29 @@ describe('SignIn Component', () => {
         password: 'password123',
       },
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         withCredentials: true,
       }
     );
   });
 
   test('displays error message on failed submission', async () => {
-    (axios.post as jest.Mock).mockRejectedValue(new Error('Sign-in failed'));
+    (axios.post as jest.Mock).mockRejectedValue({ response: { data: { error: 'Invalid credentials' } } });
 
     render(<SignIn />);
 
-    // Fill in the form
-    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
-
-    // Submit the form
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    // Fill out and submit the form
+    fireEvent.change(screen.getByLabelText(/email address/i), {
+      target: { value: 'test@example.com' },
     });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: 'password123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     // Check if error message is displayed
-    expect(screen.getByText(/sign-in failed/i)).toBeInTheDocument();
+    expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument();
   });
 });

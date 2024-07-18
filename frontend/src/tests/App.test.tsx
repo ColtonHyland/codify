@@ -2,8 +2,13 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
-test('renders learn react link', () => {
+test('renders Sign In heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  
+  // Get all elements with the text "Sign In"
+  const headingElements = screen.getAllByText(/sign in/i);
+  
+  // Check if at least one of them is a heading
+  const headingElement = headingElements.find(el => el.tagName.toLowerCase() === 'h1');
+  expect(headingElement).toBeInTheDocument();
 });
