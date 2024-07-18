@@ -15,6 +15,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { getCSRFToken } from '../../utils/csrf';
 
 const theme = createTheme();
 
@@ -35,11 +36,30 @@ const SignUp: React.FC = () => {
     values: SignUpValues,
     { setSubmitting, setStatus }: FormikHelpers<SignUpValues>
   ) => {
+    console.log('Submitting form with values:', values);  // Log form values
     try {
-      const response = await axios.post('http://localhost:8000/accounts/signup/', values);
-      console.log(response.data);
+      const csrfToken = await getCSRFToken();
+      console.log('CSRF token:', csrfToken);  // Log the CSRF token
+      const response = await axios.post(
+        'http://localhost:8000/accounts/signup/',
+        values,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log('Signup response data:', response.data);  // Log response data
     } catch (error: any) {
-      setStatus({ submit: 'Failed to sign up' });
+      console.error('Error during signup request:', error);  // Log any error
+      if (error.response) {
+        console.error('Response data:', error.response.data);  // Log response data
+        console.error('Response status:', error.response.status);  // Log response status
+        console.error('Response headers:', error.response.headers);  // Log response headers
+      }
+      setStatus({ submit: error.response?.data?.error || 'An error occurred' });
     } finally {
       setSubmitting(false);
     }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Avatar,
   Button,
@@ -11,13 +11,14 @@ import {
   Box,
   Typography,
   Container,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
-import { Link as RouterLink } from 'react-router-dom';
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Formik, Field, Form, ErrorMessage, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
+import { Link as RouterLink } from "react-router-dom";
+import { getCSRFToken } from "../../utils/csrf";
 
 const theme = createTheme();
 
@@ -28,27 +29,33 @@ interface SignInValues {
 
 const SignIn: React.FC = () => {
   const validationSchema = Yup.object({
-    email: Yup.string().email('Invalid email address').required('Email is required'),
-    password: Yup.string().required('Password is required'),
+    email: Yup.string()
+      .email("Invalid email address")
+      .required("Email is required"),
+    password: Yup.string().required("Password is required"),
   });
 
   const handleSubmit = async (
     values: SignInValues,
     { setSubmitting, setStatus }: FormikHelpers<SignInValues>
   ) => {
+    console.log('Submitting form with values:', values);  // Log form values
     try {
+      const csrfToken = await getCSRFToken();
       const response = await axios.post(
         'http://localhost:8000/accounts/login/',
         values,
         {
           headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
           },
           withCredentials: true,
         }
       );
-      console.log(response.data);
+      console.log('Login response data:', response.data);  // Log response data
     } catch (error: any) {
+      console.error('Error during login request:', error);  // Log any error
       setStatus({ submit: error.response?.data?.error || 'An error occurred' });
     } finally {
       setSubmitting(false);
@@ -62,19 +69,19 @@ const SignIn: React.FC = () => {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign In
           </Typography>
           <Formik<SignInValues>
-            initialValues={{ email: '', password: '' }}
+            initialValues={{ email: "", password: "" }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >

@@ -1,19 +1,36 @@
-from django.http import HttpResponse
+import logging
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from .models import Question, Attempt, QuestionHistory
 from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer, UserSignupSerializer
 import openai
 import os
 import json
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 
 # Load the OpenAI API key from the environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
+def csrf_token(request):
+    csrf_token = get_token(request)
+    logger.debug(f"CSRF Token sent to client: {csrf_token}")
+    return JsonResponse({'csrfToken': csrf_token})
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -22,6 +39,77 @@ class UserViewSet(viewsets.ModelViewSet):
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSignupSerializer
+    permission_classes = (AllowAny,)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
+def signup(request):
+    logger.debug("Signup request received")
+    logger.debug(f"Request headers: {request.headers}")
+    logger.debug(f"Request cookies: {request.COOKIES}")
+    logger.debug(f"Request data: {request.data}")
+
+    if request.method == 'POST':
+        data = request.data
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not (username and email and password):
+            logger.error("All fields are required")
+            return JsonResponse({'error': 'All fields are required'}, status=400)
+
+        try:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            logger.debug("User created successfully")
+            return JsonResponse({'success': True})
+        except Exception as e:
+            logger.error(f"Error creating user: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    logger.error("Invalid request method")
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    logger.debug("Login request received")
+    logger.debug(f"Request headers: {request.headers}")
+    logger.debug(f"Request cookies: {request.COOKIES}")
+    logger.debug(f"Request data: {request.data}")
+
+    if request.method == 'POST':
+        data = request.data
+        email = data.get('email')
+        password = data.get('password')
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            auth_login(request, user)
+            logger.debug("User authenticated successfully")
+            return JsonResponse({'success': True})
+        else:
+            logger.error("Invalid credentials")
+            return JsonResponse({'error': 'Invalid credentials'}, status=400)
+    
+    logger.error("Invalid request method")
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout(request):
+    logger.debug("Logout request received")
+    if request.method == 'POST':
+        auth_logout(request)
+        logger.debug("User logged out successfully")
+        return JsonResponse({'success': True})
+    
+    logger.error("Invalid request method")
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
@@ -80,27 +168,22 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         Please provide a new question following this format.
         """
-
         try:
-            response = openai.chat.completions.create(
+            response = openai.Completion.create(
                 model="gpt-3.5-turbo-0125",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": prompt}
-                ]
+                prompt=prompt
             )
-            
-            question_data = response.choices[0].message.content
-            print(f"Raw question data: {question_data}") # Debugging
+            question_data = response.choices[0].text
+            logger.debug(f"Raw question data: {question_data}") # Debugging
             question_json = json.loads(question_data)
-            print(f"Parsed question JSON: {question_json}") # Debugging
-            
+            logger.debug(f"Parsed question JSON: {question_json}") # Debugging
+
             return Response(question_json['question'], status=status.HTTP_200_OK)
         except json.JSONDecodeError as e:
-            print("JSONDecodeError:", str(e))
+            logger.error("JSONDecodeError:", str(e))
             return Response({"error": "Failed to decode JSON from the OpenAI response."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print("Exception:", str(e))
+            logger.error("Exception:", str(e))
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AttemptViewSet(viewsets.ModelViewSet):
