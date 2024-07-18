@@ -17,6 +17,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { Link as RouterLink } from 'react-router-dom';
 
 const theme = createTheme();
 
@@ -132,7 +133,7 @@ const SignIn: React.FC = () => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link href="#" variant="body2">
+                    <Link component={RouterLink} to="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>
