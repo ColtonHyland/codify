@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   Button,
@@ -12,27 +12,36 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 import axios from 'axios';
 
 const theme = createTheme();
 
-const SignUp: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+interface SignUpValues {
+  username: string;
+  email: string;
+  password: string;
+}
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+const SignUp: React.FC = () => {
+  const validationSchema = Yup.object({
+    username: Yup.string().required('Username is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
+
+  const handleSubmit = async (
+    values: SignUpValues,
+    { setSubmitting, setStatus }: FormikHelpers<SignUpValues>
+  ) => {
     try {
-      const response = await axios.post('http://localhost:8000/accounts/signup/', {
-        username,
-        email,
-        password,
-      });
+      const response = await axios.post('http://localhost:8000/accounts/signup/', values);
       console.log(response.data);
-    } catch (error) {
-      setError('Failed to sign up');
+    } catch (error: any) {
+      setStatus({ submit: 'Failed to sign up' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -54,62 +63,78 @@ const SignUp: React.FC = () => {
           <Typography component="h1" variant="h5">
             Sign Up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label="Username"
-              name="username"
-              autoComplete="username"
-              autoFocus
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error && <Typography color="error">{error}</Typography>}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign In
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
+          <Formik<SignUpValues>
+            initialValues={{ username: '', email: '', password: '' }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting, status }) => (
+              <Form noValidate>
+                <Field
+                  as={TextField}
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  helperText={<ErrorMessage name="username" />}
+                  error={Boolean(status?.username)}
+                />
+                <Field
+                  as={TextField}
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  helperText={<ErrorMessage name="email" />}
+                  error={Boolean(status?.email)}
+                />
+                <Field
+                  as={TextField}
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  helperText={<ErrorMessage name="password" />}
+                  error={Boolean(status?.password)}
+                />
+                {status?.submit && (
+                  <Typography color="error" variant="body2">
+                    {status.submit}
+                  </Typography>
+                )}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={isSubmitting}
+                >
+                  Sign Up
+                </Button>
+                <Grid container justifyContent="flex-end">
+                  <Grid item>
+                    <Link href="/login" variant="body2">
+                      Already have an account? Sign In
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Container>
     </ThemeProvider>

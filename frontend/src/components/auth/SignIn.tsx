@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   Button,
@@ -14,24 +14,31 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 import axios from 'axios';
 
 const theme = createTheme();
 
-const SignIn: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+interface SignInValues {
+  email: string;
+  password: string;
+}
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+const SignIn: React.FC = () => {
+  const validationSchema = Yup.object({
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
+
+  const handleSubmit = async (
+    values: SignInValues,
+    { setSubmitting, setStatus }: FormikHelpers<SignInValues>
+  ) => {
     try {
       const response = await axios.post(
         'http://localhost:8000/accounts/login/',
-        {
-          email,
-          password,
-        },
+        values,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -40,8 +47,10 @@ const SignIn: React.FC = () => {
         }
       );
       console.log(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'An error occurred');
+    } catch (error: any) {
+      setStatus({ submit: error.response?.data?.error || 'An error occurred' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -63,63 +72,74 @@ const SignIn: React.FC = () => {
           <Typography component="h1" variant="h5">
             Sign In
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 2 }}>
-                {error}
-              </Typography>
+          <Formik<SignInValues>
+            initialValues={{ email: '', password: '' }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting, status }) => (
+              <Form noValidate>
+                <Field
+                  as={TextField}
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  helperText={<ErrorMessage name="email" />}
+                  error={Boolean(status?.email)}
+                />
+                <Field
+                  as={TextField}
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  helperText={<ErrorMessage name="password" />}
+                  error={Boolean(status?.password)}
+                />
+                <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                />
+                {status?.submit && (
+                  <Typography color="error" variant="body2">
+                    {status.submit}
+                  </Typography>
+                )}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={isSubmitting}
+                >
+                  Sign In
+                </Button>
+                <Grid container>
+                  <Grid item xs>
+                    <Link href="#" variant="body2">
+                      Forgot password?
+                    </Link>
+                  </Grid>
+                  <Grid item>
+                    <Link href="#" variant="body2">
+                      {"Don't have an account? Sign Up"}
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Form>
             )}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
+          </Formik>
         </Box>
       </Container>
     </ThemeProvider>

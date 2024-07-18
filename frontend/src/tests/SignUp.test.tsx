@@ -32,8 +32,7 @@ describe('SignUp Component', () => {
           username: 'testuser',
           email: 'test@example.com',
           password: 'password123'
-        },
-        { headers: { 'Content-Type': 'application/json' } }
+        }
       );
     });
 
@@ -60,8 +59,7 @@ describe('SignUp Component', () => {
           username: 'testuser',
           email: 'test@example.com',
           password: 'password123'
-        },
-        { headers: { 'Content-Type': 'application/json' } }
+        }
       );
     });
 

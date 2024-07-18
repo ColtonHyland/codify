@@ -42,6 +42,8 @@ describe('SignOut Component', () => {
   });
 
   test('displays error message on failed sign out', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     mockedAxios.post.mockRejectedValueOnce(new Error('Failed to sign out'));
 
     render(
@@ -63,5 +65,7 @@ describe('SignOut Component', () => {
     await waitFor(() => {
       expect(console.error).toHaveBeenCalledWith('Failed to sign out');
     });
+
+    consoleSpy.mockRestore();
   });
 });
