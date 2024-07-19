@@ -1,62 +1,32 @@
-import React from "react";
-import {
-  Avatar,
-  Button,
-  CssBaseline,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Container,
-} from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Formik, Field, Form, ErrorMessage, FormikHelpers } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
-import { Link as RouterLink } from "react-router-dom";
-import { getCSRFToken } from "../../utils/csrf";
+import React from 'react';
+import { Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormControlLabel, Checkbox } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
+import { useAuth } from '../../contexts/AuthContext';
 
 const theme = createTheme();
 
-interface SignInValues {
+interface LoginValues {
   email: string;
   password: string;
 }
 
 const SignIn: React.FC = () => {
+  const { login } = useAuth();
+
   const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string().required("Password is required"),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().required('Password is required'),
   });
 
-  const handleSubmit = async (
-    values: SignInValues,
-    { setSubmitting, setStatus }: FormikHelpers<SignInValues>
-  ) => {
-    console.log('Submitting form with values:', values);  // Log form values
+  const handleSubmit = async (values: LoginValues, { setSubmitting, setStatus }: FormikHelpers<LoginValues>) => {
     try {
-      const csrfToken = await getCSRFToken();
-      const response = await axios.post(
-        'http://localhost:8000/accounts/login/',
-        values,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
-          },
-          withCredentials: true,
-        }
-      );
-      console.log('Login response data:', response.data);  // Log response data
+      await login(values.email, values.password);
     } catch (error: any) {
-      console.error('Error during login request:', error);  // Log any error
-      setStatus({ submit: error.response?.data?.error || 'An error occurred' });
+      console.error('Error during login:', error);
+      setStatus({ submit: error.message || 'An error occurred' });
     } finally {
       setSubmitting(false);
     }
@@ -69,19 +39,19 @@ const SignIn: React.FC = () => {
         <Box
           sx={{
             marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign In
           </Typography>
-          <Formik<SignInValues>
-            initialValues={{ email: "", password: "" }}
+          <Formik<LoginValues>
+            initialValues={{ email: '', password: '' }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
@@ -115,15 +85,15 @@ const SignIn: React.FC = () => {
                   helperText={<ErrorMessage name="password" />}
                   error={Boolean(status?.password)}
                 />
-                <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
-                  label="Remember me"
-                />
                 {status?.submit && (
                   <Typography color="error" variant="body2">
                     {status.submit}
                   </Typography>
                 )}
+                <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                />
                 <Button
                   type="submit"
                   fullWidth
@@ -140,7 +110,7 @@ const SignIn: React.FC = () => {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link component={RouterLink} to="/signup" variant="body2">
+                    <Link href="/signup" variant="body2">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>

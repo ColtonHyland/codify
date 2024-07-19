@@ -1,21 +1,10 @@
 import React from 'react';
-import {
-  Avatar,
-  Button,
-  CssBaseline,
-  TextField,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Container,
-} from '@mui/material';
+import { Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
-import { getCSRFToken } from '../../utils/csrf';
+import { useAuth } from '../../contexts/AuthContext';
 
 const theme = createTheme();
 
@@ -26,40 +15,20 @@ interface SignUpValues {
 }
 
 const SignUp: React.FC = () => {
+  const { signup } = useAuth();
+
   const validationSchema = Yup.object({
     username: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
     password: Yup.string().required('Password is required'),
   });
 
-  const handleSubmit = async (
-    values: SignUpValues,
-    { setSubmitting, setStatus }: FormikHelpers<SignUpValues>
-  ) => {
-    console.log('Submitting form with values:', values);  // Log form values
+  const handleSubmit = async (values: SignUpValues, { setSubmitting, setStatus }: FormikHelpers<SignUpValues>) => {
     try {
-      const csrfToken = await getCSRFToken();
-      console.log('CSRF token:', csrfToken);  // Log the CSRF token
-      const response = await axios.post(
-        'http://localhost:8000/accounts/signup/',
-        values,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
-          },
-          withCredentials: true,
-        }
-      );
-      console.log('Signup response data:', response.data);  // Log response data
+      await signup(values.username, values.email, values.password);
     } catch (error: any) {
-      console.error('Error during signup request:', error);  // Log any error
-      if (error.response) {
-        console.error('Response data:', error.response.data);  // Log response data
-        console.error('Response status:', error.response.status);  // Log response status
-        console.error('Response headers:', error.response.headers);  // Log response headers
-      }
-      setStatus({ submit: error.response?.data?.error || 'An error occurred' });
+      console.error('Error during signup:', error);
+      setStatus({ submit: error.message || 'An error occurred' });
     } finally {
       setSubmitting(false);
     }

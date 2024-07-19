@@ -8,17 +8,16 @@ import SignUpPage from './pages/SignUpPage';
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Navbar />
         <Routes>
           <Route path="/login" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-          {/* <Route path="/signout" element={<SignOut />} /> */}
           <Route path="/" element={<Home />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 
