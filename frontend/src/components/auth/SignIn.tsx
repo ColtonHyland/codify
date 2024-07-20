@@ -14,7 +14,7 @@ interface LoginValues {
 }
 
 const SignIn: React.FC = () => {
-  const { login } = useAuth();
+  const { login, resendVerificationEmail } = useAuth();
 
   const validationSchema = Yup.object({
     email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -23,10 +23,17 @@ const SignIn: React.FC = () => {
 
   const handleSubmit = async (values: LoginValues, { setSubmitting, setStatus }: FormikHelpers<LoginValues>) => {
     try {
+      console.log("Form values on login:", values);
       await login(values.email, values.password);
     } catch (error: any) {
       console.error('Error during login:', error);
-      setStatus({ submit: error.message || 'An error occurred' });
+      const errorData = JSON.parse(error.message);
+      if (errorData.non_field_errors && errorData.non_field_errors.includes("E-mail is not verified.")) {
+        setStatus({ submit: "E-mail is not verified. Please verify your email." });
+        await resendVerificationEmail(values.email);
+      } else {
+        setStatus({ submit: error.message || 'An error occurred' });
+      }
     } finally {
       setSubmitting(false);
     }

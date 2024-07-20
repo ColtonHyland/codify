@@ -5,6 +5,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../../contexts/AuthContext';
+import axios from 'axios';
 
 const theme = createTheme();
 
@@ -25,10 +26,14 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (values: SignUpValues, { setSubmitting, setStatus }: FormikHelpers<SignUpValues>) => {
     try {
+      console.log("Form values on submit:", values); // Debugging line
       await signup(values.username, values.email, values.password);
     } catch (error: any) {
       console.error('Error during signup:', error);
       setStatus({ submit: error.message || 'An error occurred' });
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Error response data:", error.response.data); // Debugging line
+      }
     } finally {
       setSubmitting(false);
     }

@@ -7,13 +7,13 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getCSRFToken } from "../utils/csrf";
 
 interface AuthContextType {
   user: { username: string; email: string } | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,66 +35,119 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
-    const csrfToken = await getCSRFToken();
-    const response = await axios.post(
-      "http://localhost:8000/accounts/login/",
-      { email, password },
-      {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/login/",
+        { username: email, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const { key: token } = response.data;
+      const userResponse = await axios.get("http://localhost:8000/api/auth/user/", {
         headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
+          "Authorization": `Token ${token}`,
         },
-        withCredentials: true,
+      });
+      localStorage.setItem('token', token);
+      setUser({ username: userResponse.data.username, email: userResponse.data.email });
+      navigate("/");
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Login error data:", error.response.data);
+        throw new Error(JSON.stringify(error.response.data));
+      } else {
+        console.error("Login error:", error);
       }
-    );
-    setUser({ username: response.data.username, email: response.data.email });
-    navigate("/");
+    }
   };
 
   const signup = async (username: string, email: string, password: string) => {
-    const csrfToken = await getCSRFToken();
-    const response = await axios.post(
-      "http://localhost:8000/accounts/signup/",
-      { username, email, password },
-      {
+    try {
+      console.log("Signup data:", { username, email, password1: password, password2: password });
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/registration/",
+        { username, email, password1: password, password2: password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Signup response:", response.data);
+      const { key: token } = response.data;
+      const userResponse = await axios.get("http://localhost:8000/api/auth/user/", {
         headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
+          "Authorization": `Token ${token}`,
         },
-        withCredentials: true,
+      });
+      localStorage.setItem('token', token);
+      setUser({ username: userResponse.data.username, email: userResponse.data.email });
+      navigate("/");
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Signup error data:", error.response.data);
+        throw new Error(JSON.stringify(error.response.data));
+      } else {
+        console.error("Signup error:", error);
       }
-    );
-    setUser({ username: response.data.username, email: response.data.email });
-    navigate("/");
+    }
   };
 
   const logout = async () => {
-    const csrfToken = await getCSRFToken();
+    const token = localStorage.getItem('token');
     await axios.post(
-      "http://localhost:8000/accounts/logout/",
+      "http://localhost:8000/api/auth/logout/",
       {},
       {
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
+          "Authorization": `Token ${token}`,
         },
-        withCredentials: true,
       }
     );
+    localStorage.removeItem('token');
     setUser(null);
     navigate("/login");
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      await axios.post("http://localhost:8000/api/auth/registration/resend-email/", { email });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Resend verification email error data:", error.response.data);
+        throw new Error(JSON.stringify(error.response.data));
+      } else {
+        console.error("Resend verification email error:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/accounts/user/",
-          { withCredentials: true }
-        );
-        setUser({ username: response.data.username, email: response.data.email });
-      } catch (error) {
-        console.error("Check auth error:", error);
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await axios.get(
+            "http://localhost:8000/api/auth/user/",
+            {
+              headers: {
+                "Authorization": `Token ${token}`,
+              },
+            }
+          );
+          if (response.data.username && response.data.email) {
+            setUser({ username: response.data.username, email: response.data.email });
+          } else {
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("Check auth error:", error);
+          setUser(null);
+        }
       }
     };
 
@@ -102,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, resendVerificationEmail }}>
       {children}
     </AuthContext.Provider>
   );

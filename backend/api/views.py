@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Question, Attempt, QuestionHistory
-from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer, UserSignupSerializer
+from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer
+
+# Load the OpenAI API key from the environment
 import openai
 import os
 import json
@@ -14,7 +16,6 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 
-# Load the OpenAI API key from the environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Configure logging
@@ -27,8 +28,13 @@ def home(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user(request):
-    user = request.user
-    return Response({'username': user.username})
+    logger.debug("get_user endpoint reached")
+    if request.user.is_authenticated:
+        logger.debug(f"Authenticated user: {request.user.username}")
+        return JsonResponse({'username': request.user.username, 'email': request.user.email})
+    else:
+        logger.debug("User not authenticated")
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -41,81 +47,6 @@ def csrf_token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-class UserCreate(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSignupSerializer
-    permission_classes = (AllowAny,)
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@ensure_csrf_cookie
-def signup(request):
-    logger.debug("Signup request received")
-    logger.debug(f"Request headers: {request.headers}")
-    logger.debug(f"Request cookies: {request.COOKIES}")
-    logger.debug(f"Request data: {request.data}")
-
-    if request.method == 'POST':
-        data = request.data
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
-
-        if not (username and email and password):
-            logger.error("All fields are required")
-            return JsonResponse({'error': 'All fields are required'}, status=400)
-
-        try:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.save()
-            logger.debug("User created successfully")
-            return JsonResponse({'success': True})
-        except Exception as e:
-            logger.error(f"Error creating user: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    logger.error("Invalid request method")
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def login(request):
-    logger.debug("Login request received")
-    logger.debug(f"Request headers: {request.headers}")
-    logger.debug(f"Request cookies: {request.COOKIES}")
-    logger.debug(f"Request data: {request.data}")
-
-    if request.method == 'POST':
-        data = request.data
-        email = data.get('email')
-        password = data.get('password')
-        user = authenticate(request, username=email, password=password)
-
-        if user is not None:
-            auth_login(request, user)
-            logger.debug("User authenticated successfully")
-            return JsonResponse({'success': True})
-        else:
-            logger.error("Invalid credentials")
-            return JsonResponse({'error': 'Invalid credentials'}, status=400)
-    
-    logger.error("Invalid request method")
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def logout(request):
-    logger.debug("Logout request received")
-    if request.method == 'POST':
-        auth_logout(request)
-        logger.debug("User logged out successfully")
-        return JsonResponse({'success': True})
-    
-    logger.error("Invalid request method")
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()

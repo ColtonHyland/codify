@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, UserCreate, signup, login, logout, get_user
+from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -10,11 +10,8 @@ router.register(r'history', QuestionHistoryViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('signup/', UserCreate.as_view(), name='signup'),
-    path('signup/', signup, name='signup'),
-    path('login/', login, name='login'),
-    path('logout/', logout, name='logout'),
-    path('user/', get_user, name='user'),
+    path('auth/', include('dj_rest_auth.urls')),
+    path('auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 
 urlpatterns += router.urls

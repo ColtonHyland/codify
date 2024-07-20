@@ -8,6 +8,15 @@ from django.core import mail
 class UserTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='password123')
+        self.client.login(username='testuser@example.com', password='password123')
+
+    def test_get_user(self):
+        response = self.client.get('/accounts/user/')
+        print(f"Get user response status code: {response.status_code}")
+        print(f"Get user response data: {response.content}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['username'], self.user.username)
 
     @unittest.skip("Skipping since we know it works")
     def test_signin_user(self):
@@ -37,9 +46,9 @@ class UserTests(APITestCase):
         
         response = self.client.post('/accounts/logout/')
         print(f"Signout response status code: {response.status_code}")
-        print(f"Signout response URL: {response.url}")
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(response.url, '/')
+        print(f"Signout response data: {response.json()}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json().get('redirect'), '/')
 
 class QuestionTests(APITestCase):
     def setUp(self):
