@@ -28,6 +28,7 @@ const SignUp: React.FC = () => {
     try {
       console.log("Form values on submit:", values); // Debugging line
       await signup(values.username, values.email, values.password);
+      setStatus({ submit: 'Registration successful. Please check your email to verify your account.' });
     } catch (error: any) {
       console.error('Error during signup:', error);
       setStatus({ submit: error.message || 'An error occurred' });

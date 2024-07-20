@@ -1,10 +1,12 @@
 import logging
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from .models import Question, Attempt, QuestionHistory
 from .serializers import UserSerializer, QuestionSerializer, AttemptSerializer, QuestionHistorySerializer
 
@@ -24,6 +26,16 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")
+
+def send_test_email(request):
+    send_mail(
+        'Test Email',
+        'This is a test email sent from Django.',
+        'iamaspacepirate@gmail.com',
+        ['colthyland@gmail.com'],
+        fail_silently=False,
+    )
+    return HttpResponse("Test email sent")
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -47,6 +59,7 @@ def csrf_token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = (TokenAuthentication,)
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()

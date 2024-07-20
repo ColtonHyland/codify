@@ -36,9 +36,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("Attempting to log in with email:", email);
       const response = await axios.post(
         "http://localhost:8000/api/auth/login/",
-        { username: email, password },
+        { email, password },
         {
           headers: {
             "Content-Type": "application/json",
@@ -114,8 +115,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const resendVerificationEmail = async (email: string) => {
+    console.log(`Attempting to resend verification email to ${email}`);
     try {
-      await axios.post("http://localhost:8000/api/auth/registration/resend-email/", { email });
+      const response = await axios.post("http://localhost:8000/api/auth/registration/resend-email/", { email });
+      console.log("Resend verification email response:", response.data);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         console.error("Resend verification email error data:", error.response.data);
