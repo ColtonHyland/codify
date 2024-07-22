@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { APIButton } from './APIButton';
-import { JSONTextField } from './JSONTextField';
-import { DropdownSelector } from './DropdownSelector';
+import { GenerateButton } from '../components/question/GenerateButton';
+import { TextField } from '../components/question/TextField';
+import { DropdownSelector } from '../components/question/DropdownSelector';
 
 export const GenerateQuestionPage: React.FC = () => {
   const [responseData, setResponseData] = useState<string | null>(null);
@@ -19,12 +19,12 @@ export const GenerateQuestionPage: React.FC = () => {
         onDifficultyChange={setDifficulty} 
         onCategoryChange={setCategory} 
       />
-      <APIButton 
+      <GenerateButton 
         onApiResponse={handleApiResponse} 
         difficulty={difficulty} 
         category={category} 
       />
-      {responseData && <JSONTextField jsonText={responseData} />}
+      {responseData && <TextField jsonText={responseData} />}
     </div>
   );
 };
