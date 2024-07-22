@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
+  Button,
   Typography,
   Paper,
   Divider,
@@ -15,7 +16,7 @@ interface QuestionFieldProps {
   jsonText: string;
 }
 
-const formatJson = (data: any) => {
+const formatJson = (data: any, handleToggleTips: ()=> void, showTips: boolean) => {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
@@ -110,16 +111,23 @@ const formatJson = (data: any) => {
         ))}
       </List>
 
-      <Typography variant="h6" gutterBottom>
-        Hints
-      </Typography>
-      <List>
-        {data.hints.map((hint: string, index: number) => (
-          <ListItem key={index}>
-            <ListItemText primary={hint} />
-          </ListItem>
-        ))}
-      </List>
+      <Button variant="contained" color="primary" onClick={handleToggleTips}>
+        Toggle Hints
+      </Button>
+      {showTips && (
+        <>
+          <Typography variant="h6" gutterBottom>
+            Hints
+          </Typography>
+          <List>
+            {data.hints.map((hint: string, index: number) => (
+              <ListItem key={index}>
+                <ListItemText primary={hint} />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      )}
       <Typography variant="h6" gutterBottom>
         Notes
       </Typography>
@@ -129,6 +137,12 @@ const formatJson = (data: any) => {
 };
 
 export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
+  const [showTips, setShowTips] = useState(false);
+
+  const handleToggleTips = () => {
+    setShowTips(!showTips);
+  };
+
   let jsonData;
   try {
     jsonData = JSON.parse(jsonText);
@@ -142,7 +156,7 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
         {jsonData.error ? (
           <Typography color="error">{jsonData.error}</Typography>
         ) : (
-          formatJson(jsonData)
+          formatJson(jsonData, handleToggleTips)
         )}
       </Paper>
     </Box>
