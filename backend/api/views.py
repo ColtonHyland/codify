@@ -99,7 +99,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         categories_str = ', '.join([f'"{category}"' for category in categories])
 
         prompt = f"""
-        You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a question in the following JSON format:
+        You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a question in the following JSON format, ensuring the response includes the specified categories and difficulty exactly as provided:
 
         {{
           "problemId": "<unique_problem_id>",
