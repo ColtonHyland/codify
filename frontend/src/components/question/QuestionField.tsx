@@ -11,7 +11,7 @@ import {
   Grid,
 } from '@mui/material';
 
-interface TextFieldProps {
+interface QuestionFieldProps {
   jsonText: string;
 }
 
@@ -83,19 +83,13 @@ const formatJson = (data: any) => {
           </ListItem>
         ))}
       </List>
-
-      <Typography variant="h6" gutterBottom>Solution Template</Typography>
-      <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-        <pre>{data.solutionTemplate}</pre>
-      </Paper>
-
       <Typography variant="h6" gutterBottom>Notes</Typography>
       <Typography variant="body1">{data.notes}</Typography>
     </Box>
   );
 };
 
-export const TextField: React.FC<TextFieldProps> = ({ jsonText }) => {
+export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
   let jsonData;
   try {
     jsonData = JSON.parse(jsonText);

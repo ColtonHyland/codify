@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GenerateButton } from '../components/question/GenerateButton';
-import { TextField } from '../components/question/TextField';
+import { QuestionField } from '../components/question/QuestionField';
 import { DropdownSelector } from '../components/question/DropdownSelector';
 import { Container, Typography, Box } from '@mui/material';
 
@@ -28,7 +28,7 @@ export const GenerateQuestionPage: React.FC = () => {
           category={category} 
         />
       </Box>
-      {responseData && <TextField jsonText={responseData} />}
+      {responseData && <QuestionField jsonText={responseData} />}
     </Container>
   );
 };
