@@ -213,7 +213,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     {"role": "user", "content": prompt}
                 ]
             )
-            question_data = response.choices[0].text.strip()
+            question_data = response.choices[0].message.content.strip()
             logger.debug(f"Raw question data: {question_data}")  # Debugging
             question_json = json.loads(question_data)
             logger.debug(f"Parsed question JSON: {question_json}")  # Debugging
