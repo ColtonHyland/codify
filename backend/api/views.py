@@ -80,26 +80,43 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def generate(self, request):
-        prompt = """
+        categories = request.data.get("categories", [])
+        difficulty = request.data.get("difficulty")
+
+        if not difficulty:
+            return Response(
+                {"error": "Difficulty parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not categories:
+            return Response(
+                {"error": "Categories parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        categories_str = ', '.join([f'"{category}"' for category in categories])
+
+        prompt = f"""
         You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a question in the following JSON format:
 
-        {
+        {{
           "problemId": "<unique_problem_id>",
           "title": "<problem_title>",
-          "difficulty": "<problem_difficulty>",
-          "categories": ["<category_1>", "<category_2>", "..."],
+          "difficulty": "{difficulty}",
+          "categories": [{categories_str}],
           "problemDescription": "<problem_description>",
-          "context": {
+          "context": {{
             "codeSchema": "<code_or_table_relevant_to_problem>",
             "additionalInstructions": "<additional_instructions>"
-          },
+          }},
           "task": "<task_to_do>",
           "examples": [
-            {
+            {{
               "input": "<input_example>",
               "output": "<output_example>",
               "explanation": "<explanation_example>"
-            }
+            }}
           ],
           "constraints": [
             "<constraint_1>",
@@ -112,14 +129,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
             "..."
           ],
           "testCases": [
-            {
+            {{
               "input": "<test_input_1>",
               "output": "<expected_output_1>"
-            },
-            {
+            }},
+            {{
               "input": "<test_input_2>",
               "output": "<expected_output_2>"
-            }
+            }}
           ],
           "hints": [
             "<hint_1>",
@@ -127,7 +144,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
           ],
           "solutionTemplate": "<solution_template>",
           "notes": "<additional_notes>"
-        }
+        }}
 
         Ensure that the question tests for the following:
         - Core technical skills
@@ -138,17 +155,65 @@ class QuestionViewSet(viewsets.ModelViewSet):
         - Integration and interaction understanding
 
         Please provide a new question following this format.
+
+        Example:
+        {{
+          "problemId": "1001",
+          "title": "Find the Most Popular Fruit",
+          "difficulty": "Easy",
+          "categories": ["SQL", "Aggregation"],
+          "problemDescription": "You are managing a database for a local fruit market. The market wants to know which fruit is the most popular among their customers. Each purchase is recorded in a table named `purchases` which logs the customer_id, fruit_name, and the quantity of fruit purchased. Write an SQL query to find the name of the most popular fruit, i.e., the fruit that has been purchased the most.",
+          "context": {{
+            "codeSchema": "CREATE TABLE purchases (\\n  customer_id INT,\\n  fruit_name VARCHAR(50),\\n  quantity INT\\n);",
+            "additionalInstructions": "The query should return the fruit name with the highest total quantity purchased. If there is a tie, return any one of the fruits."
+          }},
+          "task": "Write an SQL query to find the most popular fruit based on the total quantity purchased.",
+          "examples": [
+            {{
+              "input": "purchases table:\\n+-------------+------------+----------+\\n| customer_id | fruit_name | quantity |\\n+-------------+------------+----------+\\n| 1           | Apple      | 10       |\\n| 2           | Banana     | 5        |\\n| 3           | Apple      | 15       |\\n| 4           | Orange     | 8        |\\n| 5           | Banana     | 7        |\\n+-------------+------------+----------+",
+              "output": "Apple",
+              "explanation": "Apple has been purchased in total quantity of 25 (10 + 15), which is higher than Banana (12) and Orange (8)."
+            }}
+          ],
+          "constraints": [
+            "The table `purchases` will have at least one record.",
+            "Each `fruit_name` is a non-empty string.",
+            "Each `quantity` is a positive integer."
+          ],
+          "tags": [
+            "SQL",
+            "Aggregation",
+            "Group By"
+          ],
+          "testCases": [
+            {{
+              "input": "INSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (1, 'Apple', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (2, 'Banana', 5);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (3, 'Apple', 15);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (4, 'Orange', 8);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (5, 'Banana', 7);",
+              "output": "Apple"
+            }},
+            {{
+              "input": "INSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (1, 'Banana', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (2, 'Banana', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (3, 'Apple', 15);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (4, 'Orange', 8);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (5, 'Apple', 5);",
+              "output": "Banana"
+            }}
+          ],
+          "hints": [
+            "Consider using the SUM() function to aggregate the total quantities.",
+            "Use the GROUP BY clause to group records by fruit_name.",
+            "Order the results by total quantity in descending order and limit the output to one row."
+          ],
+          "solutionTemplate": "SELECT fruit_name\\nFROM purchases\\nGROUP BY fruit_name\\nORDER BY SUM(quantity) DESC\\nLIMIT 1;",
+          "notes": "This problem helps practice SQL aggregation functions and grouping."
+        }}
         """
         try:
             response = openai.Completion.create(
                 model="gpt-3.5-turbo-0125", prompt=prompt
             )
-            question_data = response.choices[0].text
+            question_data = response.choices[0].text.strip()
             logger.debug(f"Raw question data: {question_data}")  # Debugging
             question_json = json.loads(question_data)
             logger.debug(f"Parsed question JSON: {question_json}")  # Debugging
 
-            return Response(question_json["question"], status=status.HTTP_200_OK)
+            return Response(question_json, status=status.HTTP_200_OK)
         except json.JSONDecodeError as e:
             logger.error("JSONDecodeError:", str(e))
             return Response(
