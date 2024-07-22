@@ -1,12 +1,15 @@
-import React from 'react';
-import { FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
+import React from "react";
+import { FormControl, InputLabel, MenuItem, Select, Box } from "@mui/material";
 
 interface DropdownSelectorProps {
   onDifficultyChange: (difficulty: string) => void;
   onCategoryChange: (category: string) => void;
 }
 
-export const DropdownSelector: React.FC<DropdownSelectorProps> = ({ onDifficultyChange, onCategoryChange }) => {
+export const DropdownSelector: React.FC<DropdownSelectorProps> = ({
+  onDifficultyChange,
+  onCategoryChange,
+}) => {
   return (
     <Box display="flex" justifyContent="start">
       <FormControl variant="outlined" sx={{ minWidth: 120 }}>

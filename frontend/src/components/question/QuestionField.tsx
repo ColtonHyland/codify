@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -9,7 +9,7 @@ import {
   ListItemText,
   ListSubheader,
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 
 interface QuestionFieldProps {
   jsonText: string;
@@ -18,23 +18,45 @@ interface QuestionFieldProps {
 const formatJson = (data: any) => {
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom>{data.title}</Typography>
-      <Typography variant="body1"><strong>Problem ID:</strong> {data.problemId}</Typography>
-      <Typography variant="body1"><strong>Difficulty:</strong> {data.difficulty}</Typography>
-      <Typography variant="body1"><strong>Categories:</strong> {data.categories.join(', ')}</Typography>
-      <Typography variant="body1" paragraph><strong>Description:</strong> {data.problemDescription}</Typography>
+      <Typography variant="h4" gutterBottom>
+        {data.title}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Problem ID:</strong> {data.problemId}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Difficulty:</strong> {data.difficulty}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Categories:</strong> {data.categories.join(", ")}
+      </Typography>
+      <Typography variant="body1" paragraph>
+        <strong>Description:</strong> {data.problemDescription}
+      </Typography>
 
-      <Typography variant="h6" gutterBottom>Context</Typography>
-      <Typography variant="body1"><strong>Code Schema:</strong></Typography>
+      <Typography variant="h6" gutterBottom>
+        Context
+      </Typography>
+      <Typography variant="body1">
+        <strong>Code Schema:</strong>
+      </Typography>
       <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
         <pre>{data.context.codeSchema}</pre>
       </Paper>
-      <Typography variant="body1">{data.context.additionalInstructions}</Typography>
+      <Typography variant="body1">
+        {data.context.additionalInstructions}
+      </Typography>
 
-      <Typography variant="h6" gutterBottom>Task</Typography>
-      <Typography variant="body1" paragraph>{data.task}</Typography>
+      <Typography variant="h6" gutterBottom>
+        Task
+      </Typography>
+      <Typography variant="body1" paragraph>
+        {data.task}
+      </Typography>
 
-      <Typography variant="h6" gutterBottom>Examples</Typography>
+      <Typography variant="h6" gutterBottom>
+        Examples
+      </Typography>
       <List>
         {data.examples.map((example: any, index: number) => (
           <ListItem key={index}>
@@ -42,8 +64,13 @@ const formatJson = (data: any) => {
               primary={`Input: ${example.input}`}
               secondary={
                 <>
-                  <Typography component="span"><strong>Output:</strong> {example.output}</Typography><br />
-                  <Typography component="span"><strong>Explanation:</strong> {example.explanation}</Typography>
+                  <Typography component="span">
+                    <strong>Output:</strong> {example.output}
+                  </Typography>
+                  <br />
+                  <Typography component="span">
+                    <strong>Explanation:</strong> {example.explanation}
+                  </Typography>
                 </>
               }
             />
@@ -51,7 +78,9 @@ const formatJson = (data: any) => {
         ))}
       </List>
 
-      <Typography variant="h6" gutterBottom>Constraints</Typography>
+      <Typography variant="h6" gutterBottom>
+        Constraints
+      </Typography>
       <List>
         {data.constraints.map((constraint: string, index: number) => (
           <ListItem key={index}>
@@ -60,10 +89,16 @@ const formatJson = (data: any) => {
         ))}
       </List>
 
-      <Typography variant="h6" gutterBottom>Tags</Typography>
-      <Typography variant="body1" paragraph>{data.tags.join(', ')}</Typography>
+      <Typography variant="h6" gutterBottom>
+        Tags
+      </Typography>
+      <Typography variant="body1" paragraph>
+        {data.tags.join(", ")}
+      </Typography>
 
-      <Typography variant="h6" gutterBottom>Test Cases</Typography>
+      <Typography variant="h6" gutterBottom>
+        Test Cases
+      </Typography>
       <List>
         {data.testCases.map((testCase: any, index: number) => (
           <ListItem key={index}>
@@ -75,7 +110,9 @@ const formatJson = (data: any) => {
         ))}
       </List>
 
-      <Typography variant="h6" gutterBottom>Hints</Typography>
+      <Typography variant="h6" gutterBottom>
+        Hints
+      </Typography>
       <List>
         {data.hints.map((hint: string, index: number) => (
           <ListItem key={index}>
@@ -83,7 +120,9 @@ const formatJson = (data: any) => {
           </ListItem>
         ))}
       </List>
-      <Typography variant="h6" gutterBottom>Notes</Typography>
+      <Typography variant="h6" gutterBottom>
+        Notes
+      </Typography>
       <Typography variant="body1">{data.notes}</Typography>
     </Box>
   );
