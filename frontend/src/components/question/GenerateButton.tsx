@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@mui/material';
 
 interface ButtonProps {
   onApiResponse: (data: any) => void;
@@ -27,6 +28,8 @@ export const GenerateButton: React.FC<ButtonProps> = ({ onApiResponse, difficult
   };
 
   return (
-    <button onClick={handleClick}>Generate Question</button>
+    <Button variant="contained" color="primary" onClick={handleClick}>
+      Generate Question
+    </Button>
   );
 };

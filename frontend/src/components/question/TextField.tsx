@@ -105,7 +105,6 @@ export const TextField: React.FC<TextFieldProps> = ({ jsonText }) => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h2" gutterBottom>Generated Question</Typography>
       <Paper variant="outlined" sx={{ padding: 2 }}>
         {jsonData.error ? (
           <Typography color="error">{jsonData.error}</Typography>
