@@ -1,10 +1,10 @@
 import React from 'react';
 
-interface JSONTextFieldProps {
+interface TextFieldProps {
   jsonText: string;
 }
 
-export const JSONTextField: React.FC<JSONTextFieldProps> = ({ jsonText }) => {
+export const TextField: React.FC<TextFieldProps> = ({ jsonText }) => {
   return (
     <div>
       <h2>Generated Question</h2>
