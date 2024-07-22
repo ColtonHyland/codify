@@ -9,7 +9,7 @@ interface ButtonProps {
 export const GenerateButton: React.FC<ButtonProps> = ({ onApiResponse, difficulty, category }) => {
   const handleClick = async () => {
     try {
-      const response = await fetch('http://localhost:8000/questions/generate/', {
+      const response = await fetch('http://localhost:8000/api/questions/generate/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

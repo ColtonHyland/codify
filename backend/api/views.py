@@ -16,15 +16,16 @@ from .serializers import (
 )
 
 # Load the OpenAI API key from the environment
-import openai
+from openai import OpenAI
 import os
 import json
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
+client = OpenAI(
+    api_key = os.getenv("OPENAI_API_KEY"),
+)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -78,7 +79,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 
-    @action(detail=False, methods=["post"])
+    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
     def generate(self, request):
         categories = request.data.get("categories", [])
         difficulty = request.data.get("difficulty")
@@ -205,8 +206,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
         }}
         """
         try:
-            response = openai.Completion.create(
-                model="gpt-3.5-turbo-0125", prompt=prompt
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo-0125",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt}
+                ]
             )
             question_data = response.choices[0].text.strip()
             logger.debug(f"Raw question data: {question_data}")  # Debugging
