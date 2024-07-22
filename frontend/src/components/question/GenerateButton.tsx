@@ -2,9 +2,11 @@ import React from 'react';
 
 interface ButtonProps {
   onApiResponse: (data: any) => void;
+  difficulty: string;
+  category: string;
 }
 
-export const APIButton: React.FC<ButtonProps> = ({ onApiResponse }) => {
+export const APIButton: React.FC<ButtonProps> = ({ onApiResponse, difficulty, category }) => {
   const handleClick = async () => {
     try {
       const response = await fetch('http://localhost:8000/questions/generate/', {
@@ -13,8 +15,8 @@ export const APIButton: React.FC<ButtonProps> = ({ onApiResponse }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          categories: ['SQL', 'Aggregation'],
-          difficulty: 'Easy'
+          categories: [category],
+          difficulty: difficulty
         })
       });
       const data = await response.json();
