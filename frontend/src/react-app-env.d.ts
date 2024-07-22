@@ -7,5 +7,5 @@ declare module 'react-json-tree' {
     invertTheme?: boolean;
   }
 
-  export default class JSONTree extends React.Component<JSONTreeProps, any> {}
+  export class JSONTree extends React.Component<JSONTreeProps, any> {}
 }
