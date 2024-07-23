@@ -80,7 +80,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 
-    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def generate(self, request):
         categories = request.data.get("categories", [])
         difficulty = request.data.get("difficulty")
@@ -219,18 +219,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
             question = Question.objects.create(
                 problem_id=problem_id,
                 title=question_json['title'],
-                difficulty=question_json['difficulty'],
-                categories=question_json['categories'],
-                problem_description=question_json['problemDescription'],
-                context=question_json['context'],
+                description=question_json['problemDescription'],
                 task=question_json['task'],
-                examples=question_json['examples'],
-                constraints=question_json['constraints'],
-                tags=question_json['tags'],
-                test_cases=question_json['testCases'],
-                hints=question_json['hints'],
-                solution_template=question_json['solutionTemplate'],
-                notes=question_json['notes']
+                design=question_json['context']['codeSchema'],
+                explanation=question_json['context']['additionalInstructions'],
+                input_constraints=json.dumps(question_json['constraints']),
+                example_input=question_json['examples'][0]['input'],
+                example_output=question_json['examples'][0]['output'],
+                answer=question_json['solutionTemplate'],
+                design_solution=question_json['context']['codeSchema'],
+                explanation_answer=question_json['examples'][0]['explanation'],
+                tests=json.dumps(question_json['testCases']),
+                hints=json.dumps(question_json['hints']),
+                generated_by=request.user
             )
             serialized_question = QuestionSerializer(question)
 

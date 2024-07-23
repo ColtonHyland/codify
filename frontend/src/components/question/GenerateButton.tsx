@@ -14,12 +14,14 @@ export const GenerateButton: React.FC<ButtonProps> = ({
 }) => {
   const handleClick = async () => {
     try {
+      const token = localStorage.getItem('token'); 
       const response = await fetch(
         "http://localhost:8000/api/questions/generate/",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Token ${token}`
           },
           body: JSON.stringify({
             categories: [category],
@@ -28,6 +30,7 @@ export const GenerateButton: React.FC<ButtonProps> = ({
         }
       );
       const data = await response.json();
+      console.log(data); 
       onApiResponse(data);
     } catch (error) {
       console.error("Error fetching data:", error);

@@ -16,6 +16,7 @@ class Question(models.Model):
     design_solution = models.TextField() 
     explanation_answer = models.TextField()  
     tests = models.JSONField(default=list)
+    hints = models.JSONField(default=list)  # Add this line
     created_at = models.DateTimeField(auto_now_add=True)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
