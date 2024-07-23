@@ -22,6 +22,7 @@ import json
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+import uuid
 
 client = OpenAI(
     api_key = os.getenv("OPENAI_API_KEY"),
@@ -214,8 +215,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
             question_data = response.choices[0].message.content.strip()
             question_json = json.loads(question_data)
             
-             # Store the question in the database
+            problem_id = uuid.uuid4()
             question = Question.objects.create(
+                problem_id=problem_id,
                 title=question_json['title'],
                 difficulty=question_json['difficulty'],
                 categories=question_json['categories'],
@@ -230,9 +232,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 solution_template=question_json['solutionTemplate'],
                 notes=question_json['notes']
             )
-            question_json['problemId'] = str(question.problem_id)
+            serialized_question = QuestionSerializer(question)
 
-            return Response(question_json, status=status.HTTP_200_OK)
+            return Response(serialized_question.data, status=status.HTTP_200_OK)
         except json.JSONDecodeError as e:
             return Response(
                 {"error": "Failed to decode JSON from the OpenAI response."},
