@@ -102,7 +102,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
         You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a question in the following JSON format, ensuring the response includes the specified categories and difficulty exactly as provided:
 
         {{
-          "problemId": "<unique_problem_id>",
           "title": "<problem_title>",
           "difficulty": "{difficulty}",
           "categories": [{categories_str}],
@@ -159,7 +158,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         Example:
         {{
-          "problemId": "1001",
           "title": "Find the Most Popular Fruit",
           "difficulty": "Easy",
           "categories": ["SQL", "Aggregation"],
@@ -214,13 +212,28 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 ]
             )
             question_data = response.choices[0].message.content.strip()
-            logger.debug(f"Raw question data: {question_data}")  # Debugging
             question_json = json.loads(question_data)
-            logger.debug(f"Parsed question JSON: {question_json}")  # Debugging
+            
+             # Store the question in the database
+            question = Question.objects.create(
+                title=question_json['title'],
+                difficulty=question_json['difficulty'],
+                categories=question_json['categories'],
+                problem_description=question_json['problemDescription'],
+                context=question_json['context'],
+                task=question_json['task'],
+                examples=question_json['examples'],
+                constraints=question_json['constraints'],
+                tags=question_json['tags'],
+                test_cases=question_json['testCases'],
+                hints=question_json['hints'],
+                solution_template=question_json['solutionTemplate'],
+                notes=question_json['notes']
+            )
+            question_json['problemId'] = str(question.problem_id)
 
             return Response(question_json, status=status.HTTP_200_OK)
         except json.JSONDecodeError as e:
-            logger.error("JSONDecodeError:", str(e))
             return Response(
                 {"error": "Failed to decode JSON from the OpenAI response."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
