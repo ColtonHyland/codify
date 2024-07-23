@@ -156,7 +156,7 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
         {jsonData.error ? (
           <Typography color="error">{jsonData.error}</Typography>
         ) : (
-          formatJson(jsonData, handleToggleTips)
+          formatJson(jsonData, handleToggleTips, showTips)
         )}
       </Paper>
     </Box>
