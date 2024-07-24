@@ -1,19 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
 class Question(models.Model):
+    problem_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)
+    difficulty = models.CharField(max_length=50)
+    categories = models.JSONField(default=list)
     description = models.TextField()
-    task = models.TextField()  # Task component
-    design = models.TextField()  # Design component
-    explanation = models.TextField()  # Explanation component
+    task = models.TextField()
+    design = models.TextField()
+    explanation = models.TextField()
     input_constraints = models.TextField()
     example_input = models.TextField()
     example_output = models.TextField()
-    answer = models.TextField()  # Detailed solution for the coding task
-    design_solution = models.TextField()  # Detailed design solution
-    explanation_answer = models.TextField()  # Detailed explanation answer
-    tests = models.JSONField(default=list)  # List of tests
+    answer = models.TextField()
+    design_solution = models.TextField()
+    explanation_answer = models.TextField()
+    tests = models.JSONField(default=list)
+    hints = models.JSONField(default=list)
+    tags = models.JSONField(default=list)
+    notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
