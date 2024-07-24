@@ -30,7 +30,7 @@ interface QuestionData {
   input_constraints: string;
   tests: string;
   hints: string;
-  tags: string[];
+  tags: string;
   notes: string;
 }
 

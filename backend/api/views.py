@@ -79,6 +79,22 @@ class UserViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def list_questions(self, request):
+        questions = Question.objects.all()
+        serializer = QuestionSerializer(questions, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
+    def get_question(self, request, pk=None):
+        try:
+            question = Question.objects.get(pk=pk)
+            serializer = QuestionSerializer(question)
+            return Response(serializer.data)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def generate(self, request):
