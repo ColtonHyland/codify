@@ -213,12 +213,15 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 ]
             )
             question_data = response.choices[0].message.content.strip()
+            print("OpenAI Response JSON:", question_data)
             question_json = json.loads(question_data)
             
             problem_id = uuid.uuid4()
             question = Question.objects.create(
-                problem_id=problem_id,
+            problem_id=problem_id,
                 title=question_json['title'],
+                difficulty=question_json['difficulty'],
+                categories=question_json['categories'],
                 description=question_json['problemDescription'],
                 task=question_json['task'],
                 design=question_json['context']['codeSchema'],
@@ -231,6 +234,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 explanation_answer=question_json['examples'][0]['explanation'],
                 tests=json.dumps(question_json['testCases']),
                 hints=json.dumps(question_json['hints']),
+                tags=json.dumps(question_json['tags']),
+                notes=question_json['notes'],
                 generated_by=request.user
             )
             serialized_question = QuestionSerializer(question)

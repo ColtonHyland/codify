@@ -6,7 +6,7 @@ import {
   Button,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
 } from "@mui/material";
 
 interface QuestionFieldProps {
@@ -14,6 +14,7 @@ interface QuestionFieldProps {
 }
 
 interface QuestionData {
+  id: string;
   problem_id: string;
   title: string;
   difficulty: string;
@@ -39,14 +40,18 @@ interface ErrorData {
 
 type ParsedData = QuestionData | ErrorData;
 
-const formatJson = (data: QuestionData, handleToggleTips: () => void, showTips: boolean) => {
+const formatJson = (
+  data: QuestionData,
+  handleToggleTips: () => void,
+  showTips: boolean
+) => {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
         {data.title}
       </Typography>
       <Typography variant="body1">
-        <strong>Problem ID:</strong> {data.problem_id || "N/A"}
+        <strong>Problem ID:</strong> {data.id || "N/A"}
       </Typography>
       <Typography variant="body1">
         <strong>Difficulty:</strong> {data.difficulty || "N/A"}
@@ -67,9 +72,7 @@ const formatJson = (data: QuestionData, handleToggleTips: () => void, showTips: 
       <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
         <pre>{data.design || "N/A"}</pre>
       </Paper>
-      <Typography variant="body1">
-        {data.design_solution || "N/A"}
-      </Typography>
+      <Typography variant="body1">{data.explanation || "N/A"}</Typography>
 
       <Typography variant="h6" gutterBottom>
         Task
@@ -92,7 +95,7 @@ const formatJson = (data: QuestionData, handleToggleTips: () => void, showTips: 
                 </Typography>
                 <br />
                 <Typography component="span">
-                  <strong>Explanation:</strong> {data.explanation}
+                  <strong>Explanation:</strong> {data.explanation_answer}
                 </Typography>
               </>
             }
@@ -104,18 +107,20 @@ const formatJson = (data: QuestionData, handleToggleTips: () => void, showTips: 
         Constraints
       </Typography>
       <List>
-        {JSON.parse(data.input_constraints).map((constraint: string, index: number) => (
-          <ListItem key={index}>
-            <ListItemText primary={constraint} />
-          </ListItem>
-        )) || "N/A"}
+        {JSON.parse(data.input_constraints).map(
+          (constraint: string, index: number) => (
+            <ListItem key={index}>
+              <ListItemText primary={constraint} />
+            </ListItem>
+          )
+        ) || "N/A"}
       </List>
 
       <Typography variant="h6" gutterBottom>
         Tags
       </Typography>
       <Typography variant="body1" paragraph>
-        {data.tags?.join(", ") || "N/A"}
+        {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
       </Typography>
 
       <Typography variant="h6" gutterBottom>
@@ -172,7 +177,7 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
   }
 
   useEffect(() => {
-    console.log(jsonData); // Log the parsed JSON data
+    console.log(jsonData);
   }, [jsonData]);
 
   return (
