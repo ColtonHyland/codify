@@ -32,6 +32,11 @@ interface QuestionContextType {
   questions: Question[];
   fetchQuestions: () => void;
   fetchQuestionById: (id: number) => Promise<Question | null>;
+  generateQuestion: (
+    difficulty: string,
+    categories: string[],
+    onApiResponse: (data: any) => void
+  ) => void;
 }
 
 const QuestionContext = createContext<QuestionContextType | undefined>(
@@ -80,13 +85,33 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
     }
   };
 
+  const generateQuestion = async (
+    difficulty: string,
+    categories: string[],
+    onApiResponse: (data: any) => void
+  ) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:8000/api/questions/generate/",
+        { categories, difficulty },
+        { headers: { Authorization: `Token ${token}` } }
+      );
+      const data = response.data;
+      onApiResponse(data);
+      fetchQuestions();
+    } catch (error) {
+      console.error("Error generating question:", error);
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, []);
 
   return (
     <QuestionContext.Provider
-      value={{ questions, fetchQuestions, fetchQuestionById }}
+      value={{ questions, fetchQuestions, fetchQuestionById, generateQuestion }}
     >
       {children}
     </QuestionContext.Provider>
