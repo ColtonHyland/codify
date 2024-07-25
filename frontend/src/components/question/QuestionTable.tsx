@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-interface Question {
+export interface Question {
   id: number;
   title: string;
   categories: string[];
   difficulty: string;
 }
 
-interface QuestionTableProps {
+export interface QuestionTableProps {
   questions: Question[];
 }
 
