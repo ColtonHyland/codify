@@ -8,7 +8,7 @@ const QuestionsPage: React.FC = () => {
 
   useEffect(() => {
     fetchQuestions();
-  }, [fetchQuestions]);
+  }, []);
 
   return (
     <Container>

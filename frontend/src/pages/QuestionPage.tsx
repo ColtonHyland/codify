@@ -26,7 +26,7 @@ const QuestionPage: React.FC = () => {
     };
 
     fetchQuestion();
-  }, [id, fetchQuestionById]);
+  }, [id]);
 
   if (!question) {
     return (

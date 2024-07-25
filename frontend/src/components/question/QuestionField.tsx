@@ -1,5 +1,3 @@
-// src/components/question/QuestionField.tsx
-
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
 import { ErrorData, Question } from '../../types';

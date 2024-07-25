@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import axios from "axios";
-import { Question } from "../types"; 
+import { Question } from "../types";
 
 interface QuestionContextType {
   questions: Question[];
@@ -13,7 +19,9 @@ interface QuestionContextType {
   ) => void;
 }
 
-const QuestionContext = createContext<QuestionContextType | undefined>(undefined);
+const QuestionContext = createContext<QuestionContextType | undefined>(
+  undefined
+);
 
 export const useQuestionContext = (): QuestionContextType => {
   const context = useContext(QuestionContext);
@@ -33,20 +41,26 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
   children,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   const fetchQuestions = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:8000/api/questions/list_questions/",
-        { headers: { Authorization: `Token ${token}` } }
-      );
-      setQuestions(response.data);
+      if (!isFetching) {
+        setIsFetching(true);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          "http://localhost:8000/api/questions/list_questions/",
+          { headers: { Authorization: `Token ${token}` } }
+        );
+        setQuestions(response.data);
+      }
     } catch (error) {
       console.error("Error fetching questions:", error);
+    } finally {
+      setIsFetching(false);
     }
   };
-  
+
   const fetchQuestionById = async (id: number): Promise<Question | null> => {
     try {
       const token = localStorage.getItem("token");
@@ -75,7 +89,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
       );
       const data = response.data;
       onApiResponse(data);
-      fetchQuestions(); 
+      fetchQuestions();
     } catch (error) {
       console.error("Error generating question:", error);
     }
