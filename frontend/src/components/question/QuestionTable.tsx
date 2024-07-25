@@ -17,7 +17,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
   const navigate = useNavigate();
 
   const handleRowClick = (id: number) => {
-    navigate(`/question/${id}`);
+    navigate(`/questions/${id}`);
   };
 
   return (
