@@ -1,32 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
-
-interface Question {
-  id: number;
-  problem_id: string;
-  title: string;
-  difficulty: string;
-  categories: string[];
-  description: string;
-  design: string;
-  design_solution: string;
-  task: string;
-  example_input: string;
-  example_output: string;
-  explanation: string;
-  explanation_answer: string;
-  input_constraints: string;
-  tests: string;
-  hints: string;
-  tags: string;
-  notes: string;
-}
+import { Question } from "../types"; 
 
 interface QuestionContextType {
   questions: Question[];
@@ -39,9 +13,7 @@ interface QuestionContextType {
   ) => void;
 }
 
-const QuestionContext = createContext<QuestionContextType | undefined>(
-  undefined
-);
+const QuestionContext = createContext<QuestionContextType | undefined>(undefined);
 
 export const useQuestionContext = (): QuestionContextType => {
   const context = useContext(QuestionContext);
@@ -99,7 +71,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
       );
       const data = response.data;
       onApiResponse(data);
-      fetchQuestions(); // Refresh the questions list
+      fetchQuestions(); 
     } catch (error) {
       console.error("Error generating question:", error);
     }

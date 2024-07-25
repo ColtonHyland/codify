@@ -1,13 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-
-export interface Question {
-  id: number;
-  title: string;
-  categories: string[];
-  difficulty: string;
-}
+import { Question } from '../../types';
 
 export interface QuestionTableProps {
   questions: Question[];
@@ -16,7 +10,7 @@ export interface QuestionTableProps {
 const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
   const navigate = useNavigate();
 
-  const handleRowClick = (id: number) => {
+  const handleRowClick = (id: string) => {
     navigate(`/questions/${id}`);
   };
 

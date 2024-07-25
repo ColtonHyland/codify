@@ -1,8 +1,11 @@
+// src/pages/QuestionPage.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Paper } from '@mui/material';
 import { QuestionField } from '../components/question/QuestionField';
-import { useQuestionContext } from '../contexts/QuestionContext'; // Adjust the path as needed
+import { useQuestionContext } from '../contexts/QuestionContext';
+import { Question } from '../types';
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,8 +14,15 @@ const QuestionPage: React.FC = () => {
 
   useEffect(() => {
     const fetchQuestion = async () => {
-      const fetchedQuestion = await fetchQuestionById(parseInt(id));
-      setQuestion(fetchedQuestion);
+      if (id) {
+        const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
+        if (fetchedQuestion) {
+          setQuestion({
+            ...fetchedQuestion,
+            id: fetchedQuestion.id.toString()
+          });
+        }
+      }
     };
 
     fetchQuestion();

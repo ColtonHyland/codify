@@ -1,50 +1,16 @@
+// src/components/question/QuestionField.tsx
+
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
+import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
+import { ErrorData, Question } from '../../types';
 
 interface QuestionFieldProps {
   jsonText: string;
 }
 
-interface QuestionData {
-  id: string;
-  problem_id: string;
-  title: string;
-  difficulty: string;
-  categories: string[];
-  description: string;
-  design: string;
-  design_solution: string;
-  task: string;
-  example_input: string;
-  example_output: string;
-  explanation: string;
-  explanation_answer: string;
-  input_constraints: string;
-  tests: string;
-  hints: string;
-  tags: string;
-  notes: string;
-}
+type ParsedData = Question | ErrorData;
 
-interface ErrorData {
-  error: string;
-}
-
-type ParsedData = QuestionData | ErrorData;
-
-const formatJson = (
-  data: QuestionData,
-  handleToggleTips: () => void,
-  showTips: boolean
-) => {
+const formatJson = (data: Question, handleToggleTips: () => void, showTips: boolean) => {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
@@ -171,7 +137,7 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
 
   let jsonData: ParsedData;
   try {
-    jsonData = JSON.parse(jsonText) as QuestionData;
+    jsonData = JSON.parse(jsonText) as Question;
   } catch (e) {
     jsonData = { error: "Failed to decode JSON from the OpenAI response." };
   }
@@ -186,7 +152,7 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
         {"error" in jsonData ? (
           <Typography color="error">{jsonData.error}</Typography>
         ) : (
-          formatJson(jsonData as QuestionData, handleToggleTips, showTips)
+          formatJson(jsonData as Question, handleToggleTips, showTips)
         )}
       </Paper>
     </Box>
