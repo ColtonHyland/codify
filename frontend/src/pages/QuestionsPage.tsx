@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import QuestionTable, { Question } from '../components/question/QuestionTable';
+import React, { useEffect } from 'react';
+import { useQuestionContext } from '../contexts/QuestionContext';
+import QuestionTable from '../components/question/QuestionTable';
 import { Container, Typography } from '@mui/material';
 
 const QuestionsPage: React.FC = () => {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const { questions, fetchQuestions } = useQuestionContext();
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await axios.get('/api/questions/list_questions/');
-        setQuestions(response.data);
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-      }
-    };
-
     fetchQuestions();
-  }, []);
+  }, [fetchQuestions]);
 
   return (
     <Container>

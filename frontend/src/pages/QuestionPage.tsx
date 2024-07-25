@@ -1,46 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { Container, Typography, Paper } from '@mui/material';
 import { QuestionField } from '../components/question/QuestionField';
-
-interface Question {
-  id: number;
-  problem_id: string;
-  title: string;
-  difficulty: string;
-  categories: string[];
-  description: string;
-  design: string;
-  design_solution: string;
-  task: string;
-  example_input: string;
-  example_output: string;
-  explanation: string;
-  explanation_answer: string;
-  input_constraints: string;
-  tests: string;
-  hints: string;
-  tags: string;
-  notes: string;
-}
+import { useQuestionContext } from '../contexts/QuestionContext'; // Adjust the path as needed
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { fetchQuestionById } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
     const fetchQuestion = async () => {
-      try {
-        const response = await axios.get(`/api/questions/get_question/${id}/`);
-        setQuestion(response.data);
-      } catch (error) {
-        console.error('Error fetching question:', error);
-      }
+      const fetchedQuestion = await fetchQuestionById(parseInt(id));
+      setQuestion(fetchedQuestion);
     };
 
     fetchQuestion();
-  }, [id]);
+  }, [id, fetchQuestionById]);
 
   if (!question) {
     return (

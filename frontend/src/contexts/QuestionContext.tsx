@@ -99,7 +99,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
       );
       const data = response.data;
       onApiResponse(data);
-      fetchQuestions();
+      fetchQuestions(); // Refresh the questions list
     } catch (error) {
       console.error("Error generating question:", error);
     }

@@ -1,0 +1,20 @@
+export interface Question {
+  id: string;
+  problem_id: string;
+  title: string;
+  difficulty: string;
+  categories: string[];
+  description: string;
+  design: string;
+  design_solution: string;
+  task: string;
+  example_input: string;
+  example_output: string;
+  explanation: string;
+  explanation_answer: string;
+  input_constraints: string;
+  tests: string;
+  hints: string;
+  tags: string;
+  notes: string;
+}
