@@ -36,19 +36,23 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
 
   const fetchQuestions = async () => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.get(
-        "http://localhost:8000/api/questions/list_questions/"
+        "http://localhost:8000/api/questions/list_questions/",
+        { headers: { Authorization: `Token ${token}` } }
       );
       setQuestions(response.data);
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
   };
-
+  
   const fetchQuestionById = async (id: number): Promise<Question | null> => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:8000/api/questions/get_question/${id}/`
+        `http://localhost:8000/api/questions/get_question/${id}/`,
+        { headers: { Authorization: `Token ${token}` } }
       );
       return response.data;
     } catch (error) {
