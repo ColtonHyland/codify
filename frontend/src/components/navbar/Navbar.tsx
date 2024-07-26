@@ -10,10 +10,6 @@ const Navbar: React.FC = () => {
     await logout();
   };
 
-  useEffect(() => {
-    console.log(`user: ${JSON.stringify(user)}`);
-  }, [user]);
-
   return (
     <AppBar position="static">
       <Toolbar>

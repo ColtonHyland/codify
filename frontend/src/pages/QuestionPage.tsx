@@ -14,7 +14,6 @@ const QuestionPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(`Fetching question with ID: ${id}`);
     const fetchQuestion = async () => {
       if (id) {
         try {

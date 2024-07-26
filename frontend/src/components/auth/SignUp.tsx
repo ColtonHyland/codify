@@ -26,7 +26,6 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (values: SignUpValues, { setSubmitting, setStatus }: FormikHelpers<SignUpValues>) => {
     try {
-      console.log("Form values on submit:", values); // Debugging line
       await signup(values.username, values.email, values.password);
       setStatus({ submit: 'Registration successful. Please check your email to verify your account.' });
     } catch (error: any) {
