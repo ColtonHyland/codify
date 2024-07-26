@@ -23,7 +23,6 @@ const SignIn: React.FC = () => {
 
   const handleSubmit = async (values: LoginValues, { setSubmitting, setStatus }: FormikHelpers<LoginValues>) => {
     try {
-      console.log("Form values on login:", values);
       await login(values.email, values.password);
     } catch (error: any) {
       console.error('Error during login:', error);

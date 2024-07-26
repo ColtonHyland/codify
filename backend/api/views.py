@@ -50,14 +50,11 @@ def send_test_email(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user(request):
-    logger.debug("get_user endpoint reached")
     if request.user.is_authenticated:
-        logger.debug(f"Authenticated user: {request.user.username}")
         return JsonResponse(
             {"username": request.user.username, "email": request.user.email}
         )
     else:
-        logger.debug("User not authenticated")
         return JsonResponse({"error": "User not authenticated"}, status=401)
 
 
@@ -66,7 +63,6 @@ def get_user(request):
 @ensure_csrf_cookie
 def csrf_token(request):
     csrf_token = get_token(request)
-    logger.debug(f"CSRF Token sent to client: {csrf_token}")
     return JsonResponse({"csrfToken": csrf_token})
 
 
@@ -88,11 +84,16 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
     def get_question(self, request, pk=None):
+        if not request.user.is_authenticated:
+            logger.error("User not authenticated")
+            return Response({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
+
         try:
             question = Question.objects.get(pk=pk)
             serializer = QuestionSerializer(question)
             return Response(serializer.data)
         except Question.DoesNotExist:
+            logger.error(f"Question with ID {pk} not found")
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
 

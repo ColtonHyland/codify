@@ -10,10 +10,6 @@ const Navbar: React.FC = () => {
     await logout();
   };
 
-  useEffect(() => {
-    console.log(`user: ${JSON.stringify(user)}`);
-  }, [user]);
-
   return (
     <AppBar position="static">
       <Toolbar>
@@ -29,6 +25,9 @@ const Navbar: React.FC = () => {
               {user.username}
             </Typography>
           )}
+          <Button color="inherit" component={Link} to="/questions">
+            Practice
+          </Button>
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
