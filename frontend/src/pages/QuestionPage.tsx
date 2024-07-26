@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Typography, Paper, Grid, Button } from "@mui/material";
 import { QuestionField } from "../components/question/QuestionField";
 import Editor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
-import { Question } from "../types";
+import { Question, languageMap } from "../types";
 import { executeCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
@@ -12,8 +12,9 @@ const QuestionPage: React.FC = () => {
   const { fetchQuestionById } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [code, setCode] = useState('');
-  const [result, setResult] = useState('');
+  const [code, setCode] = useState("");
+  const [result, setResult] = useState("");
+  const [language, setLanguage] = useState("plaintext");
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -25,6 +26,7 @@ const QuestionPage: React.FC = () => {
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
             });
+            setLanguage(languageMap[fetchedQuestion.categories[0]] || "plaintext");
           } else {
             setError("Question not found");
           }
@@ -36,6 +38,21 @@ const QuestionPage: React.FC = () => {
 
     fetchQuestion();
   }, [id]);
+
+  const handleSubmit = async () => {
+    if (question) {
+      try {
+        const data = await executeCode({
+          code,
+          language,
+          test_cases: JSON.parse(question.tests || "[]"),
+        });
+        setResult(JSON.stringify(data, null, 2));
+      } catch (error) {
+        setResult("Error executing code");
+      }
+    }
+  };
 
   if (error) {
     return (
@@ -57,12 +74,26 @@ const QuestionPage: React.FC = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        {question.title}
-      </Typography>
-      <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-        <QuestionField jsonText={JSON.stringify(question)} />
-      </Paper>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Typography variant="h4" gutterBottom>
+            {question.title}
+          </Typography>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            <QuestionField jsonText={JSON.stringify(question)} />
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Editor language={language} code={code} setCode={setCode} />
+          <Button variant="contained" color="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
+          <Paper variant="outlined" sx={{ padding: 2, marginTop: 2 }}>
+            <Typography variant="h6">Result</Typography>
+            <pre>{result}</pre>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
