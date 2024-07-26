@@ -88,11 +88,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
     def get_question(self, request, pk=None):
+        logger.debug(f"Token: {request.auth}")
+        if not request.user.is_authenticated:
+            logger.error("User not authenticated")
+            return Response({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
+
+        logger.debug(f"Fetching question with ID: {pk} for user: {request.user.username}")
         try:
             question = Question.objects.get(pk=pk)
+            logger.debug(f"Question found: {question}")
             serializer = QuestionSerializer(question)
             return Response(serializer.data)
         except Question.DoesNotExist:
+            logger.error(f"Question with ID {pk} not found")
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
 

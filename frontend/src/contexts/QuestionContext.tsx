@@ -64,6 +64,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
   const fetchQuestionById = async (id: number): Promise<Question | null> => {
     try {
       const token = localStorage.getItem("token");
+      console.log(`Token: ${token}`);
       const response = await axios.get(
         `http://localhost:8000/api/questions/get_question/${id}/`,
         { headers: { Authorization: `Token ${token}` } }
