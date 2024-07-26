@@ -25,6 +25,9 @@ const Navbar: React.FC = () => {
               {user.username}
             </Typography>
           )}
+          <Button color="inherit" component={Link} to="/questions">
+            Practice
+          </Button>
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
