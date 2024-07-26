@@ -14,15 +14,16 @@ from .serializers import (
     AttemptSerializer,
     QuestionHistorySerializer,
 )
-
-# Load the OpenAI API key from the environment
 from openai import OpenAI
 import os
 import json
+import docker
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 import uuid
+
+client = docker.from_env()
 
 client = OpenAI(
     api_key = os.getenv("OPENAI_API_KEY"),
@@ -64,6 +65,66 @@ def get_user(request):
 def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({"csrfToken": csrf_token})
+  
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def execute_code(request):
+    try:
+        data = json.loads(request.body)
+        code = data['code']
+        language = data['language']
+        test_cases = data['test_cases']
+
+        results = []
+
+        for test_case in test_cases:
+            input_data = test_case['input']
+            expected_output = test_case['output']
+            result = run_code_in_docker(language, code, input_data, expected_output)
+            results.append(result)
+
+        return JsonResponse({'results': results})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def run_code_in_docker(language, code, input_data, expected_output):
+    try:
+        if language == 'python':
+            image = 'python:3.8'
+            command = f'python -c "{code}"'
+        elif language == 'javascript':
+            image = 'node:14'
+            command = f'node -e "{code}"'
+        elif language == 'typescript':
+            image = 'node:14'
+            command = f'npx ts-node -e "{code}"'
+        elif language == 'sql':
+            image = 'mariadb:latest'
+            command = f'mysql -e "{code}"'
+        elif language == 'cpp':
+            image = 'gcc:latest'
+            command = f'bash -c "echo \'{code}\' > /tmp/code.cpp && g++ /tmp/code.cpp -o /tmp/a.out && /tmp/a.out"'
+        elif language == 'java':
+            image = 'openjdk:latest'
+            command = f'bash -c "echo \'{code}\' > /tmp/Main.java && javac /tmp/Main.java && java -cp /tmp Main"'
+        else:
+            return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
+
+        # Create a Docker container
+        container = client.containers.run(image, command, detach=True, stdin_open=True)
+        container.exec_run(cmd=f'echo "{input_data}" | {command}', stdin=True, tty=True)
+
+        # Get the container logs (output)
+        output = container.logs().decode('utf-8').strip()
+        container.remove()
+
+        passed = output == expected_output
+        return {'input': input_data, 'expected_output': expected_output, 'actual_output': output, 'passed': passed}
+
+    except Exception as e:
+        return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
