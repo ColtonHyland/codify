@@ -112,11 +112,14 @@ def run_code_in_docker(language, code, input_data, expected_output):
             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
 
         # Create a Docker container
-        container = dockerClient.containers.run(image, command, detach=True, stdin_open=True)
+        container = docker_client.containers.run(image, command, detach=True, stdin_open=True)
         container.exec_run(cmd=f'echo "{input_data}" | {command}', stdin=True, tty=True)
 
         # Get the container logs (output)
         output = container.logs().decode('utf-8').strip()
+        
+        # Stop the container before removing it
+        container.stop()
         container.remove()
 
         passed = output == expected_output
@@ -124,8 +127,6 @@ def run_code_in_docker(language, code, input_data, expected_output):
 
     except Exception as e:
         return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
-
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
