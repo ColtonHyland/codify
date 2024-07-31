@@ -9,6 +9,7 @@ import SignUpPage from "./pages/SignUpPage";
 import QuestionsPage from "./pages/QuestionsPage";
 import QuestionPage from "./pages/QuestionPage";
 import { GenerateQuestionPage } from "./pages/GenerateQuestionPage";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 const App: React.FC = () => {
   return (
@@ -19,10 +20,25 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/login" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/questions" element={<QuestionsPage />} />
-            <Route path="/questions/:id" element={<QuestionPage />} />
-            <Route path="/questions/new" element={<GenerateQuestionPage />} />
             <Route path="/" element={<Home />} />
+            <Route 
+              path="/questions" 
+              element={
+                <ProtectedRoute element={<QuestionsPage />} />
+              } 
+            />
+            <Route 
+              path="/questions/:id" 
+              element={
+                <ProtectedRoute element={<QuestionPage />} />
+              } 
+            />
+            <Route 
+              path="/questions/new" 
+              element={
+                <ProtectedRoute element={<GenerateQuestionPage />} />
+              } 
+            />
           </Routes>
         </QuestionProvider>
       </AuthProvider>
