@@ -23,9 +23,9 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 import uuid
 
-client = docker.from_env()
+dockerClient = docker.from_env()
 
-client = OpenAI(
+openAIClient = OpenAI(
     api_key = os.getenv("OPENAI_API_KEY"),
 )
 # Configure logging
@@ -112,7 +112,7 @@ def run_code_in_docker(language, code, input_data, expected_output):
             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
 
         # Create a Docker container
-        container = client.containers.run(image, command, detach=True, stdin_open=True)
+        container = dockerClient.containers.run(image, command, detach=True, stdin_open=True)
         container.exec_run(cmd=f'echo "{input_data}" | {command}', stdin=True, tty=True)
 
         # Get the container logs (output)
@@ -283,7 +283,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         }}
         """
         try:
-            response = client.chat.completions.create(
+            response = openAIClient.chat.completions.create(
                 model="gpt-3.5-turbo-0125",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant."},

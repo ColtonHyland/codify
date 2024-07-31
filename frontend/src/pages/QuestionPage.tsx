@@ -26,7 +26,9 @@ const QuestionPage: React.FC = () => {
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
             });
-            setLanguage(languageMap[fetchedQuestion.categories[0]] || "plaintext");
+            setLanguage(
+              languageMap[fetchedQuestion.categories[0]] || "plaintext"
+            );
           } else {
             setError("Question not found");
           }
@@ -76,15 +78,12 @@ const QuestionPage: React.FC = () => {
     <Container>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Typography variant="h4" gutterBottom>
-            {question.title}
-          </Typography>
-          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-            <QuestionField jsonText={JSON.stringify(question)} />
-          </Paper>
+          <QuestionField jsonText={JSON.stringify(question)} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <Editor language={language} code={code} setCode={setCode} />
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            <Editor language={language} code={code} setCode={setCode} />
+          </Paper>
           <Button variant="contained" color="primary" onClick={handleSubmit}>
             Submit
           </Button>
