@@ -9,6 +9,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   const { user } = useAuth();
 
+  if (user === undefined) {
+    // Return a loading indicator or nothing while determining the auth state
+    return <div>Loading...</div>;
+  }
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
