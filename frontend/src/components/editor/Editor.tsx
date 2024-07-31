@@ -1,8 +1,12 @@
-import React from 'react';
-import MonacoEditor from 'react-monaco-editor';
-import { EditorProps } from '../../types';
+import React from "react";
+import MonacoEditor from "react-monaco-editor";
+import { EditorProps } from "../../types";
 
-const Editor: React.FC<EditorProps> = ({ language, code, setCode }) => {
+const Editor: React.FC<EditorProps> = ({
+  language = "javascript",
+  code = "",
+  setCode = () => {},
+}) => {
   return (
     <MonacoEditor
       width="100%"
