@@ -3,6 +3,7 @@ import { ExecuteCode } from "../types";
 
 export const executeCode = async (params: ExecuteCode): Promise<any> => {
   try {
+    console.log("Executing code with params:", params);
     const token = localStorage.getItem("token");
     const response = await axios.post('http://localhost:8000/api/code/execute/', {
       code: params.code,
@@ -11,6 +12,7 @@ export const executeCode = async (params: ExecuteCode): Promise<any> => {
     }, {
       headers: { Authorization: `Token ${token}` }
     });
+    console.log("Execution response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error executing code", error);

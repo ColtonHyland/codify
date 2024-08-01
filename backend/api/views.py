@@ -18,14 +18,19 @@ from openai import OpenAI
 import os
 import json
 import docker
+from docker.errors import DockerException, ImageNotFound
+import tempfile
+import tarfile
+import io
+import re
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 import uuid
 
-dockerClient = docker.from_env()
+docker_client = docker.from_env()
 
-openAIClient = OpenAI(
+openai_client = OpenAI(
     api_key = os.getenv("OPENAI_API_KEY"),
 )
 # Configure logging
@@ -71,6 +76,8 @@ def csrf_token(request):
 def execute_code(request):
     try:
         data = json.loads(request.body)
+        logger.debug(f"Received execute_code request with data: {data}")
+
         code = data['code']
         language = data['language']
         test_cases = data['test_cases']
@@ -81,51 +88,111 @@ def execute_code(request):
             input_data = test_case['input']
             expected_output = test_case['output']
             result = run_code_in_docker(language, code, input_data, expected_output)
+            logger.debug(f"Test case result: {result}")
             results.append(result)
 
         return JsonResponse({'results': results})
 
     except Exception as e:
+        logger.error(f"Error executing code: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def create_tar_file(file_path, file_content):
+    file_data = io.BytesIO()
+    with tarfile.open(fileobj=file_data, mode='w') as tar:
+        tarinfo = tarfile.TarInfo(name=file_path)
+        tarinfo.size = len(file_content)
+        tar.addfile(tarinfo, io.BytesIO(file_content.encode('utf-8')))
+    file_data.seek(0)
+    return file_data
+
 
 def run_code_in_docker(language, code, input_data, expected_output):
     try:
+        logger.debug(f"Running code in Docker for language: {language}")
+        
         if language == 'python':
             image = 'python:3.8'
-            command = f'python -c "{code}"'
+            file_extension = '.py'
+            run_command = f'python /tmp/code{file_extension}'
+            
+            function_name_match = re.search(r'def (\w+)\(', code)
+            if function_name_match:
+                function_name = function_name_match.group(1)
+            else:
+                return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Function name not found', 'passed': False}
+
+            input_code = f"{input_data}\n"
+            code_to_run = f"""
+{input_code}
+{code}
+
+result = {function_name}(*inputs)
+print(result)
+"""
         elif language == 'javascript':
             image = 'node:14'
-            command = f'node -e "{code}"'
+            file_extension = '.js'
+            run_command = f'node /tmp/code{file_extension}'
+            input_code = f"const inputs = {input_data};\n"
+            code_to_run = f"""
+{input_code}
+{code}
+
+console.log(main(...inputs));
+"""
         elif language == 'typescript':
             image = 'node:14'
-            command = f'npx ts-node -e "{code}"'
+            file_extension = '.ts'
+            run_command = f'npx ts-node /tmp/code{file_extension}'
+            input_code = f"const inputs = {input_data};\n"
+            code_to_run = f"""
+{input_code}
+{code}
+
+console.log(main(...inputs));
+"""
         elif language == 'sql':
             image = 'mariadb:latest'
-            command = f'mysql -e "{code}"'
+            file_extension = '.sql'
+            run_command = f'mysql -e "source /tmp/code{file_extension}"'
+            code_to_run = code
         elif language == 'cpp':
             image = 'gcc:latest'
-            command = f'bash -c "echo \'{code}\' > /tmp/code.cpp && g++ /tmp/code.cpp -o /tmp/a.out && /tmp/a.out"'
+            file_extension = '.cpp'
+            run_command = f'bash -c "g++ /tmp/code{file_extension} -o /tmp/a.out && /tmp/a.out"'
+            code_to_run = code
         elif language == 'java':
             image = 'openjdk:latest'
-            command = f'bash -c "echo \'{code}\' > /tmp/Main.java && javac /tmp/Main.java && java -cp /tmp Main"'
+            file_extension = '.java'
+            run_command = f'bash -c "javac /tmp/code{file_extension} && java -cp /tmp Main"'
+            code_to_run = code
         else:
             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
 
-        # Create a Docker container
-        container = docker_client.containers.run(image, command, detach=True, stdin_open=True)
-        container.exec_run(cmd=f'echo "{input_data}" | {command}', stdin=True, tty=True)
+        logger.debug(f"Code to run: {code_to_run}")
 
-        # Get the container logs (output)
-        output = container.logs().decode('utf-8').strip()
-        
-        # Stop the container before removing it
+        container = docker_client.containers.create(image, command='/bin/sh', tty=True, stdin_open=True)
+        tar_data = create_tar_file(f'code{file_extension}', code_to_run)
+        container.put_archive('/tmp', tar_data)
+        container.start()
+
+        exec_result = container.exec_run(cmd=run_command, stdin=True, tty=True)
+        output = exec_result.output.decode('utf-8').strip()
+        logger.debug(f"Execution output: {output}")
+
         container.stop()
         container.remove()
 
         passed = output == expected_output
         return {'input': input_data, 'expected_output': expected_output, 'actual_output': output, 'passed': passed}
 
+    except DockerException as e:
+        logger.error(f"Docker exception: {str(e)}")
+        return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
     except Exception as e:
+        logger.error(f"Exception: {str(e)}")
         return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -284,7 +351,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         }}
         """
         try:
-            response = openAIClient.chat.completions.create(
+            response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo-0125",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant."},

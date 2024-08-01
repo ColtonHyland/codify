@@ -49,6 +49,7 @@ const QuestionPage: React.FC = () => {
           language,
           test_cases: JSON.parse(question.tests || "[]"),
         });
+        console.log("Submission result:", data);
         setResult(JSON.stringify(data, null, 2));
       } catch (error) {
         setResult("Error executing code");
