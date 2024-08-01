@@ -77,53 +77,79 @@ def execute_code(request):
     try:
         data = json.loads(request.body)
         logger.debug(f"Received execute_code request with data: {data}")
-
-        code = data['code']
-        language = data['language']
-        test_cases = data['test_cases']
+        
+        hard_coded_test = data['hardCodedTest']  # Changed line
+        code = hard_coded_test['code']  # Changed line
+        language = hard_coded_test['language']  # Changed line
+        test_cases = hard_coded_test['tests']  # Changed line
 
         results = []
 
         for test_case in test_cases:
             input_data = test_case['input']
-            expected_output = test_case['output']
+            expected_output = test_case['expected_output']
+            logger.debug(f"Processing test case with input: {input_data} and expected output: {expected_output}")
             result = run_code_in_docker(language, code, input_data, expected_output)
-            logger.debug(f"Test case result: {result}")
             results.append(result)
+            logger.debug(f"Test case result: {result}")
 
+        logger.debug(f"All test case results: {results}")
         return JsonResponse({'results': results})
 
     except Exception as e:
         logger.error(f"Error executing code: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
 
+def extract_function_name(code, language):
+    logger.debug(f"Extracting function name from code: {code} for language: {language}")
+    if language in ['python', 'javascript', 'typescript']:
+        match = re.search(r'def\s+(\w+)\s*\(', code)
+        if not match:
+            match = re.search(r'function\s+(\w+)\s*\(', code)
+            if not match:
+                match = re.search(r'(\w+)\s*\(', code)
+        if match:
+            logger.debug(f"Extracted function name: {match.group(1)}")
+            return match.group(1)
+    elif language == 'java':
+        match = re.search(r'public\s+static\s+.*\s+(\w+)\s*\(', code)
+        if match:
+            logger.debug(f"Extracted function name: {match.group(1)}")
+            return match.group(1)
+    elif language == 'cpp':
+        match = re.search(r'\w+\s+(\w+)\s*\(', code)
+        if match:
+            logger.debug(f"Extracted function name: {match.group(1)}")
+            return match.group(1)
+    logger.debug("Function name not found")
+    return None
 
 def create_tar_file(file_path, file_content):
+    logger.debug(f"Creating tar file for path: {file_path}")
     file_data = io.BytesIO()
     with tarfile.open(fileobj=file_data, mode='w') as tar:
         tarinfo = tarfile.TarInfo(name=file_path)
         tarinfo.size = len(file_content)
         tar.addfile(tarinfo, io.BytesIO(file_content.encode('utf-8')))
     file_data.seek(0)
+    logger.debug("Tar file created successfully")
     return file_data
-
 
 def run_code_in_docker(language, code, input_data, expected_output):
     try:
         logger.debug(f"Running code in Docker for language: {language}")
-        
+        function_name = extract_function_name(code, language)
+        if not function_name:
+            logger.debug("Function name not found in code")
+            return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Function name not found', 'passed': False}
+
+        logger.debug(f"Using Docker image for language {language}")
+
         if language == 'python':
             image = 'python:3.8'
             file_extension = '.py'
             run_command = f'python /tmp/code{file_extension}'
-            
-            function_name_match = re.search(r'def (\w+)\(', code)
-            if function_name_match:
-                function_name = function_name_match.group(1)
-            else:
-                return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Function name not found', 'passed': False}
-
-            input_code = f"{input_data}\n"
+            input_code = f"inputs = {input_data}\n"
             code_to_run = f"""
 {input_code}
 {code}
@@ -140,7 +166,7 @@ print(result)
 {input_code}
 {code}
 
-console.log(main(...inputs));
+console.log({function_name}(...inputs));
 """
         elif language == 'typescript':
             image = 'node:14'
@@ -151,41 +177,57 @@ console.log(main(...inputs));
 {input_code}
 {code}
 
-console.log(main(...inputs));
+console.log({function_name}(...inputs));
+"""
+        elif language == 'java':
+            image = 'openjdk:latest'
+            file_extension = '.java'
+            run_command = f'bash -c "javac /tmp/code{file_extension} && java -cp /tmp Main"'
+            code_to_run = f"""
+{code}
+public class Main {{
+    public static void main(String[] args) {{
+        System.out.println(new {function_name}().apply({input_data}));
+    }}
+}}
+"""
+        elif language == 'cpp':
+            image = 'gcc:latest'
+            file_extension = '.cpp'
+            run_command = f'bash -c "g++ /tmp/code{file_extension} -o /tmp/a.out && /tmp/a.out"'
+            code_to_run = f"""
+{code}
+int main() {{
+    std::cout << {function_name}({input_data}) << std::endl;
+    return 0;
+}}
 """
         elif language == 'sql':
             image = 'mariadb:latest'
             file_extension = '.sql'
             run_command = f'mysql -e "source /tmp/code{file_extension}"'
-            code_to_run = code
-        elif language == 'cpp':
-            image = 'gcc:latest'
-            file_extension = '.cpp'
-            run_command = f'bash -c "g++ /tmp/code{file_extension} -o /tmp/a.out && /tmp/a.out"'
-            code_to_run = code
-        elif language == 'java':
-            image = 'openjdk:latest'
-            file_extension = '.java'
-            run_command = f'bash -c "javac /tmp/code{file_extension} && java -cp /tmp Main"'
-            code_to_run = code
+            code_to_run = f"{code}\n{input_data}"
+
         else:
+            logger.debug("Unsupported language")
             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
 
-        logger.debug(f"Code to run: {code_to_run}")
-
+        logger.debug(f"Creating Docker container with image: {image}")
         container = docker_client.containers.create(image, command='/bin/sh', tty=True, stdin_open=True)
         tar_data = create_tar_file(f'code{file_extension}', code_to_run)
+        logger.debug(f"Copying tar file to container")
         container.put_archive('/tmp', tar_data)
+        logger.debug("Starting container")
         container.start()
-
+        logger.debug("Executing code in container")
         exec_result = container.exec_run(cmd=run_command, stdin=True, tty=True)
         output = exec_result.output.decode('utf-8').strip()
         logger.debug(f"Execution output: {output}")
-
         container.stop()
         container.remove()
 
         passed = output == expected_output
+        logger.debug(f"Test case passed: {passed}")
         return {'input': input_data, 'expected_output': expected_output, 'actual_output': output, 'passed': passed}
 
     except DockerException as e:
