@@ -78,10 +78,13 @@ def execute_code(request):
         data = json.loads(request.body)
         logger.debug(f"Received execute_code request with data: {data}")
         
-        hard_coded_test = data['hardCodedTest']  # Changed line
-        code = hard_coded_test['code']  # Changed line
-        language = hard_coded_test['language']  # Changed line
-        test_cases = hard_coded_test['tests']  # Changed line
+        # hard_coded_test = data['hardCodedTest']  # Changed line
+        # code = hard_coded_test['code']  # Changed line
+        # language = hard_coded_test['language']  # Changed line
+        # test_cases = hard_coded_test['tests']  # Changed line
+        code = data['code']
+        language = data['language']
+        test_cases = data['test_cases']
 
         results = []
 
@@ -149,7 +152,9 @@ def run_code_in_docker(language, code, input_data, expected_output):
             image = 'python:3.8'
             file_extension = '.py'
             run_command = f'python /tmp/code{file_extension}'
-            input_code = f"inputs = {input_data}\n"
+            input_code_lines = input_data.split(",\n")
+            parsed_input_data = ", ".join([line.split(" = ")[1] for line in input_code_lines])
+            input_code = f"inputs = [{parsed_input_data}]\n"
             code_to_run = f"""
 {input_code}
 {code}

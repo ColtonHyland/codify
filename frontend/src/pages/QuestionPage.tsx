@@ -22,6 +22,7 @@ const QuestionPage: React.FC = () => {
         try {
           const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
           if (fetchedQuestion) {
+            console.log("Fetched question:", fetchedQuestion);
             setQuestion({
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
@@ -44,14 +45,27 @@ const QuestionPage: React.FC = () => {
   const handleSubmit = async () => {
     if (question) {
       try {
+        const parsedTests = JSON.parse(question.tests || "[]").map((test: any) => ({
+          input: test.input,
+          expected_output: test.output,
+        }));
+  
+        // Format the inputs for Python code
+        const formattedTests = parsedTests.map((test: any) => ({
+          ...test,
+          input: test.input.replace(/, /g, ',\n') // Ensure proper formatting for multi-line inputs
+        }));
+  
         const data = await executeCode({
           code,
           language,
-          test_cases: JSON.parse(question.tests || "[]"),
+          test_cases: formattedTests,
         });
+  
         console.log("Submission result:", data);
         setResult(JSON.stringify(data, null, 2));
       } catch (error) {
+        console.error("Error executing code", error);
         setResult("Error executing code");
       }
     }
