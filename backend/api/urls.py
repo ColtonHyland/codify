@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, send_test_email, execute_code
+from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, send_test_email, execute_code_js
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -10,7 +10,7 @@ router.register(r'history', QuestionHistoryViewSet)
 
 custom_urls = [
     path('questions/get_question/<int:pk>/', QuestionViewSet.as_view({'get': 'get_question'}), name='get-question'),
-    path('code/execute/', execute_code, name='execute-code'),
+    path('code/execute/js/', execute_code_js, name='execute-code-js'),
 ]
 
 urlpatterns = [

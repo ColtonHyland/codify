@@ -5,7 +5,7 @@ import { QuestionField } from "../components/question/QuestionField";
 import Editor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
 import { Question, languageMap } from "../types";
-import { executeCode } from "../services/codeExecute";
+import { executeJavaScriptCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -49,19 +49,19 @@ const QuestionPage: React.FC = () => {
           input: test.input,
           expected_output: test.output,
         }));
-  
-        // Format the inputs for Python code
-        const formattedTests = parsedTests.map((test: any) => ({
-          ...test,
-          input: test.input.replace(/->/g, ',').replace(/\s+/g, '').split(',').join(',\n') // Ensure proper formatting for multi-line inputs
-        }));
-  
-        const data = await executeCode({
-          code,
-          language,
-          test_cases: formattedTests,
-        });
-  
+
+        let data;
+        if (language === "javascript") {
+          data = await executeJavaScriptCode({
+            code,
+            test_cases: parsedTests,
+          });
+        } else {
+          console.error(`Execution for ${language} is not yet implemented.`);
+          setResult(`Execution for ${language} is not yet implemented.`);
+          return;
+        }
+
         console.log("Submission result:", data);
         setResult(JSON.stringify(data, null, 2));
       } catch (error) {

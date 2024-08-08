@@ -70,20 +70,15 @@ def get_user(request):
 def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({"csrfToken": csrf_token})
-  
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def execute_code(request):
+def execute_code_js(request):
     try:
         data = json.loads(request.body)
-        logger.debug(f"Received execute_code request with data: {data}")
-        
-        # hard_coded_test = data['hardCodedTest']  # Changed line
-        # code = hard_coded_test['code']  # Changed line
-        # language = hard_coded_test['language']  # Changed line
-        # test_cases = hard_coded_test['tests']  # Changed line
+        logger.debug(f"Received execute_code_js request with data: {data}")
+
         code = data['code']
-        language = data['language']
         test_cases = data['test_cases']
 
         results = []
@@ -92,7 +87,7 @@ def execute_code(request):
             input_data = test_case['input']
             expected_output = test_case['expected_output']
             logger.debug(f"Processing test case with input: {input_data} and expected output: {expected_output}")
-            result = run_code_in_docker(language, code, input_data, expected_output)
+            result = run_code_in_docker("javascript", code, input_data, expected_output)
             results.append(result)
             logger.debug(f"Test case result: {result}")
 
@@ -102,6 +97,38 @@ def execute_code(request):
     except Exception as e:
         logger.error(f"Error executing code: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+  
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def execute_code(request):
+#     try:
+#         data = json.loads(request.body)
+#         logger.debug(f"Received execute_code request with data: {data}")
+        
+#         # hard_coded_test = data['hardCodedTest']  # Changed line
+#         # code = hard_coded_test['code']  # Changed line
+#         # language = hard_coded_test['language']  # Changed line
+#         # test_cases = hard_coded_test['tests']  # Changed line
+#         code = data['code']
+#         language = data['language']
+#         test_cases = data['test_cases']
+
+#         results = []
+
+#         for test_case in test_cases:
+#             input_data = test_case['input']
+#             expected_output = test_case['expected_output']
+#             logger.debug(f"Processing test case with input: {input_data} and expected output: {expected_output}")
+#             result = run_code_in_docker(language, code, input_data, expected_output)
+#             results.append(result)
+#             logger.debug(f"Test case result: {result}")
+
+#         logger.debug(f"All test case results: {results}")
+#         return JsonResponse({'results': results})
+
+#     except Exception as e:
+#         logger.error(f"Error executing code: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
 
 def extract_function_name(code, language):
     logger.debug(f"Extracting function name from code: {code} for language: {language}")
@@ -148,20 +175,7 @@ def run_code_in_docker(language, code, input_data, expected_output):
 
         logger.debug(f"Using Docker image for language {language}")
 
-        if language == 'python':
-            image = 'python:3.8'
-            file_extension = '.py'
-            run_command = f'python /tmp/code{file_extension}'
-            parsed_input_data = input_data.replace("->", ",").replace(" ", "").split(",")
-            input_code = f"inputs = [{parsed_input_data}]\n"
-            code_to_run = f"""
-{input_code}
-{code}
-
-result = {function_name}(*inputs)
-print(result)
-"""
-        elif language == 'javascript':
+        if language == 'javascript':
             image = 'node:14'
             file_extension = '.js'
             run_command = f'node /tmp/code{file_extension}'
@@ -172,45 +186,6 @@ print(result)
 
 console.log({function_name}(...inputs));
 """
-        elif language == 'typescript':
-            image = 'node:14'
-            file_extension = '.ts'
-            run_command = f'npx ts-node /tmp/code{file_extension}'
-            input_code = f"const inputs = {input_data};\n"
-            code_to_run = f"""
-{input_code}
-{code}
-
-console.log({function_name}(...inputs));
-"""
-        elif language == 'java':
-            image = 'openjdk:latest'
-            file_extension = '.java'
-            run_command = f'bash -c "javac /tmp/code{file_extension} && java -cp /tmp Main"'
-            code_to_run = f"""
-{code}
-public class Main {{
-    public static void main(String[] args) {{
-        System.out.println(new {function_name}().apply({input_data}));
-    }}
-}}
-"""
-        elif language == 'cpp':
-            image = 'gcc:latest'
-            file_extension = '.cpp'
-            run_command = f'bash -c "g++ /tmp/code{file_extension} -o /tmp/a.out && /tmp/a.out"'
-            code_to_run = f"""
-{code}
-int main() {{
-    std::cout << {function_name}({input_data}) << std::endl;
-    return 0;
-}}
-"""
-        elif language == 'sql':
-            image = 'mariadb:latest'
-            file_extension = '.sql'
-            run_command = f'mysql -e "source /tmp/code{file_extension}"'
-            code_to_run = f"{code}\n{input_data}"
 
         else:
             logger.debug("Unsupported language")
