@@ -53,7 +53,7 @@ const QuestionPage: React.FC = () => {
         // Format the inputs for Python code
         const formattedTests = parsedTests.map((test: any) => ({
           ...test,
-          input: test.input.replace(/, /g, ',\n') // Ensure proper formatting for multi-line inputs
+          input: test.input.replace(/->/g, ',').replace(/\s+/g, '').split(',').join(',\n') // Ensure proper formatting for multi-line inputs
         }));
   
         const data = await executeCode({

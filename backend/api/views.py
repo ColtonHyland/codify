@@ -152,8 +152,7 @@ def run_code_in_docker(language, code, input_data, expected_output):
             image = 'python:3.8'
             file_extension = '.py'
             run_command = f'python /tmp/code{file_extension}'
-            input_code_lines = input_data.split(",\n")
-            parsed_input_data = ", ".join([line.split(" = ")[1] for line in input_code_lines])
+            parsed_input_data = input_data.replace("->", ",").replace(" ", "").split(",")
             input_code = f"inputs = [{parsed_input_data}]\n"
             code_to_run = f"""
 {input_code}
