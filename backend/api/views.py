@@ -81,18 +81,36 @@ def execute_code_js(request):
         code = data['code']
         test_cases = data['test_cases']
 
-        results = []
+        passed_count = 0
+        failed_count = 0
 
         for test_case in test_cases:
-            input_data = test_case['input']
+            input_params = test_case['input']
             expected_output = test_case['expected_output']
-            logger.debug(f"Processing test case with input: {input_data} and expected output: {expected_output}")
-            result = run_code_in_docker("javascript", code, input_data, expected_output)
-            results.append(result)
+            logger.debug(f"Processing test case with input: {input_params} and expected output: {expected_output}")
+
+            # Convert the input params dictionary to code-friendly format
+            input_code = '\n'.join([f"{key} = {value};" for key, value in input_params.items()])
+            
+            # Add the input code before the user's code
+            code_to_run = f"{input_code}\n{code}\nconsole.log({list(input_params.keys())[0]}(...Object.values({input_params})));"
+
+            result = run_code_in_docker("javascript", code_to_run, input_params, expected_output)
+
+            if result['passed']:
+                passed_count += 1
+            else:
+                failed_count += 1
+
             logger.debug(f"Test case result: {result}")
 
-        logger.debug(f"All test case results: {results}")
-        return JsonResponse({'results': results})
+        response_data = {
+            'passed': passed_count,
+            'failed': failed_count
+        }
+        
+        logger.debug(f"Final test results: {response_data}")
+        return JsonResponse(response_data)
 
     except Exception as e:
         logger.error(f"Error executing code: {str(e)}")
