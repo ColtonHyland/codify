@@ -9,6 +9,7 @@ import SignUpPage from "./pages/SignUpPage";
 import QuestionsPage from "./pages/QuestionsPage";
 import QuestionPage from "./pages/QuestionPage";
 import { GenerateQuestionPage } from "./pages/GenerateQuestionPage";
+import TestPage from "./pages/TestPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/login" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/test" element={<TestPage />} />
             <Route path="/" element={<Home />} />
             <Route 
               path="/questions" 

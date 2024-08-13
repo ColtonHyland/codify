@@ -83,6 +83,7 @@ def execute_code_js(request):
 
         passed_count = 0
         failed_count = 0
+        test_results = []
 
         for test_case in test_cases:
             input_params = test_case['input']
@@ -90,23 +91,35 @@ def execute_code_js(request):
             logger.debug(f"Processing test case with input: {input_params} and expected output: {expected_output}")
 
             # Convert the input params dictionary to code-friendly format
-            input_code = '\n'.join([f"{key} = {value};" for key, value in input_params.items()])
+            input_code = '\n'.join([f"const {key} = {value};" for key, value in input_params.items()])
             
-            # Add the input code before the user's code
-            code_to_run = f"{input_code}\n{code}\nconsole.log({list(input_params.keys())[0]}(...Object.values({input_params})));"
+            # Create a code block that includes the input params and user's code
+            test_code = f"""
+            {input_code}
+            {code}
+            console.log(JSON.stringify(addLists(head1, head2)));
+            """
 
-            result = run_code_in_docker("javascript", code_to_run, input_params, expected_output)
+            result = run_code_in_docker("javascript", test_code, input_params, expected_output)
 
             if result['passed']:
                 passed_count += 1
             else:
                 failed_count += 1
 
+            test_results.append({
+                'input': input_params,
+                'expected_output': expected_output,
+                'actual_output': result['actual_output'],
+                'passed': result['passed']
+            })
+
             logger.debug(f"Test case result: {result}")
 
         response_data = {
             'passed': passed_count,
-            'failed': failed_count
+            'failed': failed_count,
+            'test_results': test_results
         }
         
         logger.debug(f"Final test results: {response_data}")
@@ -198,6 +211,8 @@ def run_code_in_docker(language, code, input_data, expected_output):
             file_extension = '.js'
             run_command = f'node /tmp/code{file_extension}'
             input_code = f"const inputs = {input_data};\n"
+
+            # Ensure Node class is declared first
             code_to_run = f"""
 {input_code}
 {code}
