@@ -19,6 +19,7 @@ import os
 import json
 import docker
 from docker.errors import DockerException, ImageNotFound
+import shutil
 import tempfile
 import tarfile
 import io
@@ -75,60 +76,59 @@ def csrf_token(request):
 @permission_classes([IsAuthenticated])
 def execute_code_js(request):
     try:
-        data = json.loads(request.body)
-        logger.debug(f"Received execute_code_js request with data: {data}")
+        data = request.data
+        code = data.get('code')
+        test_cases = data.get('test_cases', [])
 
-        code = data['code']
-        test_cases = data['test_cases']
+        if not code or not test_cases:
+            return JsonResponse({'error': 'Invalid input data'}, status=status.HTTP_400_BAD_REQUEST)
 
-        passed_count = 0
-        failed_count = 0
-        test_results = []
+        # Create a temporary directory to store the code file
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            code_file_path = os.path.join(tmpdirname, 'script.js')
 
-        for test_case in test_cases:
-            input_params = test_case['input']
-            expected_output = test_case['expected_output']
-            logger.debug(f"Processing test case with input: {input_params} and expected output: {expected_output}")
+            # Combine code with test cases, isolating each test case using IIFE
+            with open(code_file_path, 'w') as code_file:
+                code_file.write(code)
+                code_file.write('\n\n')
+                for i, test_case in enumerate(test_cases):
+                    code_file.write(f"console.log('Test Case {i + 1}:');\n")
+                    code_file.write(f"(function() {{\n{test_case['input']}\nconsole.log(addLists(head1, head2));\n}})();\n\n")
 
-            # Convert the input params dictionary to code-friendly format
-            input_code = '\n'.join([f"const {key} = {value};" for key, value in input_params.items()])
-            
-            # Create a code block that includes the input params and user's code
-            test_code = f"""
-            {input_code}
-            {code}
-            console.log(JSON.stringify(addLists(head1, head2)));
-            """
+            # Copy the Dockerfile to the temporary directory
+            dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
+            shutil.copy(dockerfile_path, tmpdirname)
 
-            result = run_code_in_docker("javascript", test_code, input_params, expected_output)
+            # Run the code in a Docker container
+            passed_tests = 0
+            total_tests = len(test_cases)
 
-            if result['passed']:
-                passed_count += 1
-            else:
-                failed_count += 1
+            try:
+                # Build Docker image with the Dockerfile now in the temporary directory
+                image, _ = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
 
-            test_results.append({
-                'input': input_params,
-                'expected_output': expected_output,
-                'actual_output': result['actual_output'],
-                'passed': result['passed']
-            })
+                # Run container
+                result = docker_client.containers.run(image.id, remove=True)
 
-            logger.debug(f"Test case result: {result}")
+                # Process output
+                output_lines = result.decode('utf-8').splitlines()
+                for i in range(total_tests):
+                    expected_output = test_cases[i]['expected_output'].strip()
+                    actual_output = output_lines[(i * 2) + 1].strip()  # The result should be the next line after "Test Case x:"
+                    if actual_output == expected_output:
+                        passed_tests += 1
 
-        response_data = {
-            'passed': passed_count,
-            'failed': failed_count,
-            'test_results': test_results
-        }
-        
-        logger.debug(f"Final test results: {response_data}")
-        return JsonResponse(response_data)
+            except docker.errors.DockerException as e:
+                logger.error(f"Docker error: {e}")
+                return JsonResponse({'error': 'Docker execution failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        logger.error(f"Error executing code: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-  
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse({'error': 'An unexpected error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
 # def execute_code(request):

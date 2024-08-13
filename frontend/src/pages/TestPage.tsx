@@ -74,48 +74,113 @@ const TestPage: React.FC = () => {
       ],
       tests: [
         {
-          input: {
-            head1:
-              "const a1 = new Node(1); const a2 = new Node(2); const a3 = new Node(6); a1.next = a2; a2.next = a3;",
-            head2:
-              "const b1 = new Node(4); const b2 = new Node(5); const b3 = new Node(3); b1.next = b2; b2.next = b3;",
-          },
-          expected_output:
-            "const n1 = new Node(5); const n2 = new Node(7); const n3 = new Node(9); n1.next = n2; n2.next = n3; return n1;",
+          input: `
+            const a1 = new Node(1); 
+            const a2 = new Node(2); 
+            const a3 = new Node(6); 
+            a1.next = a2; 
+            a2.next = a3;
+            const b1 = new Node(4); 
+            const b2 = new Node(5); 
+            const b3 = new Node(3); 
+            b1.next = b2; 
+            b2.next = b3;
+            const head1 = a1;
+            const head2 = b1;
+          `,
+          expected_output: `
+            const n1 = new Node(5); 
+            const n2 = new Node(7); 
+            const n3 = new Node(9); 
+            n1.next = n2; 
+            n2.next = n3; 
+            return n1;
+          `,
         },
         {
-          input: {
-            head1:
-              "const a1 = new Node(1); const a2 = new Node(4); const a3 = new Node(5); const a4 = new Node(7); a1.next = a2; a2.next = a3; a3.next = a4;",
-            head2: "const b1 = new Node(2); const b2 = new Node(3); b1.next = b2;",
-          },
-          expected_output:
-            "const n1 = new Node(3); const n2 = new Node(7); const n3 = new Node(5); const n4 = new Node(7); n1.next = n2; n2.next = n3; n3.next = n4; return n1;",
+          input: `
+            const a1 = new Node(1); 
+            const a2 = new Node(4); 
+            const a3 = new Node(5); 
+            const a4 = new Node(7); 
+            a1.next = a2; 
+            a2.next = a3; 
+            a3.next = a4;
+            const b1 = new Node(2); 
+            const b2 = new Node(3); 
+            b1.next = b2;
+            const head1 = a1;
+            const head2 = b1;
+          `,
+          expected_output: `
+            const n1 = new Node(3); 
+            const n2 = new Node(7); 
+            const n3 = new Node(5); 
+            const n4 = new Node(7); 
+            n1.next = n2; 
+            n2.next = n3; 
+            n3.next = n4; 
+            return n1;
+          `,
         },
         {
-          input: {
-            head1: "const a1 = new Node(9); const a2 = new Node(3); a1.next = a2;",
-            head2: "const b1 = new Node(7); const b2 = new Node(4); b1.next = b2;",
-          },
-          expected_output:
-            "const n1 = new Node(6); const n2 = new Node(8); return n1;",
+          input: `
+            const a1 = new Node(9); 
+            const a2 = new Node(3); 
+            a1.next = a2;
+            const b1 = new Node(7); 
+            const b2 = new Node(4); 
+            b1.next = b2;
+            const head1 = a1;
+            const head2 = b1;
+          `,
+          expected_output: `
+            const n1 = new Node(6); 
+            const n2 = new Node(8); 
+            return n1;
+          `,
         },
         {
-          input: {
-            head1: "const a1 = new Node(9); const a2 = new Node(8); a1.next = a2;",
-            head2: "const b1 = new Node(7); const b2 = new Node(4); b1.next = b2;",
-          },
-          expected_output:
-            "const n1 = new Node(6); const n2 = new Node(3); const n3 = new Node(1); n1.next = n2; n2.next = n3; return n1;",
+          input: `
+            const a1 = new Node(9); 
+            const a2 = new Node(8); 
+            a1.next = a2;
+            const b1 = new Node(7); 
+            const b2 = new Node(4); 
+            b1.next = b2;
+            const head1 = a1;
+            const head2 = b1;
+          `,
+          expected_output: `
+            const n1 = new Node(6); 
+            const n2 = new Node(3); 
+            const n3 = new Node(1); 
+            n1.next = n2; 
+            n2.next = n3; 
+            return n1;
+          `,
         },
         {
-          input: {
-            head1:
-              "const a1 = new Node(9); const a2 = new Node(9); const a3 = new Node(9); a1.next = a2; a2.next = a3;",
-            head2: "const b1 = new Node(6);",
-          },
-          expected_output:
-            "const n1 = new Node(5); const n2 = new Node(0); const n3 = new Node(0); const n4 = new Node(1); n1.next = n2; n2.next = n3; n3.next = n4; return n1;",
+          input: `
+            const a1 = new Node(9); 
+            const a2 = new Node(9); 
+            const a3 = new Node(9); 
+            a1.next = a2; 
+            a2.next = a3;
+            const b1 = new Node(6);
+            const head1 = a1;
+            const head2 = b1;
+          `,
+          expected_output: `
+            const n1 = new Node(5); 
+            const n2 = new Node(0); 
+            const n3 = new Node(0); 
+            const n4 = new Node(1); 
+            n1.next = n2; 
+            n2.next = n3; 
+            n3.next = n4; 
+            return n1;
+          `,
         },
       ],
     };
@@ -124,7 +189,7 @@ const TestPage: React.FC = () => {
       const response = await executeJavaScriptCode({
         code: hardcodedTestData.solution[0].code,
         test_cases: hardcodedTestData.tests.map((test) => ({
-          input: `head1: ${test.input.head1}, head2: ${test.input.head2}`,
+          input: test.input, // This is now valid JS code
           expected_output: test.expected_output,
         })),
       });
