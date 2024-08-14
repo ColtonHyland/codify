@@ -81,7 +81,7 @@ def execute_code_js(request):
         test_cases = data.get('test_cases', [])
 
         if not code or not test_cases:
-            return JsonResponse({'error': 'Invalid input data'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'Invalid input data'}, status=400)
 
         # Create a temporary directory to store the code file
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -93,7 +93,7 @@ def execute_code_js(request):
                 code_file.write('\n\n')
                 for i, test_case in enumerate(test_cases):
                     code_file.write(f"console.log('Test Case {i + 1}:');\n")
-                    code_file.write(f"(function() {{\n{test_case['input']}\nconsole.log(addLists(head1, head2));\n}})();\n\n")
+                    code_file.write(f"(function() {{\n{test_case['input']}\nconsole.log(sumArrays(arr1, arr2));\n}})();\n\n")
 
             # Copy the Dockerfile to the temporary directory
             dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
@@ -115,11 +115,11 @@ def execute_code_js(request):
                 logger.debug(f"Docker execution output:\n{output_lines}")
 
                 for i in range(total_tests):
-                    expected_output = test_cases[i]['expected_output'].strip()
+                    expected_output = test_cases[i]['expected_output']
                     # Calculate the index where actual output is expected in the logs
                     output_index = (i * 2) + 1
                     if output_index < len(output_lines):
-                        actual_output = output_lines[output_index].strip()
+                        actual_output = eval(output_lines[output_index].strip())
                         logger.debug(f"Test Case {i + 1}: Expected: {expected_output}, Actual: {actual_output}")
 
                         if actual_output == expected_output:
@@ -132,13 +132,13 @@ def execute_code_js(request):
 
             except docker.errors.DockerException as e:
                 logger.error(f"Docker error: {e}")
-                return JsonResponse({'error': 'Docker execution failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return JsonResponse({'error': 'Docker execution failed'}, status=500)
 
-        return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=status.HTTP_200_OK)
+        return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=200)
 
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        return JsonResponse({'error': 'An unexpected error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({'error': 'An unexpected error occurred'}, status=500)
 
 
 # @api_view(['POST'])
