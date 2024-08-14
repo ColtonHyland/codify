@@ -4,6 +4,7 @@ export interface Question {
   title: string;
   difficulty: string;
   categories: string[];
+  language: string;
   description: string;
   design: string;
   design_solution: string;
