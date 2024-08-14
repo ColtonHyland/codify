@@ -7,6 +7,7 @@ class Question(models.Model):
     title = models.CharField(max_length=255)
     difficulty = models.CharField(max_length=50)
     categories = models.JSONField(default=list)
+    language = models.CharField(max_length=50, default='javascript') 
     description = models.TextField()
     task = models.TextField()
     design = models.TextField()

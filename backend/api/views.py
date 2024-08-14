@@ -312,110 +312,155 @@ class QuestionViewSet(viewsets.ModelViewSet):
         categories_str = ', '.join([f'"{category}"' for category in categories])
 
         prompt = f"""
-        You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a question in the following JSON format, ensuring the response includes the specified categories and difficulty exactly as provided:
+You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a JavaScript problem in the following JSON format, ensuring the response includes the specified categories and difficulty exactly as provided:
 
-        {{
-          "title": "<problem_title>",
-          "difficulty": "{difficulty}",
-          "categories": [{categories_str}],
-          "problemDescription": "<problem_description>",
-          "context": {{
-            "codeSchema": "<code_or_table_relevant_to_problem>",
-            "additionalInstructions": "<additional_instructions>"
-          }},
-          "task": "<task_to_do>",
-          "examples": [
-            {{
-              "input": "<input_example>",
-              "output": "<output_example>",
-              "explanation": "<explanation_example>"
-            }}
-          ],
-          "constraints": [
-            "<constraint_1>",
-            "<constraint_2>",
-            "..."
-          ],
-          "tags": [
-            "<tag_1>",
-            "<tag_2>",
-            "..."
-          ],
-          "testCases": [
-            {{
-              "input": "<test_input_1>",
-              "output": "<expected_output_1>"
-            }},
-            {{
-              "input": "<test_input_2>",
-              "output": "<expected_output_2>"
-            }}
-          ],
-          "hints": [
-            "<hint_1>",
-            "<hint_2>"
-          ],
-          "solutionTemplate": "<solution_template>",
-          "notes": "<additional_notes>"
-        }}
+{{
+  "title": "<problem_title>",
+  "difficulty": "{difficulty}",
+  "categories": [{categories_str}],
+  "language": "javascript",
+  "problemDescription": "<problem_description>",
+  "context": {{
+    "codeSchema": "<code_or_table_relevant_to_problem>",
+    "additionalInstructions": "<additional_instructions>"
+  }},
+  "task": "<task_to_do>",
+  "examples": [
+    {{
+      "input": "<input_example>",
+      "output": "<output_example>",
+      "explanation": "<explanation_example>"
+    }}
+  ],
+  "constraints": [
+    "<constraint_1>",
+    "<constraint_2>",
+    "..."
+  ],
+  "tags": [
+    "<tag_1>",
+    "<tag_2>",
+    "..."
+  ],
+  "testCases": [
+    {{
+      "input": "<test_input_1>",
+      "output": "<expected_output_1>",
+      "type": "<data_type>",
+      "description": "Basic functionality test: A simple, expected use case."
+    }},
+    {{
+      "input": "<test_input_2>",
+      "output": "<expected_output_2>",
+      "type": "<data_type>",
+      "description": "Edge case test: Handles edge cases such as empty inputs, large numbers, etc."
+    }},
+    {{
+      "input": "<test_input_3>",
+      "output": "<expected_output_3>",
+      "type": "<data_type>",
+      "description": "Bad input test: Handles incorrect or unexpected input types."
+    }},
+    {{
+      "input": "<test_input_4>",
+      "output": "<expected_output_4>",
+      "type": "<data_type>",
+      "description": "Performance test: Test with large inputs to check performance."
+    }},
+    {{
+      "input": "<test_input_5>",
+      "output": "<expected_output_5>",
+      "type": "<data_type>",
+      "description": "Additional complex case: An additional case that tests complex or unexpected logic."
+    }}
+  ],
+  "hints": [
+    "<hint_1>",
+    "<hint_2>"
+  ],
+  "solutionTemplate": "<solution_template>",
+  "notes": "<additional_notes>"
+}}
 
-        Ensure that the question tests for the following:
-        - Core technical skills
-        - Design and architecture abilities
-        - Problem-solving and algorithmic thinking
-        - Knowledge of best practices
-        - Communication and explanation skills
-        - Integration and interaction understanding
+Ensure the problem tests the following:
+- Core technical skills
+- Design and architecture abilities
+- Problem-solving and algorithmic thinking
+- Knowledge of best practices
+- Communication and explanation skills
+- Integration and interaction understanding
 
-        Please provide a new question following this format.
+Please provide a new question following this format. The problem should include 4 to 9 well-designed test cases that cover:
+- Basic functionality
+- Edge cases
+- Bad inputs
+- Performance considerations
+- Additional complex cases
 
-        Example:
-        {{
-          "title": "Find the Most Popular Fruit",
-          "difficulty": "Easy",
-          "categories": ["SQL", "Aggregation"],
-          "problemDescription": "You are managing a database for a local fruit market. The market wants to know which fruit is the most popular among their customers. Each purchase is recorded in a table named `purchases` which logs the customer_id, fruit_name, and the quantity of fruit purchased. Write an SQL query to find the name of the most popular fruit, i.e., the fruit that has been purchased the most.",
-          "context": {{
-            "codeSchema": "CREATE TABLE purchases (\\n  customer_id INT,\\n  fruit_name VARCHAR(50),\\n  quantity INT\\n);",
-            "additionalInstructions": "The query should return the fruit name with the highest total quantity purchased. If there is a tie, return any one of the fruits."
-          }},
-          "task": "Write an SQL query to find the most popular fruit based on the total quantity purchased.",
-          "examples": [
-            {{
-              "input": "purchases table:\\n+-------------+------------+----------+\\n| customer_id | fruit_name | quantity |\\n+-------------+------------+----------+\\n| 1           | Apple      | 10       |\\n| 2           | Banana     | 5        |\\n| 3           | Apple      | 15       |\\n| 4           | Orange     | 8        |\\n| 5           | Banana     | 7        |\\n+-------------+------------+----------+",
-              "output": "Apple",
-              "explanation": "Apple has been purchased in total quantity of 25 (10 + 15), which is higher than Banana (12) and Orange (8)."
-            }}
-          ],
-          "constraints": [
-            "The table `purchases` will have at least one record.",
-            "Each `fruit_name` is a non-empty string.",
-            "Each `quantity` is a positive integer."
-          ],
-          "tags": [
-            "SQL",
-            "Aggregation",
-            "Group By"
-          ],
-          "testCases": [
-            {{
-              "input": "INSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (1, 'Apple', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (2, 'Banana', 5);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (3, 'Apple', 15);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (4, 'Orange', 8);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (5, 'Banana', 7);",
-              "output": "Apple"
-            }},
-            {{
-              "input": "INSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (1, 'Banana', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (2, 'Banana', 10);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (3, 'Apple', 15);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (4, 'Orange', 8);\\nINSERT INTO purchases (customer_id, fruit_name, quantity) VALUES (5, 'Apple', 5);",
-              "output": "Banana"
-            }}
-          ],
-          "hints": [
-            "Consider using the SUM() function to aggregate the total quantities.",
-            "Use the GROUP BY clause to group records by fruit_name.",
-            "Order the results by total quantity in descending order and limit the output to one row."
-          ],
-          "solutionTemplate": "SELECT fruit_name\\nFROM purchases\\nGROUP BY fruit_name\\nORDER BY SUM(quantity) DESC\\nLIMIT 1;",
-          "notes": "This problem helps practice SQL aggregation functions and grouping."
-        }}
-        """
+Example:
+{{
+  "title": "Sum Two Arrays",
+  "difficulty": "Easy",
+  "categories": ["Array", "Basic"],
+  "language": "javascript",
+  "problemDescription": "Write a function that takes two arrays of numbers and returns a new array where each element is the sum of the elements at the corresponding positions in the input arrays.",
+  "context": {{
+    "codeSchema": "function sumArrays(arr1, arr2) {{\\n  // Your code here\\n}}",
+    "additionalInstructions": "Handle different array lengths by treating missing elements as 0."
+  }},
+  "task": "Implement the sumArrays function.",
+  "examples": [
+    {{
+      "input": "[[1, 2, 3], [4, 5, 6]]",
+      "output": "[5, 7, 9]",
+      "explanation": "Each element is the sum of the corresponding elements in the input arrays."
+    }}
+  ],
+  "constraints": [
+    "Input arrays will contain only integers.",
+    "Input arrays will have at least one element."
+  ],
+  "tags": ["Array", "Basic"],
+  "testCases": [
+    {{
+      "input": "[[1, 2, 3], [4, 5, 6]]",
+      "output": "[5, 7, 9]",
+      "type": "array",
+      "description": "Basic functionality test: A simple, expected use case."
+    }},
+    {{
+      "input": "[[], [1, 2, 3]]",
+      "output": "[1, 2, 3]",
+      "type": "array",
+      "description": "Edge case test: Handles empty first array."
+    }},
+    {{
+      "input": "[[1, 2], ['a', 'b']]",
+      "output": "Error",
+      "type": "string",
+      "description": "Bad input test: Handles non-numeric input."
+    }},
+    {{
+      "input": "[[1000000, 2000000], [3000000, 4000000]]",
+      "output": "[4000000, 6000000]",
+      "type": "array",
+      "description": "Performance test: Test with large numbers."
+    }},
+    {{
+      "input": "[[1, 2, 3], [4, 5, 6, 7]]",
+      "output": "[5, 7, 9, 7]",
+      "type": "array",
+      "description": "Additional complex case: Different array lengths."
+    }}
+  ],
+  "hints": [
+    "Consider iterating through the arrays simultaneously.",
+    "Use a loop to handle the summing of corresponding elements."
+  ],
+  "solutionTemplate": "function sumArrays(arr1, arr2) {{\\n  // Implement the solution\\n}}",
+  "notes": "This problem tests basic array manipulation and handling of different array lengths."
+}}
+"""
         try:
             response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo-0125",
@@ -434,6 +479,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 title=question_json['title'],
                 difficulty=question_json['difficulty'],
                 categories=question_json['categories'],
+                language="javascript",
                 description=question_json['problemDescription'],
                 task=question_json['task'],
                 design=question_json['context']['codeSchema'],
