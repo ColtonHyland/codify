@@ -112,11 +112,23 @@ def execute_code_js(request):
 
                 # Process output
                 output_lines = result.decode('utf-8').splitlines()
+                logger.debug(f"Docker execution output:\n{output_lines}")
+
                 for i in range(total_tests):
                     expected_output = test_cases[i]['expected_output'].strip()
-                    actual_output = output_lines[(i * 2) + 1].strip()  # The result should be the next line after "Test Case x:"
-                    if actual_output == expected_output:
-                        passed_tests += 1
+                    # Calculate the index where actual output is expected in the logs
+                    output_index = (i * 2) + 1
+                    if output_index < len(output_lines):
+                        actual_output = output_lines[output_index].strip()
+                        logger.debug(f"Test Case {i + 1}: Expected: {expected_output}, Actual: {actual_output}")
+
+                        if actual_output == expected_output:
+                            passed_tests += 1
+                        else:
+                            logger.error(f"Test Case {i + 1} failed: Expected: {expected_output}, Actual: {actual_output}")
+                    else:
+                        logger.error(f"Test Case {i + 1} output missing in logs.")
+                        actual_output = None
 
             except docker.errors.DockerException as e:
                 logger.error(f"Docker error: {e}")
