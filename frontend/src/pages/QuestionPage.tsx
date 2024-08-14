@@ -14,7 +14,7 @@ const QuestionPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [result, setResult] = useState("");
-  const [language, setLanguage] = useState("plaintext");
+  const [language, setLanguage] = useState("language");
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -27,9 +27,7 @@ const QuestionPage: React.FC = () => {
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
             });
-            setLanguage(
-              languageMap[fetchedQuestion.categories[0]] || "plaintext"
-            );
+            setLanguage(fetchedQuestion.language);
           } else {
             setError("Question not found");
           }

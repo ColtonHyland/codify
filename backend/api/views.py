@@ -378,7 +378,7 @@ You are an AI assistant tasked with generating technical interview questions for
     "<hint_1>",
     "<hint_2>"
   ],
-  "solutionTemplate": "<solution_template>",
+  "solution": "<solution>",
   "notes": "<additional_notes>"
 }}
 
@@ -457,7 +457,7 @@ Example:
     "Consider iterating through the arrays simultaneously.",
     "Use a loop to handle the summing of corresponding elements."
   ],
-  "solutionTemplate": "function sumArrays(arr1, arr2) {{\\n  // Implement the solution\\n}}",
+  "solution": "function sumArrays(arr1, arr2) {{\\n  return arr1.map((num, idx) => num + (arr2[idx] || 0));\\n}}",
   "notes": "This problem tests basic array manipulation and handling of different array lengths."
 }}
 """
@@ -479,7 +479,6 @@ Example:
                 title=question_json['title'],
                 difficulty=question_json['difficulty'],
                 categories=question_json['categories'],
-                language="javascript",
                 description=question_json['problemDescription'],
                 task=question_json['task'],
                 design=question_json['context']['codeSchema'],
@@ -487,7 +486,7 @@ Example:
                 input_constraints=json.dumps(question_json['constraints']),
                 example_input=question_json['examples'][0]['input'],
                 example_output=question_json['examples'][0]['output'],
-                answer=question_json['solutionTemplate'],
+                answer=question_json['solution'],
                 design_solution=question_json['context']['codeSchema'],
                 explanation_answer=question_json['examples'][0]['explanation'],
                 tests=json.dumps(question_json['testCases']),

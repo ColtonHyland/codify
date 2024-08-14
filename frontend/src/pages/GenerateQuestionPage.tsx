@@ -17,8 +17,8 @@ export const GenerateQuestionPage: React.FC = () => {
   let solution = '';
   let formattedData = responseData ? JSON.parse(responseData) : null;
   if (formattedData && !formattedData.error) {
-    solution = formattedData.solutionTemplate;
-    delete formattedData.solutionTemplate;
+    solution = formattedData.solution;
+    delete formattedData.solution;
   }
 
   return (

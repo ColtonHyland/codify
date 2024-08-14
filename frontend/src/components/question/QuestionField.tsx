@@ -23,6 +23,9 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
       <Typography variant="body1">
         <strong>Categories:</strong> {data.categories?.join(", ") || "N/A"}
       </Typography>
+      <Typography variant="body1">
+        <strong>Language:</strong> {data.language || "N/A"}
+      </Typography>  {/* Added Language */}
       <Typography variant="body1" paragraph>
         <strong>Description:</strong> {data.description || "N/A"}
       </Typography>
