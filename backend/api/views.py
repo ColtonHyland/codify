@@ -79,67 +79,72 @@ def execute_code_js(request):
         data = request.data
         code = data.get('code')
         test_cases = data.get('test_cases', [])
+        logger.debug(f"Received code: {code}")
+        logger.debug(f"Received test cases: {test_cases}")
 
         if not code or not test_cases:
             return JsonResponse({'error': 'Invalid input data'}, status=400)
 
-        # Create a temporary directory to store the code file
+        function_name = extract_function_name(code)
+        if not function_name:
+            return JsonResponse({'error': 'Function name could not be extracted'}, status=400)
+        logger.debug(f"Extracted function name: {function_name}")
+
         with tempfile.TemporaryDirectory() as tmpdirname:
             code_file_path = os.path.join(tmpdirname, 'script.js')
 
-            # Combine code with test cases, isolating each test case using IIFE
             with open(code_file_path, 'w') as code_file:
                 code_file.write(code)
                 code_file.write('\n\n')
-                for i, test_case in enumerate(test_cases):
-                    code_file.write(f"console.log('Test Case {i + 1}:');\n")
-                    code_file.write(f"(function() {{\n{test_case['input']}\nconsole.log(sumArrays(arr1, arr2));\n}})();\n\n")
 
-            # Copy the Dockerfile to the temporary directory
+                for i, test_case in enumerate(test_cases):
+                    input_data = test_case['input']
+                    code_file.write(f"console.log('Test Case {i + 1}:');\n")
+                    code_file.write(f"let result = (function() {{\n")
+                    code_file.write(f"const inputs = JSON.parse('{input_data}');\n")
+                    code_file.write(f"return {function_name}(...inputs);\n")
+                    code_file.write(f"}})();\n")
+                    code_file.write(f"console.log(result);\n\n")
+                # Log the content of the script file
+                logger.debug(f"Script file content:\n{open(code_file_path).read()}")
+
             dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
             shutil.copy(dockerfile_path, tmpdirname)
 
-            # Run the code in a Docker container
             passed_tests = 0
             total_tests = len(test_cases)
 
             try:
-                # Build Docker image with the Dockerfile now in the temporary directory
-                image, _ = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
-
-                # Run container
+                image, logs = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
+                logger.debug(f"Docker build logs:\n{''.join([log.get('stream', '') for log in logs])}")
                 result = docker_client.containers.run(image.id, remove=True)
+                logger.debug(f"Docker run output:\n{result.decode('utf-8')}")
+    
 
-                # Process output
                 output_lines = result.decode('utf-8').splitlines()
-                logger.debug(f"Docker execution output:\n{output_lines}")
+                logger.debug(f"Processed output lines: {output_lines}")
 
                 for i in range(total_tests):
                     expected_output = test_cases[i]['expected_output']
-                    # Calculate the index where actual output is expected in the logs
                     output_index = (i * 2) + 1
                     if output_index < len(output_lines):
                         actual_output = eval(output_lines[output_index].strip())
-                        logger.debug(f"Test Case {i + 1}: Expected: {expected_output}, Actual: {actual_output}")
-
-                        if actual_output == expected_output:
+                        if str(actual_output) == str(expected_output):
                             passed_tests += 1
                         else:
-                            logger.error(f"Test Case {i + 1} failed: Expected: {expected_output}, Actual: {actual_output}")
+                            logger.error(f"Test Case {i + 1} failed: Expected {expected_output}, but got {actual_output}")
                     else:
-                        logger.error(f"Test Case {i + 1} output missing in logs.")
-                        actual_output = None
+                        logger.error(f"Test Case {i + 1}: Output missing in logs.")
 
             except docker.errors.DockerException as e:
-                logger.error(f"Docker error: {e}")
-                return JsonResponse({'error': 'Docker execution failed'}, status=500)
+                logger.error(f'Docker execution failed: {e}')
+                return JsonResponse({'error': f'Docker execution failed: {e}'}, status=500)
 
         return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=200)
 
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        return JsonResponse({'error': 'An unexpected error occurred'}, status=500)
-
+        logger.error(f"An unexpected error occurred: {e}")
+        return JsonResponse({'error': f'An unexpected error occurred: {e}'}, status=500)
 
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
@@ -173,29 +178,18 @@ def execute_code_js(request):
 #         logger.error(f"Error executing code: {str(e)}")
 #         return JsonResponse({'error': str(e)}, status=500)
 
-def extract_function_name(code, language):
-    logger.debug(f"Extracting function name from code: {code} for language: {language}")
-    if language in ['python', 'javascript', 'typescript']:
-        match = re.search(r'def\s+(\w+)\s*\(', code)
-        if not match:
-            match = re.search(r'function\s+(\w+)\s*\(', code)
-            if not match:
-                match = re.search(r'(\w+)\s*\(', code)
-        if match:
-            logger.debug(f"Extracted function name: {match.group(1)}")
-            return match.group(1)
-    elif language == 'java':
-        match = re.search(r'public\s+static\s+.*\s+(\w+)\s*\(', code)
-        if match:
-            logger.debug(f"Extracted function name: {match.group(1)}")
-            return match.group(1)
-    elif language == 'cpp':
-        match = re.search(r'\w+\s+(\w+)\s*\(', code)
-        if match:
-            logger.debug(f"Extracted function name: {match.group(1)}")
-            return match.group(1)
-    logger.debug("Function name not found")
-    return None
+def extract_function_name(code):
+    """
+    Extract the function name from the provided code.
+    Supports Python, JavaScript, TypeScript, Java, and C++.
+    """
+    match = re.search(r'def\s+(\w+)\s*\(', code) or \
+            re.search(r'function\s+(\w+)\s*\(', code) or \
+            re.search(r'(\w+)\s*\(', code) or \
+            re.search(r'public\s+static\s+.*\s+(\w+)\s*\(', code) or \
+            re.search(r'\w+\s+(\w+)\s*\(', code)
+    
+    return match.group(1) if match else None
 
 def create_tar_file(file_path, file_content):
     logger.debug(f"Creating tar file for path: {file_path}")

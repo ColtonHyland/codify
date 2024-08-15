@@ -22,7 +22,17 @@ export const executeJavaScriptCode = async (params: ExecuteJavaScriptCode): Prom
     console.log("Execution response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error executing JavaScript code", error);
+    if (error instanceof Error) {
+      // The error is an instance of Error, so it has the 'message' and 'stack' properties.
+      console.error("Error executing code", {
+        message: error.message,
+        stack: error.stack,
+        response: (error as any).response ? (error as any).response.data : "No response data",
+      });
+    } else {
+      // Handle unexpected error types
+      console.error("Unexpected error", error);
+    }
     throw error;
   }
 };
