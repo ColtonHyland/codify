@@ -99,14 +99,24 @@ def execute_code_js(request):
 
                 for i, test_case in enumerate(test_cases):
                     input_data = test_case['input']
-                    code_file.write(f"console.log('Test Case {i + 1}:');\n")
-                    code_file.write(f"let result = (function() {{\n")
-                    code_file.write(f"const inputs = JSON.parse('{input_data}');\n")
-                    code_file.write(f"return {function_name}(...inputs);\n")
-                    code_file.write(f"}})();\n")
-                    code_file.write(f"console.log(result);\n\n")
-                # Log the content of the script file
-                logger.debug(f"Script file content:\n{open(code_file_path).read()}")
+                    input_data_escaped = json.dumps(input_data)  # Ensure proper escaping
+                    logger.debug(f"Processing Test Case {i + 1} with input: {input_data_escaped}")
+
+                    code_file.write(f"console.log('Test Case {i + 1} Output:');\n")
+                    code_file.write(f"(function() {{\n")  # Start of IIFE
+                    code_file.write(f"  try {{\n")
+                    code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
+                    code_file.write(f"    const result = {function_name}(...inputs);\n")
+                    code_file.write(f"    console.log(JSON.stringify(result));\n")  # JSON.stringify for safe string output
+                    code_file.write(f"  }} catch (error) {{\n")
+                    code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
+                    code_file.write(f"  }}\n")
+                    code_file.write(f"}})();\n\n")  # End of IIFE
+
+                # Log the final script content
+                with open(code_file_path, 'r') as f:
+                    final_script_content = f.read()
+                    logger.debug(f"Final script.js content:\n{final_script_content}")
 
             dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
             shutil.copy(dockerfile_path, tmpdirname)
@@ -118,23 +128,32 @@ def execute_code_js(request):
                 image, logs = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
                 logger.debug(f"Docker build logs:\n{''.join([log.get('stream', '') for log in logs])}")
                 result = docker_client.containers.run(image.id, remove=True)
-                logger.debug(f"Docker run output:\n{result.decode('utf-8')}")
-    
+                result_output = result.decode('utf-8').strip()
+                logger.debug(f"Docker run output:\n{result_output}")
 
-                output_lines = result.decode('utf-8').splitlines()
+                output_lines = result_output.splitlines()
                 logger.debug(f"Processed output lines: {output_lines}")
 
                 for i in range(total_tests):
-                    expected_output = test_cases[i]['expected_output']
-                    output_index = (i * 2) + 1
-                    if output_index < len(output_lines):
-                        actual_output = eval(output_lines[output_index].strip())
-                        if str(actual_output) == str(expected_output):
+                    try:
+                        expected_output = test_cases[i]['expected_output']
+                        test_case_output_prefix = f'Test Case {i + 1} Output:'
+                        output_index = output_lines.index(test_case_output_prefix) + 1  # Find the exact line for output
+                        actual_output = output_lines[output_index].strip()
+
+                        logger.debug(f"Test Case {i + 1} actual output: {actual_output}")
+
+                        try:
+                            parsed_output = json.loads(actual_output)
+                        except (ValueError, json.JSONDecodeError):
+                            parsed_output = actual_output  # Fallback to plain string if JSON parsing fails
+
+                        if str(parsed_output) == str(expected_output):
                             passed_tests += 1
                         else:
-                            logger.error(f"Test Case {i + 1} failed: Expected {expected_output}, but got {actual_output}")
-                    else:
-                        logger.error(f"Test Case {i + 1}: Output missing in logs.")
+                            logger.error(f"Test Case {i + 1} failed: Expected {expected_output}, but got {parsed_output}")
+                    except Exception as eval_error:
+                        logger.error(f"Error processing Test Case {i + 1}: {eval_error}")
 
             except docker.errors.DockerException as e:
                 logger.error(f'Docker execution failed: {e}')
@@ -145,7 +164,7 @@ def execute_code_js(request):
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")
         return JsonResponse({'error': f'An unexpected error occurred: {e}'}, status=500)
-
+      
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
 # def execute_code(request):
