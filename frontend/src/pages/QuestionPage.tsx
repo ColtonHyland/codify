@@ -1,17 +1,20 @@
-// src/pages/QuestionPage.tsx
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Typography, Paper } from "@mui/material";
+import { Container, Typography, Paper, Grid, Button } from "@mui/material";
 import { QuestionField } from "../components/question/QuestionField";
+import Editor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
-import { Question } from "../types";
+import { Question, languageMap } from "../types";
+import { executeJavaScriptCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { fetchQuestionById } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [result, setResult] = useState("");
+  const [language, setLanguage] = useState("language");
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -19,10 +22,12 @@ const QuestionPage: React.FC = () => {
         try {
           const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
           if (fetchedQuestion) {
+            console.log("Fetched question:", fetchedQuestion);
             setQuestion({
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
             });
+            setLanguage(fetchedQuestion.language);
           } else {
             setError("Question not found");
           }
@@ -34,6 +39,35 @@ const QuestionPage: React.FC = () => {
 
     fetchQuestion();
   }, [id]);
+
+  const handleSubmit = async () => {
+    if (question) {
+      try {
+        const parsedTests = JSON.parse(question.tests || "[]").map((test: any) => ({
+          input: test.input,
+          expected_output: test.output,
+        }));
+
+        let data;
+        if (language === "javascript") {
+          data = await executeJavaScriptCode({
+            code,
+            test_cases: parsedTests,
+          });
+        } else {
+          console.error(`Execution for ${language} is not yet implemented.`);
+          setResult(`Execution for ${language} is not yet implemented.`);
+          return;
+        }
+
+        console.log("Submission result:", data);
+        setResult(JSON.stringify(data, null, 2));
+      } catch (error) {
+        console.error("Error executing code", error);
+        setResult("Error executing code");
+      }
+    }
+  };
 
   if (error) {
     return (
@@ -55,12 +89,23 @@ const QuestionPage: React.FC = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        {question.title}
-      </Typography>
-      <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-        <QuestionField jsonText={JSON.stringify(question)} />
-      </Paper>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <QuestionField jsonText={JSON.stringify(question)} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            <Editor language={language} code={code} setCode={setCode} />
+          </Paper>
+          <Button variant="contained" color="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
+          <Paper variant="outlined" sx={{ padding: 2, marginTop: 2 }}>
+            <Typography variant="h6">Result</Typography>
+            <pre>{result}</pre>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };

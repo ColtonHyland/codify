@@ -32,6 +32,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<{ username: string; email: string } | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
@@ -147,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
         }
       }
+      setLoading(false);
     };
 
     checkAuth();
@@ -154,7 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, resendVerificationEmail }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
