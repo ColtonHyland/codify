@@ -529,48 +529,25 @@ def test_code_execute(request):
     try:
         data = request.data
         code = data.get('code')
-        test_cases = data.get('test_cases', [])
-        logger.debug(f"Received code for test: {code}")
-        logger.debug(f"Received test cases for test: {test_cases}")
+        logger.debug(f"Received code for execution:\n{code}")
 
-        if not code or not test_cases:
+        if not code:
             return JsonResponse({'error': 'Invalid input data'}, status=400)
 
         # Create a temporary directory to hold the code file
         with tempfile.TemporaryDirectory() as tmpdirname:
             code_file_path = os.path.join(tmpdirname, 'script.js')
 
+            # Write the user's code into script.js and add a console log to indicate it was executed
             with open(code_file_path, 'w') as code_file:
-                # Wrap user code in an IIFE and prepare it for test case execution
-                code_file.write(f"(function() {{\n")
-                code_file.write(f"  {code}\n")  # Inject user-provided code
-                code_file.write(f"  return function(...args) {{\n")
-                code_file.write(f"    return (")
-                code_file.write(f"{code.splitlines()[-1].strip()}(...args);\n")
-                code_file.write(f"  }};\n")
-                code_file.write(f"}})();\n\n")
-
-                for i, test_case in enumerate(test_cases):
-                    input_data = test_case['input']
-                    expected_output = test_case['output']
-                    input_data_escaped = json.dumps(input_data)
-                    logger.debug(f"Test Case {i + 1} input: {input_data_escaped}")
-
-                    code_file.write(f"console.log('Test Case {i + 1} Output:');\n")
-                    code_file.write(f"(function() {{\n")
-                    code_file.write(f"  try {{\n")
-                    code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
-                    code_file.write(f"    const result = (function() {{ {code} }})(...inputs);\n")
-                    code_file.write(f"    console.log(JSON.stringify(result));\n")
-                    code_file.write(f"  }} catch (error) {{\n")
-                    code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
-                    code_file.write(f"  }}\n")
-                    code_file.write(f"}})();\n\n")
-
-                logger.debug(f"Final script.js content for test:\n{open(code_file_path).read()}")
+                code_file.write(code)
+                code_file.write('\n\n')
+                code_file.write("console.log('User code executed successfully.');\n")
+                logger.debug(f"Final script.js content:\n{open(code_file_path).read()}")
 
             # Run the Docker container with the created script
             try:
+                logger.debug("Running the Docker container...")
                 result = subprocess.run(
                     ['docker', 'run', '--rm', '-v', f'{tmpdirname}:/usr/src/app', 'node:14', 'node', '/usr/src/app/script.js'],
                     stdout=subprocess.PIPE,
@@ -584,20 +561,7 @@ def test_code_execute(request):
                 logger.debug(f"Docker output:\n{output}")
                 logger.debug(f"Docker error (if any):\n{error}")
 
-                # Simple string matching for testing purposes
-                passed_tests = 0
-                output_lines = output.splitlines()
-
-                for i, test_case in enumerate(test_cases):
-                    expected_output = test_case['output']
-                    test_case_output_prefix = f'Test Case {i + 1} Output:'
-                    if test_case_output_prefix in output_lines:
-                        output_index = output_lines.index(test_case_output_prefix) + 1
-                        actual_output = output_lines[output_index].strip()
-                        if actual_output == expected_output:
-                            passed_tests += 1
-
-                return JsonResponse({'passed': passed_tests, 'total': len(test_cases)}, status=200)
+                return JsonResponse({'output': output, 'error': error}, status=200)
 
             except subprocess.TimeoutExpired:
                 logger.error("Docker execution timed out")
@@ -607,9 +571,10 @@ def test_code_execute(request):
                 return JsonResponse({'error': str(e)}, status=500)
 
     except Exception as e:
-        logger.error(f"An unexpected error occurred during test execution: {str(e)}")
+        logger.error(f"An unexpected error occurred during execution: {str(e)}")
         return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
-      
+
+    
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
     serializer_class = AttemptSerializer
