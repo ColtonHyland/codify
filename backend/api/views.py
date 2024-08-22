@@ -541,12 +541,18 @@ def test_code_execute(request):
             code_file_path = os.path.join(tmpdirname, 'script.js')
 
             with open(code_file_path, 'w') as code_file:
-                # Write the user's code to the file
-                code_file.write(code)
-                code_file.write('\n\n')
+                # Wrap user code in an IIFE and prepare it for test case execution
+                code_file.write(f"(function() {{\n")
+                code_file.write(f"  {code}\n")  # Inject user-provided code
+                code_file.write(f"  return function(...args) {{\n")
+                code_file.write(f"    return (")
+                code_file.write(f"{code.splitlines()[-1].strip()}(...args);\n")
+                code_file.write(f"  }};\n")
+                code_file.write(f"}})();\n\n")
 
                 for i, test_case in enumerate(test_cases):
                     input_data = test_case['input']
+                    expected_output = test_case['output']
                     input_data_escaped = json.dumps(input_data)
                     logger.debug(f"Test Case {i + 1} input: {input_data_escaped}")
 
@@ -554,7 +560,7 @@ def test_code_execute(request):
                     code_file.write(f"(function() {{\n")
                     code_file.write(f"  try {{\n")
                     code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
-                    code_file.write(f"    const result = eval(`{code}`)(...inputs);\n")
+                    code_file.write(f"    const result = (function() {{ {code} }})(...inputs);\n")
                     code_file.write(f"    console.log(JSON.stringify(result));\n")
                     code_file.write(f"  }} catch (error) {{\n")
                     code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
@@ -603,8 +609,7 @@ def test_code_execute(request):
     except Exception as e:
         logger.error(f"An unexpected error occurred during test execution: {str(e)}")
         return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
-
-
+      
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
     serializer_class = AttemptSerializer
