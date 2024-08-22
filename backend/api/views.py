@@ -529,21 +529,35 @@ def test_code_execute(request):
     try:
         data = request.data
         code = data.get('code')
+        test_cases = data.get('test_cases', [])
         logger.debug(f"Received code for execution:\n{code}")
+        logger.debug(f"Received test cases:\n{test_cases}")
 
-        if not code:
+        if not code or not test_cases:
             return JsonResponse({'error': 'Invalid input data'}, status=400)
 
         # Create a temporary directory to hold the code file
         with tempfile.TemporaryDirectory() as tmpdirname:
             code_file_path = os.path.join(tmpdirname, 'script.js')
 
-            # Write the user's code into script.js and add a console log to indicate it was executed
+            # Write the user's code into script.js and dynamically add test cases
             with open(code_file_path, 'w') as code_file:
+                # Write the user-provided function code
                 code_file.write(code)
                 code_file.write('\n\n')
+
+                # Add dynamic test case calls based on the test_cases input
+                code_file.write("console.log('Running dynamic tests:');\n")
+                for i, test_case in enumerate(test_cases):
+                    code_file.write(f"console.log('Test {i + 1} Output:', {test_case});\n")
+
+                # Indicate the script completed
                 code_file.write("console.log('User code executed successfully.');\n")
-                logger.debug(f"Final script.js content:\n{open(code_file_path).read()}")
+            
+            # Log the entire content of script.js before execution
+            with open(code_file_path, 'r') as script_file:
+                script_content = script_file.read()
+                logger.debug(f"Final script.js content:\n{script_content}")
 
             # Run the Docker container with the created script
             try:
@@ -574,7 +588,6 @@ def test_code_execute(request):
         logger.error(f"An unexpected error occurred during execution: {str(e)}")
         return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
 
-    
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
     serializer_class = AttemptSerializer
