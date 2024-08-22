@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -521,6 +522,87 @@ Example:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def test_code_execute(request):
+    try:
+        data = request.data
+        code = data.get('code')
+        test_cases = data.get('test_cases', [])
+        logger.debug(f"Received code for test: {code}")
+        logger.debug(f"Received test cases for test: {test_cases}")
+
+        if not code or not test_cases:
+            return JsonResponse({'error': 'Invalid input data'}, status=400)
+
+        # Create a temporary directory to hold the code file
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            code_file_path = os.path.join(tmpdirname, 'script.js')
+
+            with open(code_file_path, 'w') as code_file:
+                # Write the user's code to the file
+                code_file.write(code)
+                code_file.write('\n\n')
+
+                for i, test_case in enumerate(test_cases):
+                    input_data = test_case['input']
+                    input_data_escaped = json.dumps(input_data)
+                    logger.debug(f"Test Case {i + 1} input: {input_data_escaped}")
+
+                    code_file.write(f"console.log('Test Case {i + 1} Output:');\n")
+                    code_file.write(f"(function() {{\n")
+                    code_file.write(f"  try {{\n")
+                    code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
+                    code_file.write(f"    const result = eval(`{code}`)(...inputs);\n")
+                    code_file.write(f"    console.log(JSON.stringify(result));\n")
+                    code_file.write(f"  }} catch (error) {{\n")
+                    code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
+                    code_file.write(f"  }}\n")
+                    code_file.write(f"}})();\n\n")
+
+                logger.debug(f"Final script.js content for test:\n{open(code_file_path).read()}")
+
+            # Run the Docker container with the created script
+            try:
+                result = subprocess.run(
+                    ['docker', 'run', '--rm', '-v', f'{tmpdirname}:/usr/src/app', 'node:14', 'node', '/usr/src/app/script.js'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=10,
+                )
+
+                output = result.stdout.decode().strip()
+                error = result.stderr.decode().strip()
+
+                logger.debug(f"Docker output:\n{output}")
+                logger.debug(f"Docker error (if any):\n{error}")
+
+                # Simple string matching for testing purposes
+                passed_tests = 0
+                output_lines = output.splitlines()
+
+                for i, test_case in enumerate(test_cases):
+                    expected_output = test_case['output']
+                    test_case_output_prefix = f'Test Case {i + 1} Output:'
+                    if test_case_output_prefix in output_lines:
+                        output_index = output_lines.index(test_case_output_prefix) + 1
+                        actual_output = output_lines[output_index].strip()
+                        if actual_output == expected_output:
+                            passed_tests += 1
+
+                return JsonResponse({'passed': passed_tests, 'total': len(test_cases)}, status=200)
+
+            except subprocess.TimeoutExpired:
+                logger.error("Docker execution timed out")
+                return JsonResponse({'error': 'Docker execution timed out'}, status=500)
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Subprocess error: {str(e)}")
+                return JsonResponse({'error': str(e)}, status=500)
+
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during test execution: {str(e)}")
+        return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
 
 
 class AttemptViewSet(viewsets.ModelViewSet):
