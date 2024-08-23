@@ -549,7 +549,15 @@ def test_code_execute(request):
                 # Add dynamic test case calls based on the test_cases input
                 code_file.write("console.log('Running dynamic tests:');\n")
                 for i, test_case in enumerate(test_cases):
-                    code_file.write(f"console.log('Test {i + 1} Output:', {test_case});\n")
+                    input_data = test_case['input']
+                    expected_output = test_case['output']
+                    code_file.write(f"const actual_output_{i + 1} = {input_data};\n")
+                    code_file.write(f"console.log('Test {i + 1} Output:', actual_output_{i + 1});\n")
+                    code_file.write(f"if (String(actual_output_{i + 1}) === String({expected_output})) {{\n")
+                    code_file.write(f"    console.log('Test {i + 1} Passed');\n")
+                    code_file.write("} else {\n")
+                    code_file.write(f"    console.log('Test {i + 1} Failed: Expected {expected_output} but got', actual_output_{i + 1});\n")
+                    code_file.write("}\n\n")
 
                 # Indicate the script completed
                 code_file.write("console.log('User code executed successfully.');\n")
