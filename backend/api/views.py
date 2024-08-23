@@ -583,7 +583,22 @@ def test_code_execute(request):
                 logger.debug(f"Docker output:\n{output}")
                 logger.debug(f"Docker error (if any):\n{error}")
 
-                return JsonResponse({'output': output, 'error': error}, status=200)
+                # Parse output to determine which tests passed and failed
+                passed_tests = []
+                failed_tests = []
+
+                for i, test_case in enumerate(test_cases):
+                    test_number = f"Test {i + 1}"
+                    if f"{test_number} Passed" in output:
+                        passed_tests.append(test_number)
+                    elif f"{test_number} Failed" in output:
+                        failed_tests.append(test_number)
+
+                return JsonResponse({
+                    'passed_tests': passed_tests,
+                    'failed_tests': failed_tests,
+                    'error': error
+                }, status=200)
 
             except subprocess.TimeoutExpired:
                 logger.error("Docker execution timed out")
@@ -595,6 +610,7 @@ def test_code_execute(request):
     except Exception as e:
         logger.error(f"An unexpected error occurred during execution: {str(e)}")
         return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
+
 
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
