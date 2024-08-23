@@ -106,7 +106,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def generate(self, request):
-        categories = request.data.get("categories", [])
+        # categories = request.data.get("categories", [])
         difficulty = request.data.get("difficulty")
 
         if not difficulty:
@@ -115,22 +115,22 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if not categories:
-            return Response(
-                {"error": "Categories parameter is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # if not categories:
+        #     return Response(
+        #         {"error": "Categories parameter is required."},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
 
-        categories_str = ', '.join([f'"{category}"' for category in categories])
+        # categories_str = ', '.join([f'"{category}"' for category in categories])
 
         prompt = f"""
-You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a JavaScript problem in the following JSON format, ensuring the response includes the specified categories and difficulty exactly as provided:
+You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a JavaScript problem in the following JSON format, ensuring the response includes the specified language and difficulty exactly as provided:
 
 {{
   "title": "<problem_title>",
   "difficulty": "{difficulty}",
-  "categories": [{categories_str}],
-  "language": "javascript",
+  "categories": [<categories>],
+  "language": "Javascript",
   "problemDescription": "<problem_description>",
   "context": {{
     "codeSchema": "<code_or_table_relevant_to_problem>",
@@ -139,7 +139,7 @@ You are an AI assistant tasked with generating technical interview questions for
   "task": "<task_to_do>",
   "examples": [
     {{
-      "input": "<input_example>",
+      "input": "<function_name>(<input_example>)",
       "output": "<output_example>",
       "explanation": "<explanation_example>"
     }}
@@ -156,33 +156,33 @@ You are an AI assistant tasked with generating technical interview questions for
   ],
   "testCases": [
     {{
-      "input": "<test_input_1>",
+      "label": "Test 1",
+      "input": "<function_name>(<test_input_1>)",
       "output": "<expected_output_1>",
-      "type": "<data_type>",
       "description": "Basic functionality test: A simple, expected use case."
     }},
     {{
-      "input": "<test_input_2>",
+      "label": "Test 2",
+      "input": "<function_name>(<test_input_2>)",
       "output": "<expected_output_2>",
-      "type": "<data_type>",
       "description": "Edge case test: Handles edge cases such as empty inputs, large numbers, etc."
     }},
     {{
-      "input": "<test_input_3>",
+      "label": "Test 3",
+      "input": "<function_name>(<test_input_3>)",
       "output": "<expected_output_3>",
-      "type": "<data_type>",
       "description": "Bad input test: Handles incorrect or unexpected input types."
     }},
     {{
-      "input": "<test_input_4>",
+      "label": "Test 4",
+      "input": "<function_name>(<test_input_4>)",
       "output": "<expected_output_4>",
-      "type": "<data_type>",
       "description": "Performance test: Test with large inputs to check performance."
     }},
     {{
-      "input": "<test_input_5>",
+      "label": "Test 5",
+      "input": "<function_name>(<test_input_5>)",
       "output": "<expected_output_5>",
-      "type": "<data_type>",
       "description": "Additional complex case: An additional case that tests complex or unexpected logic."
     }}
   ],
@@ -223,7 +223,7 @@ Example:
   "task": "Implement the sumArrays function.",
   "examples": [
     {{
-      "input": "[[1, 2, 3], [4, 5, 6]]",
+      "input": "sumArrays([1, 2, 3], [4, 5, 6])",
       "output": "[5, 7, 9]",
       "explanation": "Each element is the sum of the corresponding elements in the input arrays."
     }}
@@ -235,33 +235,33 @@ Example:
   "tags": ["Array", "Basic"],
   "testCases": [
     {{
-      "input": "[[1, 2, 3], [4, 5, 6]]",
+      "label": "Test 1",
+      "input": "sumArrays([1, 2, 3], [4, 5, 6])",
       "output": "[5, 7, 9]",
-      "type": "array",
       "description": "Basic functionality test: A simple, expected use case."
     }},
     {{
-      "input": "[[], [1, 2, 3]]",
+      "label": "Test 2",
+      "input": "sumArrays([], [1, 2, 3])",
       "output": "[1, 2, 3]",
-      "type": "array",
       "description": "Edge case test: Handles empty first array."
     }},
     {{
-      "input": "[[1, 2], ['a', 'b']]",
+      "label": "Test 3",
+      "input": "sumArrays([1, 2], ['a', 'b'])",
       "output": "Error",
-      "type": "string",
       "description": "Bad input test: Handles non-numeric input."
     }},
     {{
-      "input": "[[1000000, 2000000], [3000000, 4000000]]",
+      "label": "Test 4",
+      "input": "sumArrays([1000000, 2000000], [3000000, 4000000])",
       "output": "[4000000, 6000000]",
-      "type": "array",
       "description": "Performance test: Test with large numbers."
     }},
     {{
-      "input": "[[1, 2, 3], [4, 5, 6, 7]]",
+      "label": "Test 5",
+      "input": "sumArrays([1, 2, 3], [4, 5, 6, 7])",
       "output": "[5, 7, 9, 7]",
-      "type": "array",
       "description": "Additional complex case: Different array lengths."
     }}
   ],
@@ -348,7 +348,10 @@ def execute_code_js(request):
                 code_file.write("console.log('Running dynamic tests:');\n")
                 for i, test_case in enumerate(test_cases):
                     input_data = test_case['input']
-                    expected_output = test_case['output']
+                    expected_output = test_case.get('output')
+                    if expected_output is None:
+                        logger.error(f"Missing 'output' in test case {i + 1}: {test_case}")
+                        return JsonResponse({'error': f"Missing 'output' in test case {i + 1}"}, status=400)
                     code_file.write(f"const actual_output_{i + 1} = {input_data};\n")
                     code_file.write(f"console.log('Test {i + 1} Output:', actual_output_{i + 1});\n")
                     code_file.write(f"if (String(actual_output_{i + 1}) === String({expected_output})) {{\n")
