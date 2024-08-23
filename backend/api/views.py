@@ -348,10 +348,11 @@ def execute_code_js(request):
                 code_file.write("console.log('Running dynamic tests:');\n")
                 for i, test_case in enumerate(test_cases):
                     input_data = test_case['input']
-                    expected_output = test_case.get('output')
+                    expected_output = test_case.get('expected_output')  # Change this line to handle 'expected_output'
                     if expected_output is None:
-                        logger.error(f"Missing 'output' in test case {i + 1}: {test_case}")
-                        return JsonResponse({'error': f"Missing 'output' in test case {i + 1}"}, status=400)
+                        logger.error(f"Missing 'expected_output' in test case {i + 1}: {test_case}")
+                        return JsonResponse({'error': f"Missing 'expected_output' in test case {i + 1}"}, status=400)
+
                     code_file.write(f"const actual_output_{i + 1} = {input_data};\n")
                     code_file.write(f"console.log('Test {i + 1} Output:', actual_output_{i + 1});\n")
                     code_file.write(f"if (String(actual_output_{i + 1}) === String({expected_output})) {{\n")
@@ -411,7 +412,6 @@ def execute_code_js(request):
     except Exception as e:
         logger.error(f"An unexpected error occurred during execution: {str(e)}")
         return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
-
 
 class AttemptViewSet(viewsets.ModelViewSet):
     queryset = Attempt.objects.all()
