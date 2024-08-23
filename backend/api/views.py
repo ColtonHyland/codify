@@ -73,98 +73,98 @@ def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({"csrfToken": csrf_token})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def execute_code_js(request):
-    try:
-        data = request.data
-        code = data.get('code')
-        test_cases = data.get('test_cases', [])
-        logger.debug(f"Received code: {code}")
-        logger.debug(f"Received test cases: {test_cases}")
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def execute_code_js(request):
+#     try:
+#         data = request.data
+#         code = data.get('code')
+#         test_cases = data.get('test_cases', [])
+#         logger.debug(f"Received code: {code}")
+#         logger.debug(f"Received test cases: {test_cases}")
 
-        if not code or not test_cases:
-            return JsonResponse({'error': 'Invalid input data'}, status=400)
+#         if not code or not test_cases:
+#             return JsonResponse({'error': 'Invalid input data'}, status=400)
 
-        function_name = extract_function_name(code)
-        if not function_name:
-            return JsonResponse({'error': 'Function name could not be extracted'}, status=400)
-        logger.debug(f"Extracted function name: {function_name}")
+#         function_name = extract_function_name(code)
+#         if not function_name:
+#             return JsonResponse({'error': 'Function name could not be extracted'}, status=400)
+#         logger.debug(f"Extracted function name: {function_name}")
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            code_file_path = os.path.join(tmpdirname, 'script.js')
+#         with tempfile.TemporaryDirectory() as tmpdirname:
+#             code_file_path = os.path.join(tmpdirname, 'script.js')
 
-            with open(code_file_path, 'w') as code_file:
-                code_file.write(code)
-                code_file.write('\n\n')
+#             with open(code_file_path, 'w') as code_file:
+#                 code_file.write(code)
+#                 code_file.write('\n\n')
 
-                for i, test_case in enumerate(test_cases):
-                    input_data = test_case['input']
-                    input_data_escaped = json.dumps(input_data)  # Ensure proper escaping
-                    logger.debug(f"Processing Test Case {i + 1} with input: {input_data_escaped}")
+#                 for i, test_case in enumerate(test_cases):
+#                     input_data = test_case['input']
+#                     input_data_escaped = json.dumps(input_data)  # Ensure proper escaping
+#                     logger.debug(f"Processing Test Case {i + 1} with input: {input_data_escaped}")
 
-                    code_file.write(f"console.log('Test Case {i + 1} Output:');\n")
-                    code_file.write(f"(function() {{\n")  # Start of IIFE
-                    code_file.write(f"  try {{\n")
-                    code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
-                    code_file.write(f"    const result = {function_name}(...inputs);\n")
-                    code_file.write(f"    console.log(JSON.stringify(result));\n")  # JSON.stringify for safe string output
-                    code_file.write(f"  }} catch (error) {{\n")
-                    code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
-                    code_file.write(f"  }}\n")
-                    code_file.write(f"}})();\n\n")  # End of IIFE
+#                     code_file.write(f"console.log('Test Case {i + 1} Output:');\n")
+#                     code_file.write(f"(function() {{\n")  # Start of IIFE
+#                     code_file.write(f"  try {{\n")
+#                     code_file.write(f"    const inputs = JSON.parse({input_data_escaped});\n")
+#                     code_file.write(f"    const result = {function_name}(...inputs);\n")
+#                     code_file.write(f"    console.log(JSON.stringify(result));\n")  # JSON.stringify for safe string output
+#                     code_file.write(f"  }} catch (error) {{\n")
+#                     code_file.write(f"    console.error('Error in Test Case {i + 1}:', error.message);\n")
+#                     code_file.write(f"  }}\n")
+#                     code_file.write(f"}})();\n\n")  # End of IIFE
 
-                # Log the final script content
-                with open(code_file_path, 'r') as f:
-                    final_script_content = f.read()
-                    logger.debug(f"Final script.js content:\n{final_script_content}")
+#                 # Log the final script content
+#                 with open(code_file_path, 'r') as f:
+#                     final_script_content = f.read()
+#                     logger.debug(f"Final script.js content:\n{final_script_content}")
 
-            dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
-            shutil.copy(dockerfile_path, tmpdirname)
+#             dockerfile_path = 'C:/Users/colto/Projects/codify/backend/Dockerfile'
+#             shutil.copy(dockerfile_path, tmpdirname)
 
-            passed_tests = 0
-            total_tests = len(test_cases)
+#             passed_tests = 0
+#             total_tests = len(test_cases)
 
-            try:
-                image, logs = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
-                logger.debug(f"Docker build logs:\n{''.join([log.get('stream', '') for log in logs])}")
-                result = docker_client.containers.run(image.id, remove=True)
-                result_output = result.decode('utf-8').strip()
-                logger.debug(f"Docker run output:\n{result_output}")
+#             try:
+#                 image, logs = docker_client.images.build(path=tmpdirname, tag='jsrunner', rm=True)
+#                 logger.debug(f"Docker build logs:\n{''.join([log.get('stream', '') for log in logs])}")
+#                 result = docker_client.containers.run(image.id, remove=True)
+#                 result_output = result.decode('utf-8').strip()
+#                 logger.debug(f"Docker run output:\n{result_output}")
 
-                output_lines = result_output.splitlines()
-                logger.debug(f"Processed output lines: {output_lines}")
+#                 output_lines = result_output.splitlines()
+#                 logger.debug(f"Processed output lines: {output_lines}")
 
-                for i in range(total_tests):
-                    try:
-                        expected_output = test_cases[i]['expected_output']
-                        test_case_output_prefix = f'Test Case {i + 1} Output:'
-                        output_index = output_lines.index(test_case_output_prefix) + 1  # Find the exact line for output
-                        actual_output = output_lines[output_index].strip()
+#                 for i in range(total_tests):
+#                     try:
+#                         expected_output = test_cases[i]['expected_output']
+#                         test_case_output_prefix = f'Test Case {i + 1} Output:'
+#                         output_index = output_lines.index(test_case_output_prefix) + 1  # Find the exact line for output
+#                         actual_output = output_lines[output_index].strip()
 
-                        logger.debug(f"Test Case {i + 1} actual output: {actual_output}")
+#                         logger.debug(f"Test Case {i + 1} actual output: {actual_output}")
 
-                        try:
-                            parsed_output = json.loads(actual_output)
-                        except (ValueError, json.JSONDecodeError):
-                            parsed_output = actual_output  # Fallback to plain string if JSON parsing fails
+#                         try:
+#                             parsed_output = json.loads(actual_output)
+#                         except (ValueError, json.JSONDecodeError):
+#                             parsed_output = actual_output  # Fallback to plain string if JSON parsing fails
 
-                        if str(parsed_output) == str(expected_output):
-                            passed_tests += 1
-                        else:
-                            logger.error(f"Test Case {i + 1} failed: Expected {expected_output}, but got {parsed_output}")
-                    except Exception as eval_error:
-                        logger.error(f"Error processing Test Case {i + 1}: {eval_error}")
+#                         if str(parsed_output) == str(expected_output):
+#                             passed_tests += 1
+#                         else:
+#                             logger.error(f"Test Case {i + 1} failed: Expected {expected_output}, but got {parsed_output}")
+#                     except Exception as eval_error:
+#                         logger.error(f"Error processing Test Case {i + 1}: {eval_error}")
 
-            except docker.errors.DockerException as e:
-                logger.error(f'Docker execution failed: {e}')
-                return JsonResponse({'error': f'Docker execution failed: {e}'}, status=500)
+#             except docker.errors.DockerException as e:
+#                 logger.error(f'Docker execution failed: {e}')
+#                 return JsonResponse({'error': f'Docker execution failed: {e}'}, status=500)
 
-        return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=200)
+#         return JsonResponse({'passed': passed_tests, 'total': total_tests}, status=200)
 
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
-        return JsonResponse({'error': f'An unexpected error occurred: {e}'}, status=500)
+#     except Exception as e:
+#         logger.error(f"An unexpected error occurred: {e}")
+#         return JsonResponse({'error': f'An unexpected error occurred: {e}'}, status=500)
       
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
@@ -198,82 +198,82 @@ def execute_code_js(request):
 #         logger.error(f"Error executing code: {str(e)}")
 #         return JsonResponse({'error': str(e)}, status=500)
 
-def extract_function_name(code):
-    """
-    Extract the function name from the provided code.
-    Supports Python, JavaScript, TypeScript, Java, and C++.
-    """
-    match = re.search(r'def\s+(\w+)\s*\(', code) or \
-            re.search(r'function\s+(\w+)\s*\(', code) or \
-            re.search(r'(\w+)\s*\(', code) or \
-            re.search(r'public\s+static\s+.*\s+(\w+)\s*\(', code) or \
-            re.search(r'\w+\s+(\w+)\s*\(', code)
+# def extract_function_name(code):
+#     """
+#     Extract the function name from the provided code.
+#     Supports Python, JavaScript, TypeScript, Java, and C++.
+#     """
+#     match = re.search(r'def\s+(\w+)\s*\(', code) or \
+#             re.search(r'function\s+(\w+)\s*\(', code) or \
+#             re.search(r'(\w+)\s*\(', code) or \
+#             re.search(r'public\s+static\s+.*\s+(\w+)\s*\(', code) or \
+#             re.search(r'\w+\s+(\w+)\s*\(', code)
     
-    return match.group(1) if match else None
+#     return match.group(1) if match else None
 
-def create_tar_file(file_path, file_content):
-    logger.debug(f"Creating tar file for path: {file_path}")
-    file_data = io.BytesIO()
-    with tarfile.open(fileobj=file_data, mode='w') as tar:
-        tarinfo = tarfile.TarInfo(name=file_path)
-        tarinfo.size = len(file_content)
-        tar.addfile(tarinfo, io.BytesIO(file_content.encode('utf-8')))
-    file_data.seek(0)
-    logger.debug("Tar file created successfully")
-    return file_data
+# def create_tar_file(file_path, file_content):
+#     logger.debug(f"Creating tar file for path: {file_path}")
+#     file_data = io.BytesIO()
+#     with tarfile.open(fileobj=file_data, mode='w') as tar:
+#         tarinfo = tarfile.TarInfo(name=file_path)
+#         tarinfo.size = len(file_content)
+#         tar.addfile(tarinfo, io.BytesIO(file_content.encode('utf-8')))
+#     file_data.seek(0)
+#     logger.debug("Tar file created successfully")
+#     return file_data
 
-def run_code_in_docker(language, code, input_data, expected_output):
-    try:
-        logger.debug(f"Running code in Docker for language: {language}")
-        function_name = extract_function_name(code, language)
-        if not function_name:
-            logger.debug("Function name not found in code")
-            return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Function name not found', 'passed': False}
+# def run_code_in_docker(language, code, input_data, expected_output):
+#     try:
+#         logger.debug(f"Running code in Docker for language: {language}")
+#         function_name = extract_function_name(code, language)
+#         if not function_name:
+#             logger.debug("Function name not found in code")
+#             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Function name not found', 'passed': False}
 
-        logger.debug(f"Using Docker image for language {language}")
+#         logger.debug(f"Using Docker image for language {language}")
 
-        if language == 'javascript':
-            image = 'node:14'
-            file_extension = '.js'
-            run_command = f'node /tmp/code{file_extension}'
-            input_code = f"const inputs = {input_data};\n"
+#         if language == 'javascript':
+#             image = 'node:14'
+#             file_extension = '.js'
+#             run_command = f'node /tmp/code{file_extension}'
+#             input_code = f"const inputs = {input_data};\n"
 
-            # Ensure Node class is declared first
-            code_to_run = f"""
-{input_code}
-{code}
+#             # Ensure Node class is declared first
+#             code_to_run = f"""
+# {input_code}
+# {code}
 
-console.log({function_name}(...inputs));
-"""
+# console.log({function_name}(...inputs));
+# """
 
-        else:
-            logger.debug("Unsupported language")
-            return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
+#         else:
+#             logger.debug("Unsupported language")
+#             return {'input': input_data, 'expected_output': expected_output, 'actual_output': 'Unsupported language', 'passed': False}
 
-        logger.debug(f"Creating Docker container with image: {image}")
-        container = docker_client.containers.create(image, command='/bin/sh', tty=True, stdin_open=True)
-        tar_data = create_tar_file(f'code{file_extension}', code_to_run)
-        logger.debug(f"Copying tar file to container")
-        container.put_archive('/tmp', tar_data)
-        logger.debug("Starting container")
-        container.start()
-        logger.debug("Executing code in container")
-        exec_result = container.exec_run(cmd=run_command, stdin=True, tty=True)
-        output = exec_result.output.decode('utf-8').strip()
-        logger.debug(f"Execution output: {output}")
-        container.stop()
-        container.remove()
+#         logger.debug(f"Creating Docker container with image: {image}")
+#         container = docker_client.containers.create(image, command='/bin/sh', tty=True, stdin_open=True)
+#         tar_data = create_tar_file(f'code{file_extension}', code_to_run)
+#         logger.debug(f"Copying tar file to container")
+#         container.put_archive('/tmp', tar_data)
+#         logger.debug("Starting container")
+#         container.start()
+#         logger.debug("Executing code in container")
+#         exec_result = container.exec_run(cmd=run_command, stdin=True, tty=True)
+#         output = exec_result.output.decode('utf-8').strip()
+#         logger.debug(f"Execution output: {output}")
+#         container.stop()
+#         container.remove()
 
-        passed = output == expected_output
-        logger.debug(f"Test case passed: {passed}")
-        return {'input': input_data, 'expected_output': expected_output, 'actual_output': output, 'passed': passed}
+#         passed = output == expected_output
+#         logger.debug(f"Test case passed: {passed}")
+#         return {'input': input_data, 'expected_output': expected_output, 'actual_output': output, 'passed': passed}
 
-    except DockerException as e:
-        logger.error(f"Docker exception: {str(e)}")
-        return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
-    except Exception as e:
-        logger.error(f"Exception: {str(e)}")
-        return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
+#     except DockerException as e:
+#         logger.error(f"Docker exception: {str(e)}")
+#         return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
+#     except Exception as e:
+#         logger.error(f"Exception: {str(e)}")
+#         return {'input': input_data, 'expected_output': expected_output, 'actual_output': str(e), 'passed': False}
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -525,7 +525,7 @@ Example:
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def test_code_execute(request):
+def execute_code_js(request):
     try:
         data = request.data
         code = data.get('code')
