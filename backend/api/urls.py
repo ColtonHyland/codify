@@ -11,6 +11,7 @@ router.register(r'history', QuestionHistoryViewSet)
 custom_urls = [
     path('questions/get_question/<int:pk>/', QuestionViewSet.as_view({'get': 'get_question'}), name='get-question'),
     path('code/execute/js/', execute_code_js, name='execute-code-js'),
+    # path('test-code-execute/', execute_code_js, name='test_code_execute'),
 ]
 
 urlpatterns = [
