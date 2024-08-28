@@ -24,7 +24,7 @@ export const DropdownSelector: React.FC<DropdownSelectorProps> = ({
           <MenuItem value="Hard">Hard</MenuItem>
         </Select>
       </FormControl>
-      <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+      {/* <FormControl variant="outlined" sx={{ minWidth: 120 }}>
         <InputLabel>Category</InputLabel>
         <Select
           defaultValue="SQL"
@@ -38,7 +38,7 @@ export const DropdownSelector: React.FC<DropdownSelectorProps> = ({
           <MenuItem value="C++">C++</MenuItem>
           <MenuItem value="Java">Java</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
     </Box>
   );
 };
