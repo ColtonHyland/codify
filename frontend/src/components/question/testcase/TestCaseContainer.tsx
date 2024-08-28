@@ -1,16 +1,28 @@
 import React from 'react';
 import { TestCase } from './TestCase';
 
-interface TestCaseContainerProps {
-  testCases: { input: string; output: string }[];
+interface TestCaseType {
+  label: string;
+  input: string;
+  output: string;
+  description: string;
 }
 
-const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ testCases }) => {
+interface TestCaseContainerProps {
+  tests: string;
+  index: number;
+}
+
+const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, index }) => {
+  const parsedTests: TestCaseType[] = JSON.parse(tests);
+
   return (
     <div>
-      {testCases.map((testCase, index) => (
+      {parsedTests.map((testCase, index) => (
         <TestCase key={index} input={testCase.input} output={testCase.output} />
       ))}
     </div>
   );
 };
+
+export default TestCaseContainer;

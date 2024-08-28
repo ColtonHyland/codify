@@ -90,10 +90,10 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
         {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
       </Typography>
 
-      <Typography variant="h6" gutterBottom>
+      {/* <Typography variant="h6" gutterBottom>
         Test Cases
-      </Typography>
-      <List>
+      </Typography> */}
+      {/* <List>
         {JSON.parse(data.tests).map((testCase: any, index: number) => (
           <ListItem key={index}>
             <ListItemText
@@ -102,7 +102,7 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
             />
           </ListItem>
         )) || "N/A"}
-      </List>
+      </List> */}
 
       <Button variant="contained" color="primary" onClick={handleToggleTips}>
         Toggle Hints
