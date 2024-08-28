@@ -12,7 +12,7 @@ const Editor: React.FC<EditorProps> = ({
       width="100%"
       height="600px"
       language={language}
-      theme="vs-dark"
+      theme="vs"
       value={code}
       onChange={(newValue) => setCode(newValue)}
     />

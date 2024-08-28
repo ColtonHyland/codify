@@ -28,6 +28,7 @@ const QuestionPage: React.FC = () => {
               id: fetchedQuestion.id.toString(),
             });
             setLanguage(fetchedQuestion.language);
+            setCode(fetchedQuestion.design);
           } else {
             setError("Question not found");
           }
@@ -100,10 +101,10 @@ const QuestionPage: React.FC = () => {
           <Button variant="contained" color="primary" onClick={handleSubmit}>
             Submit
           </Button>
-          <Paper variant="outlined" sx={{ padding: 2, marginTop: 2 }}>
+          {/* <Paper variant="outlined" sx={{ padding: 2, marginTop: 2 }}>
             <Typography variant="h6">Result</Typography>
             <pre>{result}</pre>
-          </Paper>
+          </Paper> */}
         </Grid>
       </Grid>
     </Container>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
 import { ErrorData, Question } from '../../types';
+import TestCaseContainer from './testcase/TestCaseContainer';
 
 interface QuestionFieldProps {
   jsonText: string;
@@ -90,19 +91,8 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
         {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
       </Typography>
 
-      {/* <Typography variant="h6" gutterBottom>
-        Test Cases
-      </Typography> */}
-      {/* <List>
-        {JSON.parse(data.tests).map((testCase: any, index: number) => (
-          <ListItem key={index}>
-            <ListItemText
-              primary={`Input: ${testCase.input}`}
-              secondary={`Output: ${testCase.output}`}
-            />
-          </ListItem>
-        )) || "N/A"}
-      </List> */}
+      <TestCaseContainer tests={data.tests} index={0} />
+
 
       <Button variant="contained" color="primary" onClick={handleToggleTips}>
         Toggle Hints
