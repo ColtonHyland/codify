@@ -36,7 +36,7 @@ export const GenerateQuestionPage: React.FC = () => {
           category={category} 
         />
       </Box>
-      {responseData && <QuestionField jsonText={responseData} />}
+      {/* {responseData && <QuestionField jsonText={responseData} />} */}
       {solution && <Solution solution={solution} />}
     </Container>
   );

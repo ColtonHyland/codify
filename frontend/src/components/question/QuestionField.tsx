@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
 import { ErrorData, Question } from '../../types';
 import TestCaseContainer from './testcase/TestCaseContainer';
 
 interface QuestionFieldProps {
   jsonText: string;
+  passedTests: string[];
+  failedTests: string[];
 }
 
 type ParsedData = Question | ErrorData;
 
-const formatJson = (data: Question, handleToggleTips: () => void, showTips: boolean) => {
+const formatJson = (
+  data: Question,
+  handleToggleTips: () => void,
+  showTips: boolean,
+  passedTests: string[],
+  failedTests: string[]
+) => {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="h4" gutterBottom>
@@ -26,12 +34,11 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
       </Typography>
       <Typography variant="body1">
         <strong>Language:</strong> {data.language || "N/A"}
-      </Typography>  {/* Added Language */}
+      </Typography>
       <Typography variant="body1" paragraph>
         <strong>Description:</strong> {data.description || "N/A"}
       </Typography>
 
-  
       <Typography variant="body1">{data.explanation || "N/A"}</Typography>
 
       <Typography variant="h6" gutterBottom>
@@ -83,13 +90,11 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
         {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
       </Typography>
 
-      <TestCaseContainer 
-  tests={question.tests} 
-  passedTests={data.passed_tests} 
-  failedTests={data.failed_tests} 
-/>
-
-
+      <TestCaseContainer
+        tests={data.tests}
+        passedTests={passedTests}
+        failedTests={failedTests}
+      />
 
       <Button variant="contained" color="primary" onClick={handleToggleTips}>
         Toggle Hints
@@ -116,7 +121,7 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
   );
 };
 
-export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
+export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText, passedTests, failedTests }) => {
   const [showTips, setShowTips] = useState(false);
 
   const handleToggleTips = () => {
@@ -130,17 +135,13 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
     jsonData = { error: "Failed to decode JSON from the OpenAI response." };
   }
 
-  // useEffect(() => {
-  //   console.log(jsonData);
-  // }, [jsonData]);
-
   return (
     <Box sx={{ padding: 2 }}>
       <Paper variant="outlined" sx={{ padding: 2 }}>
         {"error" in jsonData ? (
           <Typography color="error">{jsonData.error}</Typography>
         ) : (
-          formatJson(jsonData as Question, handleToggleTips, showTips)
+          formatJson(jsonData as Question, handleToggleTips, showTips, passedTests, failedTests)
         )}
       </Paper>
     </Box>

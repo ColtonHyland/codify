@@ -4,7 +4,7 @@ import { Container, Typography, Paper, Grid, Button } from "@mui/material";
 import { QuestionField } from "../components/question/QuestionField";
 import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
-import { Question, languageMap } from "../types";
+import { Question } from "../types";
 import { executeJavaScriptCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
@@ -13,8 +13,9 @@ const QuestionPage: React.FC = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
-  const [result, setResult] = useState("");
   const [language, setLanguage] = useState("language");
+  const [passedTests, setPassedTests] = useState<string[]>([]);
+  const [failedTests, setFailedTests] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -22,7 +23,6 @@ const QuestionPage: React.FC = () => {
         try {
           const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
           if (fetchedQuestion) {
-            // console.log("Fetched question:", fetchedQuestion);
             setQuestion({
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
@@ -57,15 +57,14 @@ const QuestionPage: React.FC = () => {
           });
         } else {
           console.error(`Execution for ${language} is not yet implemented.`);
-          setResult(`Execution for ${language} is not yet implemented.`);
           return;
         }
 
         console.log("Submission result:", data);
-        setResult(JSON.stringify(data, null, 2));
+        setPassedTests(data.passed_tests || []);
+        setFailedTests(data.failed_tests || []);
       } catch (error) {
         console.error("Error executing code", error);
-        setResult("Error executing code");
       }
     }
   };
@@ -92,7 +91,11 @@ const QuestionPage: React.FC = () => {
     <Container>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <QuestionField jsonText={JSON.stringify(question)} />
+          <QuestionField
+            jsonText={JSON.stringify(question)}
+            passedTests={passedTests}
+            failedTests={failedTests}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
@@ -101,10 +104,6 @@ const QuestionPage: React.FC = () => {
           <Button variant="contained" color="primary" onClick={handleSubmit}>
             Submit
           </Button>
-          {/* <Paper variant="outlined" sx={{ padding: 2, marginTop: 2 }}>
-            <Typography variant="h6">Result</Typography>
-            <pre>{result}</pre>
-          </Paper> */}
         </Grid>
       </Grid>
     </Container>
