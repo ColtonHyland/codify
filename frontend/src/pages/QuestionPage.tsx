@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Typography, Paper, Grid, Button } from "@mui/material";
 import { QuestionField } from "../components/question/QuestionField";
-import Editor from "../components/editor/Editor";
+import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
 import { Question, languageMap } from "../types";
 import { executeJavaScriptCode } from "../services/codeExecute";
@@ -22,7 +22,7 @@ const QuestionPage: React.FC = () => {
         try {
           const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
           if (fetchedQuestion) {
-            console.log("Fetched question:", fetchedQuestion);
+            // console.log("Fetched question:", fetchedQuestion);
             setQuestion({
               ...fetchedQuestion,
               id: fetchedQuestion.id.toString(),
@@ -96,7 +96,7 @@ const QuestionPage: React.FC = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-            <Editor language={language} code={code} setCode={setCode} />
+            <MyEditor language={language} code={code} setCode={setCode} />
           </Paper>
           <Button variant="contained" color="primary" onClick={handleSubmit}>
             Submit

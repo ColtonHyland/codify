@@ -31,15 +31,7 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
         <strong>Description:</strong> {data.description || "N/A"}
       </Typography>
 
-      <Typography variant="h6" gutterBottom>
-        Context
-      </Typography>
-      <Typography variant="body1">
-        <strong>Code Schema:</strong>
-      </Typography>
-      <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-        <pre>{data.design || "N/A"}</pre>
-      </Paper>
+  
       <Typography variant="body1">{data.explanation || "N/A"}</Typography>
 
       <Typography variant="h6" gutterBottom>
@@ -133,9 +125,9 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText }) => {
     jsonData = { error: "Failed to decode JSON from the OpenAI response." };
   }
 
-  useEffect(() => {
-    console.log(jsonData);
-  }, [jsonData]);
+  // useEffect(() => {
+  //   console.log(jsonData);
+  // }, [jsonData]);
 
   return (
     <Box sx={{ padding: 2 }}>

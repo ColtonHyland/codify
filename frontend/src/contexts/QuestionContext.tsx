@@ -68,7 +68,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         `http://localhost:8000/api/questions/get_question/${id}/`,
         { headers: { Authorization: `Token ${token}` } }
       );
-      console.log("Axios get question by id:", response.data);
+      // console.log("Axios get question by id:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching question:", error);

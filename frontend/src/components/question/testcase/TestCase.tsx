@@ -15,14 +15,14 @@ export const TestCase: React.FC<TestCaseProps> = ({ input, output, description }
       <Typography variant="body1" gutterBottom>{description}</Typography>
       
       <Typography variant="subtitle1" gutterBottom>Input:</Typography>
-      <Typography variant="body2" gutterBottom>
-        <pre>{input}</pre>
-      </Typography>
+      <Box component="pre" sx={{ margin: 0, fontFamily: 'monospace', fontSize: '0.875rem' }}>
+        {input}
+      </Box>
 
       <Typography variant="subtitle1" gutterBottom>Output:</Typography>
-      <Typography variant="body2" gutterBottom>
-        <pre>{output}</pre>
-      </Typography>
+      <Box component="pre" sx={{ margin: 0, fontFamily: 'monospace', fontSize: '0.875rem' }}>
+        {output}
+      </Box>
     </Box>
   );
 };
