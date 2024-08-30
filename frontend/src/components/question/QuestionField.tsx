@@ -83,7 +83,12 @@ const formatJson = (data: Question, handleToggleTips: () => void, showTips: bool
         {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
       </Typography>
 
-      <TestCaseContainer tests={data.tests} index={0} />
+      <TestCaseContainer 
+  tests={question.tests} 
+  passedTests={data.passed_tests} 
+  failedTests={data.failed_tests} 
+/>
+
 
 
       <Button variant="contained" color="primary" onClick={handleToggleTips}>

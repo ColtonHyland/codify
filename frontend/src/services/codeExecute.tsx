@@ -36,24 +36,3 @@ export const executeJavaScriptCode = async (params: ExecuteJavaScriptCode): Prom
     throw error;
   }
 };
-// function isBipartite(graph) {
-//   const colors = new Array(graph.length).fill(0);
-//   const queue = [];
-//   for (let i = 0; i < graph.length; i++) {
-//       if (colors[i] === 0) {
-//           colors[i] = 1;
-//           queue.push(i);
-//           while (queue.length) {
-//               const node = queue.shift();
-//               for (const neighbor of graph[node]) {
-//                   if (colors[neighbor] === colors[node]) return false;
-//                   if (colors[neighbor] === 0) {
-//                       colors[neighbor] = -colors[node];
-//                       queue.push(neighbor);
-//                   }
-//               }
-//           }
-//       }
-//   }
-//   return true;
-// }
