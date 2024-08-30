@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import Editor, { OnChange, useMonaco } from "@monaco-editor/react";
-import { Monaco } from "@monaco-editor/react"; // Import Monaco types if needed
-import * as monaco from "monaco-editor";
+import React, { useState, useRef } from "react";
+import Editor, { useMonaco } from "@monaco-editor/react";
+import * as monacoEditor from "monaco-editor"; // Import Monaco types
 import { EditorProps } from "../../types";
 
 const MyEditor: React.FC<EditorProps> = ({
@@ -9,30 +8,40 @@ const MyEditor: React.FC<EditorProps> = ({
   code = "",
   setCode = () => {},
 }) => {
-  const monaco = useMonaco();
+  const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
   const [themeError, setThemeError] = useState<string | null>(null);
 
-  const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: Monaco) => {
-    if (monaco) {
-      monaco.editor.setTheme("myTheme");
-    }
-  };
-
-  const handleBeforeMount = (monacoInstance: Monaco) => {
-    const loadTheme = async () => {
-      try {
-        const response = await fetch("/custom-theme.json");
-        if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.statusText}`);
-        }
-        const data = await response.json();
-        monacoInstance.editor.defineTheme("myTheme", data);
-      } catch (error) {
+  const loadTheme = async (monacoInstance: typeof monacoEditor) => {
+    try {
+      console.log("Loading theme...");
+      const response = await fetch("/custom-theme.json");
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log("Theme data:", data);
+      monacoInstance.editor.defineTheme("myTheme", data);
+      console.log("Defining theme...");
+    } catch (error) {
+      if ((error as Error).name === "AbortError") {
+        console.log("Theme loading aborted");
+      } else {
         console.error("Error loading or defining theme:", error);
         setThemeError("Error loading or defining theme. Please check the theme JSON format.");
       }
-    };
-    loadTheme();
+    }
+  };
+
+  const handleEditorWillMount = (monacoInstance: typeof monacoEditor) => {
+    // This is called before the editor is mounted
+    loadTheme(monacoInstance);
+  };
+
+  const handleEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+    console.log("Editor did mount");
+    editorRef.current = editor; // Store editor instance in ref
+    console.log("Setting theme to myTheme");
+    monaco.editor.setTheme("myTheme");
   };
 
   return (
@@ -43,7 +52,7 @@ const MyEditor: React.FC<EditorProps> = ({
         language={language}
         value={code}
         onChange={(newValue: string | undefined) => setCode(newValue || "")}
-        beforeMount={handleBeforeMount}
+        beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{
           minimap: { enabled: false },
@@ -55,7 +64,6 @@ const MyEditor: React.FC<EditorProps> = ({
 };
 
 export default MyEditor;
-
 
 // function uniquePaths(m, n) {
 //   const dp = Array(m).fill().map(() => Array(n).fill(1));
