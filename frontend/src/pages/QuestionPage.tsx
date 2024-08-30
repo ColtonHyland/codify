@@ -48,7 +48,7 @@ const QuestionPage: React.FC = () => {
           input: test.input,
           expected_output: test.output,
         }));
-
+  
         let data;
         if (language === "javascript") {
           data = await executeJavaScriptCode({
@@ -59,12 +59,20 @@ const QuestionPage: React.FC = () => {
           console.error(`Execution for ${language} is not yet implemented.`);
           return;
         }
-
+  
         console.log("Submission result:", data);
+  
+        // If there's an error in the response, treat it as a failed test
+        if (data.error) {
+          setFailedTests([...data.failed_tests, "Error"]);
+        } else {
+          setFailedTests(data.failed_tests || []);
+        }
+  
         setPassedTests(data.passed_tests || []);
-        setFailedTests(data.failed_tests || []);
       } catch (error) {
         console.error("Error executing code", error);
+        setFailedTests([...failedTests, "Execution Error"]);
       }
     }
   };

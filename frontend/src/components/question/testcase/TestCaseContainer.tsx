@@ -28,7 +28,7 @@ const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTest
           let status = 0; // Not run by default
           if (passedTests.includes(`Test ${idx + 1}`)) {
             status = 1; // Passed
-          } else if (failedTests.includes(`Test ${idx + 1}`)) {
+          } else if (failedTests.includes(`Test ${idx + 1}`) || failedTests.includes("Error")) {
             status = -1; // Failed
           }
 
@@ -43,6 +43,18 @@ const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTest
             </ListItem>
           );
         })}
+
+        {/* Optionally render a generic failed test case for errors
+        {failedTests.includes("Error") && (
+          <ListItem>
+            <TestCase
+              input={"N/A"}
+              output={"N/A"}
+              description={"Test failed due to an error during execution."}
+              status={-1}
+            />
+          </ListItem>
+        )} */}
       </List>
     </>
   );
