@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import whiteFavicon from '../../assets/images/favicon_white_cleaned.png';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -11,14 +12,27 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Codify
-        </Typography>
+    <AppBar position="static" sx={{ backgroundColor: "green" }}>
+      <Toolbar sx={{ fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'" }}>
+        <Button
+          color="inherit"
+          component={Link}
+          to="/"
+          sx={{
+            flexGrow: 1,
+            fontSize: "2rem",
+            padding: "6px 12px",
+            textTransform: "none",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <img src={whiteFavicon} alt="Logo" style={{ marginRight: '8px', height: '24px' }} />
+          odify
+        </Button>
 
         <Box
-          sx={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
+          sx={{ display: "flex", justifyContent: "flex-end", width: "100%", fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'" }}
         >
           {user && (
             <Typography variant="h6" component="div" sx={{ marginRight: 2 }}>
@@ -27,9 +41,6 @@ const Navbar: React.FC = () => {
           )}
           <Button color="inherit" component={Link} to="/questions">
             Practice
-          </Button>
-          <Button color="inherit" component={Link} to="/">
-            Home
           </Button>
           {user ? (
             <>
