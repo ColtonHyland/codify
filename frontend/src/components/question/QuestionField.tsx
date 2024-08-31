@@ -31,11 +31,9 @@ const formatJson = (
   return (
     <Box sx={{ padding: 2 }}>
       <Box display="flex" flexDirection="row" justifyContent="space-between">
-        <Typography variant="h5">
-          {data.title}
-        </Typography>
+        <Typography variant="h5">{data.title}</Typography>
         <div>
-          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x"/>
+          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
         </div>
       </Box>
       <Typography variant="body1">
@@ -44,62 +42,60 @@ const formatJson = (
       <Typography variant="body1">
         <strong>Difficulty:</strong> {data.difficulty || "N/A"}
       </Typography>
-      <Box display="flex" flexDirection="row" gap={1}>
-        {data.categories?.map((category, index) => (
-          <Button
-          key={index}
-          variant="contained"
+      <Box display="flex" flexDirection="row">
+        <Typography variant="body1">
+          <strong>Categories:</strong>
+        </Typography>
 
-          sx={{
-            backgroundColor: "green",
-            color: "white",
-            padding: "2px 8px",
-            fontSize: "0.75rem",
-            minWidth: "auto",
-            "&:hover": {
-            backgroundColor: "black",
-            
-            },
-          }}
-        >
-            {category}
-          </Button>
-        )) || "N/A"}
+        <Box display="flex" flexDirection="row" gap={1}>
+          {data.categories?.map((category, index) => (
+            <Button
+              key={index}
+              variant="contained"
+              sx={{
+                backgroundColor: "green",
+                color: "white",
+                padding: "2px 8px",
+                fontSize: "0.75rem",
+                minWidth: "auto",
+                "&:hover": {
+                  backgroundColor: "black",
+                },
+              }}
+            >
+              {category}
+            </Button>
+          ))}
+        </Box>
       </Box>
       <Typography variant="body2" paragraph>
         {data.description || "No description"}
       </Typography>
 
-      <Typography variant="body1">{data.explanation || "N/A"}</Typography>
-
-      <Typography variant="h6" gutterBottom>
-        Task
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {data.task || "N/A"}
+      <Typography variant="body2">{data.explanation}</Typography>
+      <Typography variant="body2" paragraph sx={{ fontWeight: "bold" }}>
+        {data.task}
       </Typography>
 
-      <Typography variant="h6" gutterBottom>
-        Examples
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+        Example
       </Typography>
-      <List>
-        <ListItem>
-          <ListItemText
-            primary={`Input: ${data.example_input}`}
-            secondary={
-              <>
-                <Typography component="span">
-                  <strong>Output:</strong> {data.example_output}
-                </Typography>
-                <br />
-                <Typography component="span">
-                  <strong>Explanation:</strong> {data.explanation_answer}
-                </Typography>
-              </>
-            }
-          />
-        </ListItem>
-      </List>
+      <Box>
+        <ListItemText
+          primary={`Input: ${data.example_input}`}
+          secondary={
+            <>
+              <Typography component="span">
+                <strong>Output:</strong> {data.example_output}
+              </Typography>
+              <br />
+              <Typography component="span">
+                <strong>Explanation:</strong> {data.explanation_answer}
+              </Typography>
+            </>
+          }
+        />
+      </Box>
 
       <Typography variant="h6" gutterBottom>
         Constraints
@@ -114,12 +110,12 @@ const formatJson = (
         ) || "N/A"}
       </List>
 
-      <Typography variant="h6" gutterBottom>
+      {/* <Typography variant="h6" gutterBottom>
         Tags
       </Typography>
       <Typography variant="body1" paragraph>
         {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
-      </Typography>
+      </Typography> */}
 
       <TestCaseContainer
         tests={data.tests}
@@ -144,10 +140,9 @@ const formatJson = (
           </List>
         </>
       )}
-      <Typography variant="h6" gutterBottom>
-        Notes
+      <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+        {data.notes}
       </Typography>
-      <Typography variant="body1">{data.notes || "N/A"}</Typography>
     </Box>
   );
 };

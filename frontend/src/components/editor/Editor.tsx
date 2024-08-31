@@ -42,7 +42,7 @@ const MyEditor: React.FC<EditorProps> = ({
     <div>
       {themeError && <div style={{ color: "red" }}>{themeError}</div>}
       <Editor
-        height="600px"
+        height="500px"
         language={language}
         value={code}
         onChange={(newValue: string | undefined) => setCode(newValue || "")}
