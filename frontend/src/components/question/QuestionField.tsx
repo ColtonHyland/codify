@@ -24,7 +24,7 @@ const formatJson = (
         {data.title}
       </Typography>
       <Typography variant="body1">
-        <strong>Problem ID:</strong> {data.id || "N/A"}
+        <strong>Problem #</strong> {data.id || "N/A"}
       </Typography>
       <Typography variant="body1">
         <strong>Difficulty:</strong> {data.difficulty || "N/A"}
