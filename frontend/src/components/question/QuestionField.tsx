@@ -30,12 +30,12 @@ const formatJson = (
 ) => {
   return (
     <Box sx={{ padding: 2 }}>
-      <Box>
-        <Typography variant="h4" gutterBottom>
+      <Box display="flex" flexDirection="row" justifyContent="space-between">
+        <Typography variant="h5">
           {data.title}
         </Typography>
         <div>
-          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
+          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x"/>
         </div>
       </Box>
       <Typography variant="body1">
@@ -44,14 +44,30 @@ const formatJson = (
       <Typography variant="body1">
         <strong>Difficulty:</strong> {data.difficulty || "N/A"}
       </Typography>
-      <Typography variant="body1">
-        <strong>Categories:</strong> {data.categories?.join(", ") || "N/A"}
-      </Typography>
-      <Typography variant="body1">
-        <strong>Language:</strong> {data.language || "N/A"}
-      </Typography>
-      <Typography variant="body1" paragraph>
-        <strong>Description:</strong> {data.description || "N/A"}
+      <Box display="flex" flexDirection="row" gap={1}>
+        {data.categories?.map((category, index) => (
+          <Button
+          key={index}
+          variant="contained"
+
+          sx={{
+            backgroundColor: "green",
+            color: "white",
+            padding: "2px 8px",
+            fontSize: "0.75rem",
+            minWidth: "auto",
+            "&:hover": {
+            backgroundColor: "black",
+            
+            },
+          }}
+        >
+            {category}
+          </Button>
+        )) || "N/A"}
+      </Box>
+      <Typography variant="body2" paragraph>
+        {data.description || "No description"}
       </Typography>
 
       <Typography variant="body1">{data.explanation || "N/A"}</Typography>
