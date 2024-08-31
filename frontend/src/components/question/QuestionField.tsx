@@ -1,7 +1,17 @@
 import React, { useState } from "react";
-import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
-import { ErrorData, Question } from '../../types';
-import TestCaseContainer from './testcase/TestCaseContainer';
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faJs } from "@fortawesome/free-brands-svg-icons";
+import { ErrorData, Question } from "../../types";
+import TestCaseContainer from "./testcase/TestCaseContainer";
 
 interface QuestionFieldProps {
   jsonText: string;
@@ -20,9 +30,14 @@ const formatJson = (
 ) => {
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        {data.title}
-      </Typography>
+      <Box>
+        <Typography variant="h4" gutterBottom>
+          {data.title}
+        </Typography>
+        <div>
+          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
+        </div>
+      </Box>
       <Typography variant="body1">
         <strong>Problem #</strong> {data.id || "N/A"}
       </Typography>
@@ -121,7 +136,11 @@ const formatJson = (
   );
 };
 
-export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText, passedTests, failedTests }) => {
+export const QuestionField: React.FC<QuestionFieldProps> = ({
+  jsonText,
+  passedTests,
+  failedTests,
+}) => {
   const [showTips, setShowTips] = useState(false);
 
   const handleToggleTips = () => {
@@ -141,7 +160,13 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({ jsonText, passedTe
         {"error" in jsonData ? (
           <Typography color="error">{jsonData.error}</Typography>
         ) : (
-          formatJson(jsonData as Question, handleToggleTips, showTips, passedTests, failedTests)
+          formatJson(
+            jsonData as Question,
+            handleToggleTips,
+            showTips,
+            passedTests,
+            failedTests
+          )
         )}
       </Paper>
     </Box>
