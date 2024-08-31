@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <img src={whiteFavicon} alt="Logo" style={{ marginRight: '8px', height: '24px' }} />
+          <img src={whiteFavicon} alt="Logo" style={{height: '48px' }} />
           odify
         </Button>
 
