@@ -104,37 +104,57 @@ const Navbar: React.FC = () => {
                     value="JavaScript"
                     sx={{ backgroundColor: "white", color: "green" }}
                   >
-                    <FaJs style={{ marginRight: 8 }} />
-                    JavaScript
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FaJs style={{ marginRight: 8 }} />
+                      JavaScript
+                    </Box>
                   </MenuItem>
                   <MenuItem
                     value="Python"
                     sx={{ backgroundColor: "white", color: "green" }}
                   >
-                    <FaPython style={{ marginRight: 8 }} />
-                    Python
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FaPython style={{ marginRight: 8 }} />
+                      Python
+                    </Box>
                   </MenuItem>
                   <MenuItem
                     value="MySQL"
                     sx={{ backgroundColor: "white", color: "green" }}
                   >
-                    <FaDatabase style={{ marginRight: 8 }} />
-                    MySQL
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FaDatabase style={{ marginRight: 8 }} />
+                      MySQL
+                    </Box>
                   </MenuItem>
-                  {/* <MenuItem
-                    value="C++"
-                    sx={{ backgroundColor: "white", color: "green" }}
-                  >
-                    <FaCuttlefish style={{ marginRight: 8 }} />
-                    C++
-                  </MenuItem>
-                   */}
                   <MenuItem
                     value="C++"
                     sx={{ backgroundColor: "white", color: "green" }}
                   >
-                    <CPlusPlusIcon />
-                    C++
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <CPlusPlusIcon />
+                      C++
+                    </Box>
                   </MenuItem>
                 </Select>
               </FormControl>
