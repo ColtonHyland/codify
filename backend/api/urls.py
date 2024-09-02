@@ -1,12 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, send_test_email, execute_code_js
+from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, UserQuestionProgressViewSet, send_test_email, execute_code_js
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'questions', QuestionViewSet)
 router.register(r'attempts', AttemptViewSet)
 router.register(r'history', QuestionHistoryViewSet)
+router.register(r'user-progress', UserQuestionProgressViewSet, basename='user-progress')
+
 
 custom_urls = [
     path('questions/get_question/<int:pk>/', QuestionViewSet.as_view({'get': 'get_question'}), name='get-question'),

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Question, Attempt, QuestionHistory
+from .models import Question, Attempt, QuestionHistory, UserQuestionProgress
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,4 +34,9 @@ class AttemptSerializer(serializers.ModelSerializer):
 class QuestionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionHistory
+        fields = '__all__'
+
+class UserQuestionProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserQuestionProgress
         fields = '__all__'

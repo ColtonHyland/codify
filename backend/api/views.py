@@ -8,12 +8,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from .models import Question, Attempt, QuestionHistory
+from .models import Question, Attempt, QuestionHistory, UserQuestionProgress
 from .serializers import (
     UserSerializer,
     QuestionSerializer,
     AttemptSerializer,
     QuestionHistorySerializer,
+    UserQuestionProgressSerializer,
 )
 from openai import OpenAI
 import os
@@ -77,7 +78,14 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     authentication_classes = (TokenAuthentication,)
+    
+class UserQuestionProgressViewSet(viewsets.ModelViewSet):
+    queryset = UserQuestionProgress.objects.all()
+    serializer_class = UserQuestionProgressSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return UserQuestionProgress.objects.filter(user=self.request.user)
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
