@@ -73,12 +73,15 @@ const Navbar: React.FC = () => {
                     backgroundColor: "white", // Sets the selected area background color to green
                     "& fieldset": {
                       borderColor: "green",
+                      borderRadius: "8px",
                     },
                     "&:hover fieldset": {
                       borderColor: "green",
+                      borderRadius: "8px",
                     },
                     "&.Mui-focused fieldset": {
                       borderColor: "green",
+                      borderRadius: "8px",
                     },
                   },
                   "& .MuiSvgIcon-root": {
@@ -94,9 +97,11 @@ const Navbar: React.FC = () => {
                   inputProps={{ "aria-label": "Without label" }}
                   sx={{
                     color: "white",
-                    backgroundColor: "green", // Ensures the dropdown list also has a green background
+                    backgroundColor: "green",
+                    borderRadius: "8px",// Ensures the dropdown list also has a green background
                     "& .MuiPaper-root": {
-                      backgroundColor: "green", // Ensures the dropdown menu has a green background
+                      backgroundColor: "green",
+                      borderRadius: "8px", // Ensures the dropdown menu has a green background
                     },
                   }}
                 >
