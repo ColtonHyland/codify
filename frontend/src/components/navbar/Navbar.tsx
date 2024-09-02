@@ -106,61 +106,64 @@ const Navbar: React.FC = () => {
                   }}
                 >
                   <MenuItem
-                    value="JavaScript"
-                    sx={{ backgroundColor: "white", color: "green" }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <FaJs style={{ marginRight: 8 }} />
-                      JavaScript
-                    </Box>
-                  </MenuItem>
-                  <MenuItem
-                    value="Python"
-                    sx={{ backgroundColor: "white", color: "green" }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <FaPython style={{ marginRight: 8 }} />
-                      Python
-                    </Box>
-                  </MenuItem>
-                  <MenuItem
-                    value="MySQL"
-                    sx={{ backgroundColor: "white", color: "green" }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <FaDatabase style={{ marginRight: 8 }} />
-                      MySQL
-                    </Box>
-                  </MenuItem>
-                  <MenuItem
-                    value="C++"
-                    sx={{ backgroundColor: "white", color: "green" }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <CPlusPlusIcon />
-                      C++
-                    </Box>
-                  </MenuItem>
+  value="JavaScript"
+  sx={{ backgroundColor: "white", color: "green" }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <FaJs style={{ marginRight: 8 }} />
+    JavaScript
+  </Box>
+</MenuItem>
+<MenuItem
+  value="Python"
+  sx={{ backgroundColor: "white", color: "green", textDecoration: "line-through" }}
+  disabled
+>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <FaPython style={{ marginRight: 8 }} />
+    Python
+  </Box>
+</MenuItem>
+<MenuItem
+  value="MySQL"
+  sx={{ backgroundColor: "white", color: "green", textDecoration: "line-through" }}
+  disabled
+>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <FaDatabase style={{ marginRight: 8 }} />
+    MySQL
+  </Box>
+</MenuItem>
+<MenuItem
+  value="C++"
+  sx={{ backgroundColor: "white", color: "green", textDecoration: "line-through" }}
+  disabled
+>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <CPlusPlusIcon />
+    C++
+  </Box>
+</MenuItem>
                 </Select>
               </FormControl>
               <Button
