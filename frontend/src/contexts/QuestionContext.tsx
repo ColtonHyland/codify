@@ -10,6 +10,7 @@ import { Question } from "../types";
 
 interface QuestionContextType {
   questions: Question[];
+  userProgress: { [key: string]: any };
   fetchQuestions: () => void;
   fetchQuestionById: (id: number) => Promise<Question | null>;
   generateQuestion: (
@@ -41,6 +42,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
   children,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [userProgress, setUserProgress] = useState<{ [key: string]: any }>({});
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   const fetchQuestions = async () => {
@@ -48,14 +50,31 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
       if (!isFetching) {
         setIsFetching(true);
         const token = localStorage.getItem("token");
-        const response = await axios.get(
+
+        // Fetch questions
+        const questionsResponse = await axios.get(
           "http://localhost:8000/api/questions/list_questions/",
           { headers: { Authorization: `Token ${token}` } }
         );
-        setQuestions(response.data);
+        setQuestions(questionsResponse.data);
+
+        // Fetch user progress
+        const progressResponse = await axios.get(
+          "http://localhost:8000/api/user-progress/",
+          { headers: { Authorization: `Token ${token}` } }
+        );
+
+        const progressData = progressResponse.data.reduce(
+          (acc: { [key: string]: any }, progress: any) => {
+            acc[progress.question] = progress;
+            return acc;
+          },
+          {}
+        );
+        setUserProgress(progressData);
       }
     } catch (error) {
-      console.error("Error fetching questions:", error);
+      console.error("Error fetching questions or user progress:", error);
     } finally {
       setIsFetching(false);
     }
@@ -68,7 +87,6 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         `http://localhost:8000/api/questions/get_question/${id}/`,
         { headers: { Authorization: `Token ${token}` } }
       );
-      // console.log("Axios get question by id:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching question:", error);
@@ -102,7 +120,13 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
 
   return (
     <QuestionContext.Provider
-      value={{ questions, fetchQuestions, fetchQuestionById, generateQuestion }}
+      value={{
+        questions,
+        userProgress,
+        fetchQuestions,
+        fetchQuestionById,
+        generateQuestion,
+      }}
     >
       {children}
     </QuestionContext.Provider>
