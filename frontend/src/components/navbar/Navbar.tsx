@@ -18,7 +18,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import ImportContactsOutlinedIcon from "@mui/icons-material/ImportContactsOutlined";
-import { FaJs, FaPython, FaDatabase, FaCplusplus } from "react-icons/fa";
+import { FaJs, FaPython, FaDatabase, FaCuttlefish } from "react-icons/fa";
+import CPlusPlusIcon from "../../assets/icons/CPlusPlusIcon";
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -69,6 +70,7 @@ const Navbar: React.FC = () => {
                   marginRight: 2,
                   "& .MuiOutlinedInput-root": {
                     color: "white",
+                    backgroundColor: "green", // Sets the selected area background color to green
                     "& fieldset": {
                       borderColor: "white",
                     },
@@ -92,34 +94,46 @@ const Navbar: React.FC = () => {
                   inputProps={{ "aria-label": "Without label" }}
                   sx={{
                     color: "white",
+                    backgroundColor: "green", // Ensures the dropdown list also has a green background
+                    "& .MuiPaper-root": {
+                      backgroundColor: "green", // Ensures the dropdown menu has a green background
+                    },
                   }}
                 >
                   <MenuItem
                     value="JavaScript"
-                    sx={{ backgroundColor: "green", color: "white" }}
+                    sx={{ backgroundColor: "white", color: "green" }}
                   >
                     <FaJs style={{ marginRight: 8 }} />
                     JavaScript
                   </MenuItem>
                   <MenuItem
                     value="Python"
-                    sx={{ backgroundColor: "green", color: "white" }}
+                    sx={{ backgroundColor: "white", color: "green" }}
                   >
                     <FaPython style={{ marginRight: 8 }} />
                     Python
                   </MenuItem>
                   <MenuItem
                     value="MySQL"
-                    sx={{ backgroundColor: "green", color: "white" }}
+                    sx={{ backgroundColor: "white", color: "green" }}
                   >
                     <FaDatabase style={{ marginRight: 8 }} />
                     MySQL
                   </MenuItem>
+                  {/* <MenuItem
+                    value="C++"
+                    sx={{ backgroundColor: "white", color: "green" }}
+                  >
+                    <FaCuttlefish style={{ marginRight: 8 }} />
+                    C++
+                  </MenuItem>
+                   */}
                   <MenuItem
                     value="C++"
-                    sx={{ backgroundColor: "green", color: "white" }}
+                    sx={{ backgroundColor: "white", color: "green" }}
                   >
-                    <FaCplusplus style={{ marginRight: 8 }} />
+                    <CPlusPlusIcon />
                     C++
                   </MenuItem>
                 </Select>
