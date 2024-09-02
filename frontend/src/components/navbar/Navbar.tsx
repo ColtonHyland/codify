@@ -66,23 +66,23 @@ const Navbar: React.FC = () => {
               <FormControl
                 variant="outlined"
                 sx={{
-                  minWidth: 120,
+                  minWidth: 150,
                   marginRight: 2,
                   "& .MuiOutlinedInput-root": {
-                    color: "white",
-                    backgroundColor: "green", // Sets the selected area background color to green
+                    color: "green",
+                    backgroundColor: "white", // Sets the selected area background color to green
                     "& fieldset": {
-                      borderColor: "white",
+                      borderColor: "green",
                     },
                     "&:hover fieldset": {
-                      borderColor: "white",
+                      borderColor: "green",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "white",
+                      borderColor: "green",
                     },
                   },
                   "& .MuiSvgIcon-root": {
-                    color: "white",
+                    color: "green",
                   },
                 }}
               >

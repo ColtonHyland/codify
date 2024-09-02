@@ -6,7 +6,7 @@ const CPlusPlusIcon: React.FC = () => {
 
   return (
     <svg
-      fill={selectedLanguage === 'C++' ? 'white' : 'green'} // Conditionally change the fill color
+      fill={'green'} // Conditionally change the fill color
       height="1.2em"
       width="1.2em"
       viewBox="0 0 24 24"
