@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QuestionProvider } from "./contexts/QuestionContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import Navbar from "./components/navbar/Navbar";
 import Home from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
@@ -17,31 +18,33 @@ const App: React.FC = () => {
     <Router>
       <AuthProvider>
         <QuestionProvider>
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/test" element={<TestPage />} />
-            <Route path="/" element={<Home />} />
-            <Route 
-              path="/questions" 
-              element={
-                <ProtectedRoute element={<QuestionsPage />} />
-              } 
-            />
-            <Route 
-              path="/questions/:id" 
-              element={
-                <ProtectedRoute element={<QuestionPage />} />
-              } 
-            />
-            <Route 
-              path="/questions/new" 
-              element={
-                <ProtectedRoute element={<GenerateQuestionPage />} />
-              } 
-            />
-          </Routes>
+          <LanguageProvider> {/* Wrap the app with LanguageProvider */}
+            <Navbar />
+            <Routes>
+              <Route path="/login" element={<SignInPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/test" element={<TestPage />} />
+              <Route path="/" element={<Home />} />
+              <Route 
+                path="/questions" 
+                element={
+                  <ProtectedRoute element={<QuestionsPage />} />
+                } 
+              />
+              <Route 
+                path="/questions/:id" 
+                element={
+                  <ProtectedRoute element={<QuestionPage />} />
+                } 
+              />
+              <Route 
+                path="/questions/new" 
+                element={
+                  <ProtectedRoute element={<GenerateQuestionPage />} />
+                } 
+              />
+            </Routes>
+          </LanguageProvider>
         </QuestionProvider>
       </AuthProvider>
     </Router>

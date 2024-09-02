@@ -9,6 +9,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import JavascriptIcon from '@mui/icons-material/Javascript';
 import { faJs } from "@fortawesome/free-brands-svg-icons";
 import { ErrorData, Question } from "../../types";
 import TestCaseContainer from "./testcase/TestCaseContainer";
@@ -34,6 +35,7 @@ const formatJson = (
         <Typography variant="h5">{data.title}</Typography>
         <div>
           <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
+          {/* <JavascriptIcon /> */}
         </div>
       </Box>
       <Typography variant="body1">

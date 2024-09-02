@@ -2,7 +2,7 @@
 import React from 'react';
 
 const Home: React.FC = () => {
-  return <div>Home Page</div>;
+  return <div>Ready to code?</div>;
 };
 
 export default Home;
