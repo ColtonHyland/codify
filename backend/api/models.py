@@ -28,6 +28,23 @@ class Question(models.Model):
     def __str__(self):
         return self.title
 
+class UserQuestionProgress(models.Model):
+    STATUS_CHOICES = [
+        ('not_attempted', 'Not Attempted'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_attempted')
+    attempts = models.IntegerField(default=0)
+    last_attempted = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.question.title} - {self.status}"
+
 class Attempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

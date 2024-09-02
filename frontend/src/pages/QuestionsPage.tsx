@@ -12,9 +12,9 @@ const QuestionsPage: React.FC = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
+      {/* <Typography variant="h4" gutterBottom>
         Questions
-      </Typography>
+      </Typography> */}
       <QuestionTable questions={questions} />
     </Container>
   );

@@ -19,7 +19,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
+            <TableCell>No.</TableCell>
             <TableCell>Title</TableCell>
             <TableCell>Categories</TableCell>
             <TableCell>Difficulty</TableCell>
