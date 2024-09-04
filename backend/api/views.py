@@ -1,5 +1,6 @@
 import logging
 import subprocess
+from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -87,30 +88,36 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return UserQuestionProgress.objects.filter(user=self.request.user)
 
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-    
-    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
-    def list_questions(self, request):
-        questions = Question.objects.all()
-        serializer = QuestionSerializer(questions, many=True)
-        return Response(serializer.data)
+class UserQuestionProgressViewSet(viewsets.ModelViewSet):
+    queryset = UserQuestionProgress.objects.all()
+    serializer_class = UserQuestionProgressSerializer
 
-    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
-    def get_question(self, request, pk=None):
-        if not request.user.is_authenticated:
-            logger.error("User not authenticated")
-            return Response({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def update_progress(self, request):
+        user = request.user
+        question_id = request.data.get('question_id')
+        code = request.data.get('code')
+        passed_tests = request.data.get('passed_tests')
+        failed_tests = request.data.get('failed_tests')
 
         try:
-            question = Question.objects.get(pk=pk)
-            serializer = QuestionSerializer(question)
-            return Response(serializer.data)
-        except Question.DoesNotExist:
-            logger.error(f"Question with ID {pk} not found")
-            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+            progress, created = UserQuestionProgress.objects.get_or_create(
+                user=user, question_id=question_id
+            )
 
+            progress.code_progress = code
+            progress.attempts += 1
+            if len(failed_tests) == 0 and len(passed_tests) > 0:
+                progress.status = 'completed'
+                progress.completed_at = timezone.now()
+            else:
+                progress.status = 'in_progress'
+            progress.save()
+
+            return Response({"message": "Progress updated"}, status=status.HTTP_200_OK)
+
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
     def generate(self, request):
