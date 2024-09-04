@@ -18,6 +18,12 @@ interface QuestionContextType {
     categories: string[],
     onApiResponse: (data: any) => void
   ) => void;
+  updateProgress: (
+    questionId: string,
+    code: string,
+    passedTests: string[],
+    failedTests: string[]
+  ) => Promise<void>; // Add the updateProgress method to the interface
 }
 
 const QuestionContext = createContext<QuestionContextType | undefined>(
@@ -114,6 +120,27 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
     }
   };
 
+  const updateProgress = async (
+    questionId: string,
+    code: string,
+    passedTests: string[],
+    failedTests: string[]
+  ) => {
+    try {
+      const response = await axios.post('/api/user-progress/update_progress/', {
+        question_id: questionId,
+        code,
+        passed_tests: passedTests,
+        failed_tests: failedTests,
+      });
+
+      // Fetch the updated progress after submission
+      fetchQuestions(); // Optionally, fetch the updated progress to update UI
+    } catch (error) {
+      console.error("Error updating progress:", error);
+    }
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, []);
@@ -126,6 +153,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         fetchQuestions,
         fetchQuestionById,
         generateQuestion,
+        updateProgress, // Include updateProgress here
       }}
     >
       {children}
