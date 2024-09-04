@@ -9,7 +9,7 @@ import { executeJavaScriptCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { fetchQuestionById } = useQuestionContext();
+  const { fetchQuestionById, userProgress } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -23,12 +23,16 @@ const QuestionPage: React.FC = () => {
         try {
           const fetchedQuestion = await fetchQuestionById(parseInt(id, 10));
           if (fetchedQuestion) {
-            setQuestion({
-              ...fetchedQuestion,
-              id: fetchedQuestion.id.toString(),
-            });
+            setQuestion(fetchedQuestion);
             setLanguage(fetchedQuestion.language);
-            setCode(fetchedQuestion.design);
+  
+            // Ensure that progress is loaded correctly
+            const progress = userProgress[id];
+            if (progress && progress.code_progress) {
+              setCode(progress.code_progress); // Load saved progress
+            } else {
+              setCode(fetchedQuestion.design); // Load initial design if no progress
+            }
           } else {
             setError("Question not found");
           }
@@ -37,9 +41,9 @@ const QuestionPage: React.FC = () => {
         }
       }
     };
-
+  
     fetchQuestion();
-  }, [id]);
+  }, [id, userProgress, fetchQuestionById]);
 
   const handleSubmit = async () => {
     if (question) {

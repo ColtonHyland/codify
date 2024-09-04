@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
+import { debounce } from "lodash";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import { useQuestionContext } from "../../contexts/QuestionContext";
 import * as monacoEditor from "monaco-editor"; // Import Monaco types
 import { EditorProps } from "../../types";
 
@@ -9,6 +11,7 @@ const MyEditor: React.FC<EditorProps> = ({
   setCode = () => {},
 }) => {
   const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
+  const { updateProgress } = useQuestionContext();
   const [themeError, setThemeError] = useState<string | null>(null);
 
   const loadTheme = async (monacoInstance: typeof monacoEditor) => {
@@ -30,13 +33,27 @@ const MyEditor: React.FC<EditorProps> = ({
 
   const handleEditorWillMount = (monacoInstance: typeof monacoEditor) => {
     // This is called before the editor is mounted
-    loadTheme(monacoInstance);
+    // loadTheme(monacoInstance);
   };
 
   const handleEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
     editorRef.current = editor; // Store editor instance in ref
     monaco.editor.setTheme("myTheme");
   };
+
+  const handleCodeChange = debounce((newCode: string) => {
+    console.log("Code changed:", newCode); // Log when the code changes
+    setCode(newCode || "");
+  
+    // Get the question ID from the URL or props
+    const questionId = window.location.pathname.split("/").pop();
+    console.log("Question ID:", questionId); // Log the question ID
+  
+    if (questionId) {
+      console.log("Calling updateProgress with code:", newCode); // Log before calling updateProgress
+      updateProgress(questionId, newCode, [], []); // Empty test result arrays, as this is for saving progress
+    }
+  }, 500);
 
   return (
     <div>
@@ -45,7 +62,7 @@ const MyEditor: React.FC<EditorProps> = ({
         height="500px"
         language={language}
         value={code}
-        onChange={(newValue: string | undefined) => setCode(newValue || "")}
+        onChange={(newValue: string | undefined) => handleCodeChange(newValue || "")}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{

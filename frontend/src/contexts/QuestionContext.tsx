@@ -133,11 +133,14 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         passed_tests: passedTests,
         failed_tests: failedTests,
       });
-
-      // Fetch the updated progress after submission
-      fetchQuestions(); // Optionally, fetch the updated progress to update UI
+      
+      if (response.status === 200) {
+        console.log('Progress successfully saved');
+      } else {
+        console.error('Failed to save progress:', response.statusText);
+      }
     } catch (error) {
-      console.error("Error updating progress:", error);
+      console.error('Error updating progress:', error);
     }
   };
 

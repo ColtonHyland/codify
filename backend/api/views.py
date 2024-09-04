@@ -89,28 +89,20 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
         user = request.user
         question_id = request.data.get('question_id')
         code = request.data.get('code')
-        passed_tests = request.data.get('passed_tests')
-        failed_tests = request.data.get('failed_tests')
 
         try:
             progress, created = UserQuestionProgress.objects.get_or_create(
                 user=user, question_id=question_id
             )
 
-            progress.code_progress = code
+            progress.code_progress = code  # Save the new code progress
             progress.attempts += 1
-            if len(failed_tests) == 0 and len(passed_tests) > 0:
-                progress.status = 'completed'
-                progress.completed_at = timezone.now()
-            else:
-                progress.status = 'in_progress'
             progress.save()
 
             return Response({"message": "Progress updated"}, status=status.HTTP_200_OK)
 
         except Question.DoesNotExist:
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
