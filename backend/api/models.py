@@ -41,7 +41,7 @@ class UserQuestionProgress(models.Model):
     attempts = models.IntegerField(default=0)
     last_attempted = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    code_progress = models.TextField(default="")  # Save the current code written by the user
+    code_progress = models.TextField(blank=True, null=True)  # Save the current code written by the user
 
     def __str__(self):
         return f"{self.user.username} - {self.question.title} - {self.status}"
