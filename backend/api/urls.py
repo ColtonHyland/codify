@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, UserQuestionProgressViewSet, send_test_email, execute_code_js
+from api.views import UserViewSet, QuestionViewSet, AttemptViewSet, QuestionHistoryViewSet, UserQuestionProgressViewSet, send_test_email, execute_code_js
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
