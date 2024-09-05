@@ -90,19 +90,39 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
         question_id = request.data.get('question_id')
         code = request.data.get('code')
 
+        # Log incoming data for debugging
+        logger.debug(f"Received update_progress request: user={user}, question_id={question_id}, code={code}")
+
+        # Check if question_id and code are provided
+        if not question_id or not code:
+            logger.error("Missing question_id or code in the request")
+            return Response({"error": "question_id and code are required"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
+            # Try to fetch or create the progress object
             progress, created = UserQuestionProgress.objects.get_or_create(
                 user=user, question_id=question_id
             )
+            logger.debug(f"Progress {'created' if created else 'fetched'} for user {user} and question {question_id}")
 
-            progress.code_progress = code  # Save the new code progress
+            # Save the new code progress
+            progress.code_progress = code
             progress.attempts += 1
             progress.save()
+
+            logger.debug("Progress successfully saved")  # Log progress save
 
             return Response({"message": "Progress updated"}, status=status.HTTP_200_OK)
 
         except Question.DoesNotExist:
+            logger.error(f"Question with ID {question_id} not found")  # Log error if question doesn't exist
             return Response({"error": "Question not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            # Log any other exceptions that might occur
+            logger.error(f"Unexpected error while updating progress: {str(e)}")
+            return Response({"error": "Unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()

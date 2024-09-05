@@ -36,7 +36,7 @@ class UserQuestionProgress(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)  # Ensure this is correct
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_attempted')
     attempts = models.IntegerField(default=0)
     last_attempted = models.DateTimeField(auto_now=True)

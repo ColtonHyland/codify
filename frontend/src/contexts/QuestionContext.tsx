@@ -127,20 +127,42 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
     failedTests: string[]
   ) => {
     try {
-      const response = await axios.post('/api/user-progress/update_progress/', {
+      const token = localStorage.getItem("token");
+      console.log("Sending data to update_progress:", {
         question_id: questionId,
         code,
         passed_tests: passedTests,
         failed_tests: failedTests,
       });
-      
+
+      const response = await axios.post(
+        "http://localhost:8000/api/user-progress/update_progress/",
+
+        {
+          question_id: questionId,
+          code,
+          passed_tests: passedTests,
+          failed_tests: failedTests,
+        },
+        { headers: { Authorization: `Token ${token}` } }
+      );
+
       if (response.status === 200) {
-        console.log('Progress successfully saved');
+        console.log("Progress successfully saved");
       } else {
-        console.error('Failed to save progress:', response.statusText);
+        console.error("Failed to save progress:", response.statusText);
       }
-    } catch (error) {
-      console.error('Error updating progress:', error);
+    } catch (error: unknown) {
+      // Use a type guard to check if the error is an AxiosError
+      if (axios.isAxiosError(error)) {
+        // Log detailed Axios error information
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+        console.error("Error headers:", error.response?.headers);
+      } else {
+        // Handle generic errors
+        console.error("Unexpected error:", error);
+      }
     }
   };
 
