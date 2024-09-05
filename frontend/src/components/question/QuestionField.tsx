@@ -7,6 +7,9 @@ import {
   List,
   ListItem,
   ListItemText,
+  Tab,
+  Tabs,
+  Container,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import JavascriptIcon from '@mui/icons-material/Javascript';
@@ -22,142 +25,20 @@ interface QuestionFieldProps {
 
 type ParsedData = Question | ErrorData;
 
-const formatJson = (
-  data: Question,
-  handleToggleTips: () => void,
-  showTips: boolean,
-  passedTests: string[],
-  failedTests: string[]
-) => {
-  return (
-    <Box sx={{ padding: 2 }}>
-      <Box display="flex" flexDirection="row" justifyContent="space-between">
-        <Typography variant="h5">{data.title}</Typography>
-        <div>
-          <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
-          {/* <JavascriptIcon /> */}
-        </div>
-      </Box>
-      <Typography variant="body1">
-        <strong>Problem #</strong> {data.id || "N/A"}
-      </Typography>
-      <Typography variant="body1">
-        <strong>Difficulty:</strong> {data.difficulty || "N/A"}
-      </Typography>
-      <Box display="flex" flexDirection="row">
-        <Typography variant="body1">
-          <strong>Categories:</strong>
-        </Typography>
-
-        <Box display="flex" flexDirection="row" gap={1}>
-          {data.categories?.map((category, index) => (
-            <Button
-              key={index}
-              variant="contained"
-              sx={{
-                backgroundColor: "green",
-                color: "white",
-                padding: "2px 8px",
-                fontSize: "0.75rem",
-                minWidth: "auto",
-                "&:hover": {
-                  backgroundColor: "black",
-                },
-              }}
-            >
-              {category}
-            </Button>
-          ))}
-        </Box>
-      </Box>
-      <Typography variant="body2" paragraph>
-        {data.description || "No description"}
-      </Typography>
-
-      <Typography variant="body2">{data.explanation}</Typography>
-      <Typography variant="body2" paragraph sx={{ fontWeight: "bold" }}>
-        {data.task}
-      </Typography>
-
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
-        Example
-      </Typography>
-      <Box>
-        <ListItemText
-          primary={`Input: ${data.example_input}`}
-          secondary={
-            <>
-              <Typography component="span">
-                <strong>Output:</strong> {data.example_output}
-              </Typography>
-              <br />
-              <Typography component="span">
-                <strong>Explanation:</strong> {data.explanation_answer}
-              </Typography>
-            </>
-          }
-        />
-      </Box>
-
-      <Typography variant="h6" gutterBottom>
-        Constraints
-      </Typography>
-      <List>
-        {JSON.parse(data.input_constraints).map(
-          (constraint: string, index: number) => (
-            <ListItem key={index}>
-              <ListItemText primary={constraint} />
-            </ListItem>
-          )
-        ) || "N/A"}
-      </List>
-
-      {/* <Typography variant="h6" gutterBottom>
-        Tags
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {Array.isArray(data.tags) ? data.tags.join(", ") : "N/A"}
-      </Typography> */}
-
-      <TestCaseContainer
-        tests={data.tests}
-        passedTests={passedTests}
-        failedTests={failedTests}
-      />
-
-      <Button variant="contained" color="primary" onClick={handleToggleTips}>
-        Toggle Hints
-      </Button>
-      {showTips && (
-        <>
-          <Typography variant="h6" gutterBottom>
-            Hints
-          </Typography>
-          <List>
-            {JSON.parse(data.hints).map((hint: string, index: number) => (
-              <ListItem key={index}>
-                <ListItemText primary={hint} />
-              </ListItem>
-            )) || "N/A"}
-          </List>
-        </>
-      )}
-      <Typography variant="body2" sx={{ fontStyle: "italic" }}>
-        {data.notes}
-      </Typography>
-    </Box>
-  );
-};
-
-export const QuestionField: React.FC<QuestionFieldProps> = ({
+const QuestionField: React.FC<QuestionFieldProps> = ({
   jsonText,
   passedTests,
   failedTests,
 }) => {
   const [showTips, setShowTips] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const handleToggleTips = () => {
     setShowTips(!showTips);
+  };
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newIndex: number) => {
+    setTabIndex(newIndex);
   };
 
   let jsonData: ParsedData;
@@ -168,20 +49,156 @@ export const QuestionField: React.FC<QuestionFieldProps> = ({
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
-      <Paper variant="outlined" sx={{ padding: 2 }}>
-        {"error" in jsonData ? (
-          <Typography color="error">{jsonData.error}</Typography>
-        ) : (
-          formatJson(
-            jsonData as Question,
-            handleToggleTips,
-            showTips,
-            passedTests,
-            failedTests
-          )
+    <Container>
+      <Box sx={{ padding: 2 }}>
+      <Tabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          TabIndicatorProps={{
+            sx: {
+              backgroundColor: 'green', // Change the color of the indicator line
+            },
+          }}
+          sx={{
+            "& .MuiTab-root": {
+              color: "black", // Default tab color
+            },
+            "& .Mui-selected": {
+              color: "green", // Color for selected tab
+            },
+          }}
+        >
+          <Tab label="Question" />
+          <Tab label="Test Cases" />
+        </Tabs>
+
+        {tabIndex === 0 && (
+          <Paper variant="outlined" sx={{ padding: 2 }}>
+            {"error" in jsonData ? (
+              <Typography color="error">{jsonData.error}</Typography>
+            ) : (
+              <Box sx={{ padding: 2 }}>
+                <Box display="flex" flexDirection="row" justifyContent="space-between">
+                  <Typography variant="h5">{(jsonData as Question).title}</Typography>
+                  <div>
+                    <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
+                  </div>
+                </Box>
+                <Typography variant="body1">
+                  <strong>Problem #</strong> {(jsonData as Question).id || "N/A"}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Difficulty:</strong> {(jsonData as Question).difficulty || "N/A"}
+                </Typography>
+
+                <Box display="flex" flexDirection="row">
+                  <Typography variant="body1">
+                    <strong>Categories:</strong>
+                  </Typography>
+
+                  <Box display="flex" flexDirection="row" gap={1}>
+                    {(jsonData as Question).categories?.map((category, index) => (
+                      <Button
+                        key={index}
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "green",
+                          color: "white",
+                          padding: "2px 8px",
+                          fontSize: "0.75rem",
+                          minWidth: "auto",
+                          "&:hover": {
+                            backgroundColor: "black",
+                          },
+                        }}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </Box>
+                </Box>
+
+                <Typography variant="body2" paragraph>
+                  {(jsonData as Question).description || "No description"}
+                </Typography>
+
+                <Typography variant="body2">{(jsonData as Question).explanation}</Typography>
+                <Typography variant="body2" paragraph sx={{ fontWeight: "bold" }}>
+                  {(jsonData as Question).task}
+                </Typography>
+
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+                  Example
+                </Typography>
+                <Box>
+                  <ListItemText
+                    primary={`Input: ${(jsonData as Question).example_input}`}
+                    secondary={
+                      <>
+                        <Typography component="span">
+                          <strong>Output:</strong> {(jsonData as Question).example_output}
+                        </Typography>
+                        <br />
+                        <Typography component="span">
+                          <strong>Explanation:</strong> {(jsonData as Question).explanation_answer}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </Box>
+
+                <Typography variant="h6" gutterBottom>
+                  Constraints
+                </Typography>
+                <List>
+                  {JSON.parse((jsonData as Question).input_constraints).map(
+                    (constraint: string, index: number) => (
+                      <ListItem key={index}>
+                        <ListItemText primary={constraint} />
+                      </ListItem>
+                    )
+                  )}
+                </List>
+
+                <Button variant="contained" color="primary" onClick={handleToggleTips}>
+                  Toggle Hints
+                </Button>
+
+                {showTips && (
+                  <>
+                    <Typography variant="h6" gutterBottom>
+                      Hints
+                    </Typography>
+                    <List>
+                      {JSON.parse((jsonData as Question).hints).map((hint: string, index: number) => (
+                        <ListItem key={index}>
+                          <ListItemText primary={hint} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </>
+                )}
+
+                <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                  {(jsonData as Question).notes}
+                </Typography>
+              </Box>
+            )}
+          </Paper>
         )}
-      </Paper>
-    </Box>
+
+        {tabIndex === 1 && (
+          <Paper variant="outlined" sx={{ padding: 2 }}>
+            <TestCaseContainer
+              tests={(jsonData as Question).tests || ""}
+              passedTests={passedTests}
+              failedTests={failedTests}
+            />
+          </Paper>
+        )}
+      </Box>
+    </Container>
   );
 };
+
+export default QuestionField;
