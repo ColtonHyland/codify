@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Typography, Paper, Grid, Button } from "@mui/material";
+import ReplayIcon from "@mui/icons-material/Replay";
 import { QuestionField } from "../components/question/QuestionField";
 import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
@@ -13,6 +14,7 @@ const QuestionPage: React.FC = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
+  const [initialCode, setInitialCode] = useState("");
   const [language, setLanguage] = useState("language");
   const [passedTests, setPassedTests] = useState<string[]>([]);
   const [failedTests, setFailedTests] = useState<string[]>([]);
@@ -32,6 +34,7 @@ const QuestionPage: React.FC = () => {
               setCode(progress.code_progress); // Load saved progress
             } else {
               setCode(fetchedQuestion.design); // Load initial design if no progress
+              setInitialCode(fetchedQuestion.design);
             }
           } else {
             setError("Question not found");
@@ -80,6 +83,10 @@ const QuestionPage: React.FC = () => {
       }
     }
   };
+  
+  const handleReset = () => {
+    setCode(initialCode);
+  };
 
   if (error) {
     return (
@@ -113,9 +120,23 @@ const QuestionPage: React.FC = () => {
           <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
             <MyEditor language={language} code={code} setCode={setCode} />
           </Paper>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Submit
-          </Button>
+          <Grid container spacing={2}>
+            <Grid item>
+              <Button variant="contained" color="primary" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={handleReset}
+                startIcon={<ReplayIcon />}
+              >
+                Reset
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Container>
