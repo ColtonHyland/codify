@@ -14,7 +14,6 @@ const QuestionPage: React.FC = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
-  const [initialCode, setInitialCode] = useState("");
   const [language, setLanguage] = useState("language");
   const [passedTests, setPassedTests] = useState<string[]>([]);
   const [failedTests, setFailedTests] = useState<string[]>([]);
@@ -27,14 +26,13 @@ const QuestionPage: React.FC = () => {
           if (fetchedQuestion) {
             setQuestion(fetchedQuestion);
             setLanguage(fetchedQuestion.language);
-  
-            // Ensure that progress is loaded correctly
+            
+            // Load saved user progress or the initial design from fetchedQuestion
             const progress = userProgress[id];
             if (progress && progress.code_progress) {
               setCode(progress.code_progress); // Load saved progress
             } else {
               setCode(fetchedQuestion.design); // Load initial design if no progress
-              setInitialCode(fetchedQuestion.design);
             }
           } else {
             setError("Question not found");
@@ -44,9 +42,15 @@ const QuestionPage: React.FC = () => {
         }
       }
     };
-  
+
     fetchQuestion();
   }, [id, userProgress, fetchQuestionById]);
+
+  //print the fetchedquestion design
+  useEffect(() => {
+    console.log("Fetched question design:", question?.design);
+  }
+  ,[question]);
 
   const handleSubmit = async () => {
     if (question) {
@@ -85,7 +89,10 @@ const QuestionPage: React.FC = () => {
   };
   
   const handleReset = () => {
-    setCode(initialCode);
+    if (question && question.design) {
+      setCode(question.design); // Reset code to the initial design (fetchedQuestion.design)
+      console.log("Resetting code to initial design:", question.design);
+    }
   };
 
   if (error) {
