@@ -37,7 +37,8 @@ const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTest
               <TestCase
                 input={testCase.input}
                 output={testCase.output}
-                description={testCase.description}
+                testNumber={idx + 1}
+                // description={testCase.description}
                 status={status}
               />
             </ListItem>
