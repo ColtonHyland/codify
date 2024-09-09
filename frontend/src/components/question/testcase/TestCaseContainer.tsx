@@ -20,9 +20,6 @@ const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTest
 
   return (
     <>
-      <Typography variant="h6" gutterBottom>
-        Test Cases
-      </Typography>
       <List>
         {parsedTests.map((testCase, idx) => {
           let status = 0; // Not run by default
