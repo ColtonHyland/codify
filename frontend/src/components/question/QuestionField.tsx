@@ -12,7 +12,7 @@ import {
   Container,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import JavascriptIcon from '@mui/icons-material/Javascript';
+import JavascriptIcon from "@mui/icons-material/Javascript";
 import { faJs } from "@fortawesome/free-brands-svg-icons";
 import { ErrorData, Question } from "../../types";
 import TestCaseContainer from "./testcase/TestCaseContainer";
@@ -48,15 +48,31 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
     jsonData = { error: "Failed to decode JSON from the OpenAI response." };
   }
 
+  const difficultyColour = (difficulty: string): string => {
+    switch (difficulty) {
+      case "Easy":
+        return "green";
+
+      case "Medium":
+        return "orange";
+
+      case "Hard":
+        return "red";
+
+      default:
+        return "black";
+    }
+  };
+
   return (
     <Container>
       <Box sx={{ padding: 2 }}>
-      <Tabs
+        <Tabs
           value={tabIndex}
           onChange={handleTabChange}
           TabIndicatorProps={{
             sx: {
-              backgroundColor: 'green', // Change the color of the indicator line
+              backgroundColor: "green", // Change the color of the indicator line
             },
           }}
           sx={{
@@ -78,17 +94,36 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
               <Typography color="error">{jsonData.error}</Typography>
             ) : (
               <Box sx={{ padding: 2 }}>
-                <Box display="flex" flexDirection="row" justifyContent="space-between">
-                  <Typography variant="h5">{(jsonData as Question).title}</Typography>
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="space-between"
+                >
+                  <Typography variant="h5">
+                    {(jsonData as Question).title}
+                  </Typography>
                   <div>
-                    <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
+                    <FontAwesomeIcon
+                      icon={faJs}
+                      style={{ color: "orange" }}
+                      size="2x"
+                    />
                   </div>
                 </Box>
                 <Typography variant="body1">
-                  <strong>Problem #</strong> {(jsonData as Question).id || "N/A"}
+                  <strong>Problem #</strong>{" "}
+                  {(jsonData as Question).id || "N/A"}
                 </Typography>
-                <Typography variant="body1">
-                  <strong>Difficulty:</strong> {(jsonData as Question).difficulty || "N/A"}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: difficultyColour(
+                      (jsonData as Question).difficulty || "N/A"
+                    ),
+                    fontWeight: "bold",
+                  }}
+                >
+                  {(jsonData as Question).difficulty || "N/A"}
                 </Typography>
 
                 <Box display="flex" flexDirection="row">
@@ -97,24 +132,26 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                   </Typography>
 
                   <Box display="flex" flexDirection="row" gap={1}>
-                    {(jsonData as Question).categories?.map((category, index) => (
-                      <Button
-                        key={index}
-                        variant="contained"
-                        sx={{
-                          backgroundColor: "green",
-                          color: "white",
-                          padding: "2px 8px",
-                          fontSize: "0.75rem",
-                          minWidth: "auto",
-                          "&:hover": {
-                            backgroundColor: "black",
-                          },
-                        }}
-                      >
-                        {category}
-                      </Button>
-                    ))}
+                    {(jsonData as Question).categories?.map(
+                      (category, index) => (
+                        <Button
+                          key={index}
+                          variant="contained"
+                          sx={{
+                            backgroundColor: "green",
+                            color: "white",
+                            padding: "2px 8px",
+                            fontSize: "0.75rem",
+                            minWidth: "auto",
+                            "&:hover": {
+                              backgroundColor: "black",
+                            },
+                          }}
+                        >
+                          {category}
+                        </Button>
+                      )
+                    )}
                   </Box>
                 </Box>
 
@@ -122,12 +159,22 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                   {(jsonData as Question).description || "No description"}
                 </Typography>
 
-                <Typography variant="body2">{(jsonData as Question).explanation}</Typography>
-                <Typography variant="body2" paragraph sx={{ fontWeight: "bold" }}>
+                <Typography variant="body2">
+                  {(jsonData as Question).explanation}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  paragraph
+                  sx={{ fontWeight: "bold" }}
+                >
                   {(jsonData as Question).task}
                 </Typography>
 
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: "bold" }}
+                >
                   Example
                 </Typography>
                 <Box>
@@ -136,11 +183,13 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                     secondary={
                       <>
                         <Typography component="span">
-                          <strong>Output:</strong> {(jsonData as Question).example_output}
+                          <strong>Output:</strong>{" "}
+                          {(jsonData as Question).example_output}
                         </Typography>
                         <br />
                         <Typography component="span">
-                          <strong>Explanation:</strong> {(jsonData as Question).explanation_answer}
+                          <strong>Explanation:</strong>{" "}
+                          {(jsonData as Question).explanation_answer}
                         </Typography>
                       </>
                     }
@@ -160,7 +209,11 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                   )}
                 </List>
 
-                <Button variant="contained" color="primary" onClick={handleToggleTips}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleToggleTips}
+                >
                   Toggle Hints
                 </Button>
 
@@ -170,11 +223,13 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                       Hints
                     </Typography>
                     <List>
-                      {JSON.parse((jsonData as Question).hints).map((hint: string, index: number) => (
-                        <ListItem key={index}>
-                          <ListItemText primary={hint} />
-                        </ListItem>
-                      ))}
+                      {JSON.parse((jsonData as Question).hints).map(
+                        (hint: string, index: number) => (
+                          <ListItem key={index}>
+                            <ListItemText primary={hint} />
+                          </ListItem>
+                        )
+                      )}
                     </List>
                   </>
                 )}
