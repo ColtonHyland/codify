@@ -12,7 +12,7 @@ import {
   Container,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import JavascriptIcon from "@mui/icons-material/Javascript";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { faJs } from "@fortawesome/free-brands-svg-icons";
 import { ErrorData, Question } from "../../types";
 import TestCaseContainer from "./testcase/TestCaseContainer";
@@ -99,9 +99,15 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                   flexDirection="row"
                   justifyContent="space-between"
                 >
-                  <Typography variant="h5">
-                    {(jsonData as Question).title}
-                  </Typography>
+                  <Box display="flex" flexDirection="row">
+                    <Typography variant="body1">
+                      <strong>No.</strong> {(jsonData as Question).id || "N/A"}
+                    </Typography>
+                    <Typography variant="h5">
+                      {(jsonData as Question).title}
+                    </Typography>
+                  </Box>
+
                   <div>
                     <FontAwesomeIcon
                       icon={faJs}
@@ -110,10 +116,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                     />
                   </div>
                 </Box>
-                <Typography variant="body1">
-                  <strong>Problem #</strong>{" "}
-                  {(jsonData as Question).id || "N/A"}
-                </Typography>
+
                 <Typography
                   variant="body1"
                   sx={{
@@ -121,15 +124,17 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                       (jsonData as Question).difficulty || "N/A"
                     ),
                     fontWeight: "bold",
+                    border: "2px solid black",
+                    padding: "2px 4px",
+                    borderRadius: "10px",
+                    display: "inline-block",
                   }}
                 >
                   {(jsonData as Question).difficulty || "N/A"}
                 </Typography>
 
                 <Box display="flex" flexDirection="row">
-                  <Typography variant="body1">
-                    <strong>Categories:</strong>
-                  </Typography>
+                  <BookmarkBorderIcon style={{ color: "green" }} />
 
                   <Box display="flex" flexDirection="row" gap={1}>
                     {(jsonData as Question).categories?.map(
