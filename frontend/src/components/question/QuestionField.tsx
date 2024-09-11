@@ -98,13 +98,17 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
               width: "100%", // Make tabs take full width of the 50% container
             }}
           >
-            <Tab label="Question" />
+            <Tab label="Description" />
             <Tab label="Test Cases" />
           </Tabs>
         </Box>
 
         {tabIndex === 0 && (
-          <Paper variant="outlined" sx={{ padding: 2 }}>
+          <Paper variant="outlined" sx={{
+            padding: 2,
+            maxHeight: "500px", // Limit the height
+            overflowY: "auto", // Add scrolling if content exceeds the height
+          }}>
             {"error" in jsonData ? (
               <Typography color="error">{jsonData.error}</Typography>
             ) : (
