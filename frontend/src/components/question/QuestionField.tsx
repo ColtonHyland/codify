@@ -67,26 +67,41 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
   return (
     <Container>
       <Box sx={{ padding: 2 }}>
-        <Tabs
-          value={tabIndex}
-          onChange={handleTabChange}
-          TabIndicatorProps={{
-            sx: {
-              backgroundColor: "green", // Change the color of the indicator line
-            },
-          }}
+      <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
           sx={{
-            "& .MuiTab-root": {
-              color: "black", // Default tab color
-            },
-            "& .Mui-selected": {
-              color: "green", // Color for selected tab
-            },
+            borderBottom: "2px solid #ddd",
+            width: "50%", // Limits the width to 50% of the container for the tabs
+            margin: "0 auto",
           }}
         >
-          <Tab label="Question" />
-          <Tab label="Test Cases" />
-        </Tabs>
+          <Tabs
+            value={tabIndex}
+            onChange={handleTabChange}
+            TabIndicatorProps={{
+              sx: {
+                backgroundColor: "green", // Change the color of the indicator line
+              },
+            }}
+            sx={{
+              "& .MuiTab-root": {
+                color: "black", // Default tab color
+              },
+              "& .Mui-selected": {
+                color: "green", // Color for selected tab
+              },
+              "& .MuiTabs-flexContainer": {
+                justifyContent: "space-between", // Ensures tabs are separated within their half width
+              },
+              width: "100%", // Make tabs take full width of the 50% container
+            }}
+          >
+            <Tab label="Question" />
+            <Tab label="Test Cases" />
+          </Tabs>
+        </Box>
 
         {tabIndex === 0 && (
           <Paper variant="outlined" sx={{ padding: 2 }}>
