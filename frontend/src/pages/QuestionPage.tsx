@@ -113,23 +113,23 @@ const QuestionPage: React.FC = () => {
     );
   }
 
-  if (!question) {
-    return (
-      <Container>
-        <Grid
-          container
-          justifyContent="center"
-          alignItems="center"
-          style={{ height: "100vh" }}
-        >
-          <CircularProgress />
-        </Grid>
-      </Container>
-    );
-  }
+  // if (!question) {
+  //   return (
+  //     <Container>
+  //       <Grid
+  //         container
+  //         justifyContent="center"
+  //         alignItems="center"
+  //         style={{ height: "100vh" }}
+  //       >
+  //         <CircularProgress />
+  //       </Grid>
+  //     </Container>
+  //   );
+  // }
 
   return (
-    <Container>
+    <Container >
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           {!question ? (
@@ -142,8 +142,13 @@ const QuestionPage: React.FC = () => {
             />
           )}
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Grid container spacing={2} justifyContent="center">
+        <Grid item xs={12} md={6} >
+          <Grid
+            container
+            spacing={2}
+            justifyContent="center"
+            sx={{ marginBottom: 2, marginTop: 0 }}
+          >
             <Grid item>
               <Button
                 variant="contained"
@@ -179,7 +184,7 @@ const QuestionPage: React.FC = () => {
               </Button>
             </Grid>
           </Grid>
-          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2, border: "2px solid green", }}>
             {!code ? (
               <CircularProgress />
             ) : (

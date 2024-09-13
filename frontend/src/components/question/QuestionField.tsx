@@ -65,7 +65,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ marginTop: 2}}>
       <Box
         display="flex"
         justifyContent="center"
@@ -86,7 +86,8 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
           }}
           sx={{
             "& .MuiTab-root": {
-              color: "black", // Default tab color
+              color: "green", // Default tab color
+              fontWeight: "bold",
             },
             "& .Mui-selected": {
               color: "green", // Color for selected tab
@@ -107,8 +108,9 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
           variant="outlined"
           sx={{
             padding: 2,
-            maxHeight: "500px", // Limit the height
-            overflowY: "auto", // Add scrolling if content exceeds the height
+            maxHeight: "500px",
+            overflowY: "auto",
+            border: "2px solid green",
           }}
         >
           {"error" in jsonData ? (
