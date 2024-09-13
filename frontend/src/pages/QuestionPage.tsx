@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Typography, Paper, Grid, Button } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  Grid,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
 import QuestionField from "../components/question/QuestionField";
 import MyEditor from "../components/editor/Editor";
@@ -26,7 +33,7 @@ const QuestionPage: React.FC = () => {
           if (fetchedQuestion) {
             setQuestion(fetchedQuestion);
             setLanguage(fetchedQuestion.language);
-            
+
             // Load saved user progress or the initial design from fetchedQuestion
             const progress = userProgress[id];
             if (progress && progress.code_progress) {
@@ -49,17 +56,18 @@ const QuestionPage: React.FC = () => {
   //print the fetchedquestion design
   useEffect(() => {
     console.log("Fetched question design:", question?.design);
-  }
-  ,[question]);
+  }, [question]);
 
   const handleSubmit = async () => {
     if (question) {
       try {
-        const parsedTests = JSON.parse(question.tests || "[]").map((test: any) => ({
-          input: test.input,
-          expected_output: test.output,
-        }));
-  
+        const parsedTests = JSON.parse(question.tests || "[]").map(
+          (test: any) => ({
+            input: test.input,
+            expected_output: test.output,
+          })
+        );
+
         let data;
         if (language === "javascript") {
           data = await executeJavaScriptCode({
@@ -70,16 +78,16 @@ const QuestionPage: React.FC = () => {
           console.error(`Execution for ${language} is not yet implemented.`);
           return;
         }
-  
+
         console.log("Submission result:", data);
-  
+
         // If there's an error in the response, treat it as a failed test
         if (data.error) {
           setFailedTests([...data.failed_tests, "Error"]);
         } else {
           setFailedTests(data.failed_tests || []);
         }
-  
+
         setPassedTests(data.passed_tests || []);
       } catch (error) {
         console.error("Error executing code", error);
@@ -87,7 +95,7 @@ const QuestionPage: React.FC = () => {
       }
     }
   };
-  
+
   const handleReset = () => {
     if (question && question.design) {
       setCode(question.design); // Reset code to the initial design (fetchedQuestion.design)
@@ -108,7 +116,14 @@ const QuestionPage: React.FC = () => {
   if (!question) {
     return (
       <Container>
-        <Typography variant="h6">Loading...</Typography>
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          style={{ height: "100vh" }}
+        >
+          <CircularProgress />
+        </Grid>
       </Container>
     );
   }
@@ -117,33 +132,60 @@ const QuestionPage: React.FC = () => {
     <Container>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <QuestionField
-            jsonText={JSON.stringify(question)}
-            passedTests={passedTests}
-            failedTests={failedTests}
-          />
+          {!question ? (
+            <CircularProgress />
+          ) : (
+            <QuestionField
+              jsonText={JSON.stringify(question)}
+              passedTests={passedTests}
+              failedTests={failedTests}
+            />
+          )}
         </Grid>
         <Grid item xs={12} md={6}>
-          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-            <MyEditor language={language} code={code} setCode={setCode} />
-          </Paper>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} justifyContent="center">
             <Grid item>
-              <Button variant="contained" color="primary" onClick={handleSubmit}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                sx={{
+                  color: "white",
+                  backgroundColor: "green",
+                  "&:hover": {
+                    backgroundColor: "black",
+                  },
+                }}
+              >
                 Submit
               </Button>
             </Grid>
             <Grid item>
               <Button
                 variant="outlined"
-                color="secondary"
+                // color="secondary"
                 onClick={handleReset}
                 startIcon={<ReplayIcon />}
+                sx={{
+                  color: "green",
+                  backgroundColor: "white",
+                  "&:hover": {
+                    backgroundColor: "red",
+                    color: "white",
+                  },
+                }}
               >
                 Reset
               </Button>
             </Grid>
           </Grid>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            {!code ? (
+              <CircularProgress />
+            ) : (
+              <MyEditor language={language} code={code} setCode={setCode} />
+            )}
+          </Paper>
         </Grid>
       </Grid>
     </Container>
