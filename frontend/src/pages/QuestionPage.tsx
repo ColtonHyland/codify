@@ -157,6 +157,7 @@ const QuestionPage: React.FC = () => {
                 sx={{
                   color: "white",
                   backgroundColor: "green",
+                  border: "2px solid green",
                   "&:hover": {
                     backgroundColor: "black",
                   },
@@ -174,9 +175,11 @@ const QuestionPage: React.FC = () => {
                 sx={{
                   color: "green",
                   backgroundColor: "white",
+                  border: "2px solid green",
                   "&:hover": {
                     backgroundColor: "red",
                     color: "white",
+                    border: "2px solid green",
                   },
                 }}
               >

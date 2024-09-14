@@ -14,7 +14,7 @@ const PracticeButton: React.FC = () => (
       border: "2px solid white",
       borderRadius: "12px",
       "&:hover": {
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        backgroundColor: "black",
       },
     }}
   >

@@ -264,7 +264,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
       )}
 
       {tabIndex === 1 && (
-        <Paper variant="outlined" sx={{ padding: 2 }}>
+        <Paper variant="outlined" sx={{ padding: 2, border: "2px solid green", }}>
           <TestCaseContainer
             tests={(jsonData as Question).tests || ""}
             passedTests={passedTests}
