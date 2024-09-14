@@ -8,7 +8,7 @@ interface BackButtonProps {
   sx?: object;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ to = "/questions", sx = {} }) => {
+const BackButton: React.FC<BackButtonProps> = ({ to = "/", sx = {} }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
