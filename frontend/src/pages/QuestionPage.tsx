@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
+  Box,
+  IconButton,
   Container,
   Typography,
   Paper,
@@ -9,6 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import QuestionField from "../components/question/QuestionField";
 import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
@@ -17,6 +20,7 @@ import { executeJavaScriptCode } from "../services/codeExecute";
 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { fetchQuestionById, userProgress } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +107,10 @@ const QuestionPage: React.FC = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate('/questions');
+  };
+
   if (error) {
     return (
       <Container>
@@ -129,7 +137,20 @@ const QuestionPage: React.FC = () => {
   // }
 
   return (
+    <>
+    <IconButton
+        onClick={handleBack}
+        sx={{
+          color: "green",
+          position: "absolute",
+          top: 90,
+          left: 30,
+        }}
+      >
+        <ArrowBackIcon />
+      </IconButton>
     <Container >
+      
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           {!question ? (
@@ -197,6 +218,7 @@ const QuestionPage: React.FC = () => {
         </Grid>
       </Grid>
     </Container>
+    </>
   );
 };
 
