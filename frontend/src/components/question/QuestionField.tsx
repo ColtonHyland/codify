@@ -65,7 +65,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
   };
 
   return (
-    <Box sx={{ marginTop: 2}}>
+    <Box sx={{ marginTop: 2 }}>
       <Box
         display="flex"
         justifyContent="center"
@@ -140,45 +140,52 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 </div>
               </Box>
 
-              <Typography
-                variant="body1"
-                sx={{
-                  color: difficultyColour(
-                    (jsonData as Question).difficulty || "N/A"
-                  ),
-                  fontWeight: "bold",
-                  border: "2px solid black",
-                  padding: "2px 4px",
-                  borderRadius: "10px",
-                  display: "inline-block",
-                }}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ padding: "8px 0" }}
               >
-                {(jsonData as Question).difficulty || "N/A"}
-              </Typography>
-
-              <Box display="flex" flexDirection="row">
-                <BookmarkBorderIcon style={{ color: "green" }} />
-
-                <Box display="flex" flexDirection="row" gap={1}>
-                  {(jsonData as Question).categories?.map((category, index) => (
-                    <Button
-                      key={index}
-                      variant="contained"
-                      sx={{
-                        backgroundColor: "green",
-                        color: "white",
-                        padding: "2px 8px",
-                        fontSize: "0.75rem",
-                        minWidth: "auto",
-                        "&:hover": {
-                          backgroundColor: "black",
-                        },
-                      }}
-                    >
-                      {category}
-                    </Button>
-                  ))}
+                <Box display="flex" flexDirection="row" alignItems="center">
+                  <BookmarkBorderIcon style={{ color: "green" }} />
+                  <Box display="flex" flexDirection="row" gap={1}>
+                    {(jsonData as Question).categories?.map(
+                      (category, index) => (
+                        <Button
+                          key={index}
+                          variant="contained"
+                          sx={{
+                            backgroundColor: "green",
+                            color: "white",
+                            padding: "2px 8px",
+                            fontSize: "0.75rem",
+                            minWidth: "auto",
+                            "&:hover": {
+                              backgroundColor: "black",
+                            },
+                          }}
+                        >
+                          {category}
+                        </Button>
+                      )
+                    )}
+                  </Box>
                 </Box>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: difficultyColour(
+                      (jsonData as Question).difficulty || "N/A"
+                    ),
+                    fontWeight: "bold",
+                    border: "1px solid #E0E0E0",
+                    padding: "2px 8px",
+                    borderRadius: "10px",
+                    display: "inline-block",
+                  }}
+                >
+                  {(jsonData as Question).difficulty || "N/A"}
+                </Typography>
               </Box>
 
               <Typography variant="body2" paragraph>
@@ -192,26 +199,52 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 {(jsonData as Question).task}
               </Typography>
 
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                  marginBottom: "16px", // Adds appropriate spacing below the heading
+                  fontFamily: "Roboto, sans-serif", // Consistent font for headings
+                }}
+              >
                 Example
               </Typography>
-              <Box>
-                <ListItemText
-                  primary={`Input: ${(jsonData as Question).example_input}`}
-                  secondary={
-                    <>
-                      <Typography component="span">
-                        <strong>Output:</strong>{" "}
-                        {(jsonData as Question).example_output}
-                      </Typography>
-                      <br />
-                      <Typography component="span">
-                        <strong>Explanation:</strong>{" "}
-                        {(jsonData as Question).explanation_answer}
-                      </Typography>
-                    </>
-                  }
-                />
+
+              <Box sx={{ marginBottom: "16px" }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontWeight: "500", // Medium weight for input text
+                    fontFamily: "Roboto, sans-serif",
+                  }}
+                >
+                  <strong>Input:</strong> {(jsonData as Question).example_input}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: "400", // Regular weight for output text
+                    fontFamily: "Roboto, sans-serif",
+                    marginTop: "8px", // Adds space between Input and Output
+                  }}
+                >
+                  <strong>Output:</strong>{" "}
+                  {(jsonData as Question).example_output}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: "400", // Regular weight for explanation text
+                    fontFamily: "Roboto, sans-serif",
+                    marginTop: "8px", // Adds space between Output and Explanation
+                  }}
+                >
+                  <strong>Explanation:</strong>{" "}
+                  {(jsonData as Question).explanation_answer}
+                </Typography>
               </Box>
 
               <Typography variant="h6" gutterBottom>
@@ -264,7 +297,10 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
       )}
 
       {tabIndex === 1 && (
-        <Paper variant="outlined" sx={{ padding: 2, border: "2px solid green", }}>
+        <Paper
+          variant="outlined"
+          sx={{ padding: 2, border: "2px solid green" }}
+        >
           <TestCaseContainer
             tests={(jsonData as Question).tests || ""}
             passedTests={passedTests}
