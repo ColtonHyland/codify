@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom"; 
 import {
   Box,
-  IconButton,
   Container,
   Typography,
   Paper,
@@ -11,16 +10,15 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+// Removed ArrowBackIcon import
 import QuestionField from "../components/question/QuestionField";
 import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
 import { Question } from "../types";
 import { executeJavaScriptCode } from "../services/codeExecute";
-
+import BackButton from "../components/utils/BackButton"; 
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { fetchQuestionById, userProgress } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +55,7 @@ const QuestionPage: React.FC = () => {
     fetchQuestion();
   }, [id, userProgress, fetchQuestionById]);
 
-  //print the fetchedquestion design
+  // Print the fetched question design
   useEffect(() => {
     console.log("Fetched question design:", question?.design);
   }, [question]);
@@ -102,13 +100,9 @@ const QuestionPage: React.FC = () => {
 
   const handleReset = () => {
     if (question && question.design) {
-      setCode(question.design); // Reset code to the initial design (fetchedQuestion.design)
+      setCode(question.design); // Reset code to the initial design
       console.log("Resetting code to initial design:", question.design);
     }
-  };
-
-  const handleBack = () => {
-    navigate('/questions');
   };
 
   if (error) {
@@ -121,103 +115,79 @@ const QuestionPage: React.FC = () => {
     );
   }
 
-  // if (!question) {
-  //   return (
-  //     <Container>
-  //       <Grid
-  //         container
-  //         justifyContent="center"
-  //         alignItems="center"
-  //         style={{ height: "100vh" }}
-  //       >
-  //         <CircularProgress />
-  //       </Grid>
-  //     </Container>
-  //   );
-  // }
-
   return (
     <>
-    <IconButton
-        onClick={handleBack}
-        sx={{
-          color: "green",
-          position: "absolute",
-          top: 90,
-          left: 30,
-        }}
-      >
-        <ArrowBackIcon />
-      </IconButton>
-    <Container >
-      
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          {!question ? (
-            <CircularProgress />
-          ) : (
-            <QuestionField
-              jsonText={JSON.stringify(question)}
-              passedTests={passedTests}
-              failedTests={failedTests}
-            />
-          )}
-        </Grid>
-        <Grid item xs={12} md={6} >
-          <Grid
-            container
-            spacing={2}
-            justifyContent="center"
-            sx={{ marginBottom: 2, marginTop: 0 }}
-          >
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                sx={{
-                  color: "white",
-                  backgroundColor: "green",
-                  border: "2px solid green",
-                  "&:hover": {
-                    backgroundColor: "black",
-                  },
-                }}
-              >
-                Submit
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="outlined"
-                // color="secondary"
-                onClick={handleReset}
-                startIcon={<ReplayIcon />}
-                sx={{
-                  color: "green",
-                  backgroundColor: "white",
-                  border: "2px solid green",
-                  "&:hover": {
-                    backgroundColor: "red",
-                    color: "white",
-                    border: "2px solid green",
-                  },
-                }}
-              >
-                Reset
-              </Button>
-            </Grid>
-          </Grid>
-          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2, border: "2px solid green", }}>
-            {!code ? (
+      <BackButton />
+      <Container>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            {!question ? (
               <CircularProgress />
             ) : (
-              <MyEditor language={language} code={code} setCode={setCode} />
+              <QuestionField
+                jsonText={JSON.stringify(question)}
+                passedTests={passedTests}
+                failedTests={failedTests}
+              />
             )}
-          </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="center"
+              sx={{ marginBottom: 2, marginTop: 0 }}
+            >
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSubmit}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "green",
+                    border: "2px solid green",
+                    "&:hover": {
+                      backgroundColor: "black",
+                    },
+                  }}
+                >
+                  Submit
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  onClick={handleReset}
+                  startIcon={<ReplayIcon />}
+                  sx={{
+                    color: "green",
+                    backgroundColor: "white",
+                    border: "2px solid green",
+                    "&:hover": {
+                      backgroundColor: "red",
+                      color: "white",
+                      border: "2px solid green",
+                    },
+                  }}
+                >
+                  Reset
+                </Button>
+              </Grid>
+            </Grid>
+            <Paper
+              variant="outlined"
+              sx={{ padding: 2, marginBottom: 2, border: "2px solid green" }}
+            >
+              {!code ? (
+                <CircularProgress />
+              ) : (
+                <MyEditor language={language} code={code} setCode={setCode} />
+              )}
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
     </>
   );
 };

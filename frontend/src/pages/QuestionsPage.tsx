@@ -11,12 +11,14 @@ const QuestionsPage: React.FC = () => {
   }, []);
 
   return (
+    <>
     <Container>
       {/* <Typography variant="h4" gutterBottom>
         Questions
       </Typography> */}
       <QuestionTable questions={questions} />
     </Container>
+    </>
   );
 };
 
