@@ -14,9 +14,10 @@ import {
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import SpeedIcon from '@mui/icons-material/Speed';
 import { faJs } from "@fortawesome/free-brands-svg-icons";
-import { ErrorData, Question } from "../../types";
-import TestCaseContainer from "./testcase/TestCaseContainer";
+import { ErrorData, Question } from "../../../types";
+import TestCaseContainer from "../testcase/TestCaseContainer";
 
 interface QuestionFieldProps {
   jsonText: string;
@@ -101,7 +102,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
             width: "100%",
           }}
         >
-          <Tab label="Description" />
+          <Tab label="Description"/>
           <Tab label="Test Cases" />
         </Tabs>
       </Box>
@@ -158,9 +159,8 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 />
               </Box>
 
-              <Divider sx={{ my: 2 }} />
 
-              {/* Categories and Difficulty */}
+
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -192,7 +192,27 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                     )}
                   </Box>
                 </Box>
-                <Typography
+                <Box display="flex" flexDirection="row" alignItems="center" >
+                  <SpeedIcon style={{ color: difficultyColour(
+                        (jsonData as Question).difficulty || "black"
+                      ) }} />
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: difficultyColour(
+                        (jsonData as Question).difficulty || "black"
+                      ),
+                      fontWeight: "bold",
+                      border: "1px solid #E0E0E0",
+                      padding: "2px 8px",
+                      borderRadius: "10px",
+                      display: "inline-block",
+                    }}
+                  >
+                    {(jsonData as Question).difficulty || "N/A"}
+                  </Typography>
+                  </Box>
+                {/* <Typography
                   variant="body1"
                   sx={{
                     color: difficultyColour(
@@ -206,7 +226,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                   }}
                 >
                   {(jsonData as Question).difficulty || "N/A"}
-                </Typography>
+                </Typography> */}
               </Box>
 
               <Divider sx={{ my: 2 }} />
