@@ -10,6 +10,7 @@ import {
   Tab,
   Tabs,
   Container,
+  Divider,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -90,7 +91,9 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
               fontWeight: "bold",
             },
             "& .Mui-selected": {
-              color: "green", // Color for selected tab
+              color: "white", // Color for selected tab
+              backgroundColor: "green", // Background color for selected tab
+              borderRadius: "10px 10px 0 0", // Adds rounded corners to the selected tab
             },
             "& .MuiTabs-flexContainer": {
               justifyContent: "space-between", // Ensures tabs are separated within their half width
@@ -117,29 +120,43 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
             <Typography color="error">{jsonData.error}</Typography>
           ) : (
             <Box sx={{ padding: 2 }}>
+              {/* Title and ID */}
               <Box
                 display="flex"
                 flexDirection="row"
                 justifyContent="space-between"
               >
                 <Box display="flex" flexDirection="row">
-                  <Typography variant="body1">
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: "500",
+                      fontFamily: "Roboto, sans-serif",
+                      marginRight: 2,
+                    }}
+                  >
                     <strong>No.</strong> {(jsonData as Question).id || "N/A"}
                   </Typography>
-                  <Typography variant="h5">
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: "bold",
+                      fontFamily: "Roboto, sans-serif",
+                    }}
+                  >
                     {(jsonData as Question).title}
                   </Typography>
                 </Box>
-
-                <div>
-                  <FontAwesomeIcon
-                    icon={faJs}
-                    style={{ color: "orange" }}
-                    size="2x"
-                  />
-                </div>
+                <FontAwesomeIcon
+                  icon={faJs}
+                  style={{ color: "orange" }}
+                  size="2x"
+                />
               </Box>
 
+              <Divider sx={{ my: 2 }} />
+
+              {/* Categories and Difficulty */}
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -188,17 +205,32 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 </Typography>
               </Box>
 
-              <Typography variant="body2" paragraph>
+              <Divider sx={{ my: 2 }} />
+
+              {/* Description */}
+              <Typography
+                variant="body2"
+                paragraph
+                sx={{ fontFamily: "Roboto, sans-serif", marginBottom: "16px" }}
+              >
                 {(jsonData as Question).description || "No description"}
               </Typography>
 
-              <Typography variant="body2">
-                {(jsonData as Question).explanation}
-              </Typography>
-              <Typography variant="body2" paragraph sx={{ fontWeight: "bold" }}>
+              {/* Task */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "Roboto, sans-serif",
+                  marginBottom: "16px",
+                }}
+              >
                 {(jsonData as Question).task}
               </Typography>
 
+              <Divider sx={{ my: 2 }} />
+
+              {/* Example Section */}
               <Typography
                 variant="h6"
                 gutterBottom
@@ -247,32 +279,57 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 </Typography>
               </Box>
 
-              <Typography variant="h6" gutterBottom>
+              <Divider sx={{ my: 2 }} />
+
+              {/* Constraints */}
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "Roboto, sans-serif",
+                  marginBottom: "16px",
+                }}
+              >
                 Constraints
               </Typography>
               <List>
                 {JSON.parse((jsonData as Question).input_constraints).map(
                   (constraint: string, index: number) => (
                     <ListItem key={index}>
-                      <ListItemText primary={constraint} />
+                      <Typography
+                        variant="body2"
+                        sx={{ fontFamily: "Roboto, sans-serif" }}
+                      >
+                        {constraint}
+                      </Typography>
                     </ListItem>
                   )
                 )}
               </List>
 
-              <Button
-                variant="contained"
-                onClick={handleToggleTips}
-                sx={{
-                  color: "white",
-                  backgroundColor: "green",
-                  "&:hover": {
-                    backgroundColor: "black",
-                  },
-                }}
+              <Divider sx={{ my: 2 }} />
+
+              {/* Hints Section */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
-                Toggle Hints
-              </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleToggleTips}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "green",
+                    "&:hover": {
+                      backgroundColor: "black",
+                    },
+                  }}
+                >
+                  Toggle Hints
+                </Button>
+              </Box>
 
               {showTips && (
                 <>
@@ -280,7 +337,12 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                     {JSON.parse((jsonData as Question).hints).map(
                       (hint: string, index: number) => (
                         <ListItem key={index}>
-                          <ListItemText primary={hint} />
+                          <Typography
+                            variant="body2"
+                            sx={{ fontFamily: "Roboto, sans-serif" }}
+                          >
+                            {hint}
+                          </Typography>
                         </ListItem>
                       )
                     )}
@@ -288,7 +350,12 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
                 </>
               )}
 
-              <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+              <Divider sx={{ my: 2 }} />
+
+              <Typography
+                variant="body2"
+                sx={{ fontStyle: "italic", fontFamily: "Roboto, sans-serif" }}
+              >
                 {(jsonData as Question).notes}
               </Typography>
             </Box>
