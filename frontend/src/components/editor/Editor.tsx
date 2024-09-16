@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
 import { debounce } from "lodash";
-import Editor, { useMonaco } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import { useQuestionContext } from "../../contexts/QuestionContext";
 import * as monacoEditor from "monaco-editor"; // Import Monaco types
 import { EditorProps } from "../../types";
+import { Box, Typography } from "@mui/material"; // Import MUI components
 
 const MyEditor: React.FC<EditorProps> = ({
   language = "javascript",
@@ -24,9 +25,12 @@ const MyEditor: React.FC<EditorProps> = ({
       monacoInstance.editor.defineTheme("myTheme", data);
     } catch (error) {
       if ((error as Error).name === "AbortError") {
+        // Handle abort error if needed
       } else {
         console.error("Error loading or defining theme:", error);
-        setThemeError("Error loading or defining theme. Please check the theme JSON format.");
+        setThemeError(
+          "Error loading or defining theme. Please check the theme JSON format."
+        );
       }
     }
   };
@@ -36,7 +40,10 @@ const MyEditor: React.FC<EditorProps> = ({
     // loadTheme(monacoInstance);
   };
 
-  const handleEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+  const handleEditorDidMount = (
+    editor: monacoEditor.editor.IStandaloneCodeEditor,
+    monaco: typeof monacoEditor
+  ) => {
     editorRef.current = editor; // Store editor instance in ref
     monaco.editor.setTheme("myTheme");
   };
@@ -44,11 +51,11 @@ const MyEditor: React.FC<EditorProps> = ({
   const handleCodeChange = debounce((newCode: string) => {
     console.log("Code changed:", newCode); // Log when the code changes
     setCode(newCode || "");
-  
+
     // Get the question ID from the URL or props
     const questionId = window.location.pathname.split("/").pop();
     console.log("Question ID:", questionId); // Log the question ID
-  
+
     if (questionId) {
       console.log("Calling updateProgress with code:", newCode); // Log before calling updateProgress
       updateProgress(questionId, newCode, [], []); // Empty test result arrays, as this is for saving progress
@@ -56,8 +63,10 @@ const MyEditor: React.FC<EditorProps> = ({
   }, 500);
 
   return (
-    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-      {themeError && <div style={{ color: "red" }}>{themeError}</div>}
+    <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      {themeError && (
+        <Typography color="error">{themeError}</Typography>
+      )}
       <Editor
         height="100%"
         language={language}
@@ -72,7 +81,7 @@ const MyEditor: React.FC<EditorProps> = ({
           automaticLayout: true,
         }}
       />
-    </div>
+    </Box>
   );
 };
 
