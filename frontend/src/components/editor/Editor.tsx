@@ -56,13 +56,15 @@ const MyEditor: React.FC<EditorProps> = ({
   }, 500);
 
   return (
-    <div>
+    <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
       {themeError && <div style={{ color: "red" }}>{themeError}</div>}
       <Editor
-        height="500px"
+        height="100%"
         language={language}
         value={code}
-        onChange={(newValue: string | undefined) => handleCodeChange(newValue || "")}
+        onChange={(newValue: string | undefined) =>
+          handleCodeChange(newValue || "")
+        }
         beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{

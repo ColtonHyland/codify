@@ -66,14 +66,14 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
   };
 
   return (
-    <Box sx={{ marginTop: 2 }}>
+    <Box sx={{ marginTop: 2, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden", }}>
       <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
         sx={{
           borderBottom: "2px solid #ddd",
-          width: "50%", // Limits the width to 50% of the container for the tabs
+          width: "50%",
           margin: "0 auto",
         }}
       >
@@ -82,23 +82,23 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
           onChange={handleTabChange}
           TabIndicatorProps={{
             sx: {
-              backgroundColor: "green", // Change the color of the indicator line
+              backgroundColor: "green",
             },
           }}
           sx={{
             "& .MuiTab-root": {
-              color: "green", // Default tab color
+              color: "green",
               fontWeight: "bold",
             },
             "& .Mui-selected": {
-              color: "white", // Color for selected tab
-              backgroundColor: "green", // Background color for selected tab
-              borderRadius: "10px 10px 0 0", // Adds rounded corners to the selected tab
+              color: "white",
+              backgroundColor: "green",
+              borderRadius: "10px 10px 0 0",
             },
             "& .MuiTabs-flexContainer": {
-              justifyContent: "space-between", // Ensures tabs are separated within their half width
+              justifyContent: "space-between",
             },
-            width: "100%", // Make tabs take full width of the 50% container
+            width: "100%",
           }}
         >
           <Tab label="Description" />
@@ -106,16 +106,20 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
         </Tabs>
       </Box>
 
+
       {tabIndex === 0 && (
         <Paper
-          variant="outlined"
-          sx={{
-            padding: 2,
-            maxHeight: "500px",
-            overflowY: "auto",
-            border: "2px solid green",
-          }}
-        >
+        variant="outlined"
+        sx={{
+          padding: 2,
+          overflowY: "auto",
+          border: "2px solid green",
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+
+        }}
+      >
           {"error" in jsonData ? (
             <Typography color="error">{jsonData.error}</Typography>
           ) : (
@@ -313,7 +317,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
               {/* Hints Section */}
               <Box
                 display="flex"
-                justifyContent="space-between"
+                justifyContent="center"
                 alignItems="center"
               >
                 <Button
@@ -363,10 +367,17 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
         </Paper>
       )}
 
-      {tabIndex === 1 && (
+{tabIndex === 1 && (
         <Paper
           variant="outlined"
-          sx={{ padding: 2, border: "2px solid green" }}
+          sx={{
+            padding: 2,
+            border: "2px solid green",
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+          }}
         >
           <TestCaseContainer
             tests={(jsonData as Question).tests || ""}
