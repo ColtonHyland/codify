@@ -44,8 +44,155 @@ class QuestionViewSet(viewsets.ModelViewSet):
             )
 
         prompt = f"""
-You are an AI assistant tasked with generating technical interview questions for software engineering candidates...
-        """
+You are an AI assistant tasked with generating technical interview questions for software engineering candidates. The questions should follow a structured format and be suitable for assessing various skills such as data structures, algorithms, system design, and problem-solving abilities. Please generate a JavaScript problem in the following JSON format, ensuring the response includes the specified language and difficulty exactly as provided:
+
+{{
+  "title": "<problem_title>",
+  "difficulty": "{difficulty}",
+  "categories": [<categories>],
+  "language": "Javascript",
+  "problemDescription": "<problem_description>",
+  "context": {{
+    "codeSchema": "<code_or_table_relevant_to_problem>",
+    "additionalInstructions": "<additional_instructions>"
+  }},
+  "task": "<task_to_do>",
+  "examples": [
+    {{
+      "input": "<function_name>(<input_example>)",
+      "output": "<output_example>",
+      "explanation": "<explanation_example>"
+    }}
+  ],
+  "constraints": [
+    "<constraint_1>",
+    "<constraint_2>",
+    "..."
+  ],
+  "tags": [
+    "<tag_1>",
+    "<tag_2>",
+    "..."
+  ],
+  "testCases": [
+    {{
+      "label": "Test 1",
+      "input": "<function_name>(<test_input_1>)",
+      "output": "<expected_output_1>",
+      "description": "Basic functionality test: A simple, expected use case."
+    }},
+    {{
+      "label": "Test 2",
+      "input": "<function_name>(<test_input_2>)",
+      "output": "<expected_output_2>",
+      "description": "Edge case test: Handles edge cases such as empty inputs, large numbers, etc."
+    }},
+    {{
+      "label": "Test 3",
+      "input": "<function_name>(<test_input_3>)",
+      "output": "<expected_output_3>",
+      "description": "Bad input test: Handles incorrect or unexpected input types."
+    }},
+    {{
+      "label": "Test 4",
+      "input": "<function_name>(<test_input_4>)",
+      "output": "<expected_output_4>",
+      "description": "Performance test: Test with large inputs to check performance."
+    }},
+    {{
+      "label": "Test 5",
+      "input": "<function_name>(<test_input_5>)",
+      "output": "<expected_output_5>",
+      "description": "Additional complex case: An additional case that tests complex or unexpected logic."
+    }}
+  ],
+  "hints": [
+    "<hint_1>",
+    "<hint_2>"
+  ],
+  "solution": "<solution>",
+  "notes": "<additional_notes>"
+}}
+
+Ensure the problem tests the following:
+- Core technical skills
+- Design and architecture abilities
+- Problem-solving and algorithmic thinking
+- Knowledge of best practices
+- Communication and explanation skills
+- Integration and interaction understanding
+
+Please provide a new question following this format. The problem should include 4 to 9 well-designed test cases that cover:
+- Basic functionality
+- Edge cases
+- Bad inputs
+- Performance considerations
+- Additional complex cases
+
+Example:
+{{
+  "title": "Sum Two Arrays",
+  "difficulty": "Easy",
+  "categories": ["Array", "Basic"],
+  "language": "javascript",
+  "problemDescription": "Write a function that takes two arrays of numbers and returns a new array where each element is the sum of the elements at the corresponding positions in the input arrays.",
+  "context": {{
+    "codeSchema": "function sumArrays(arr1, arr2) {{\\n  // Your code here\\n}}",
+    "additionalInstructions": "Handle different array lengths by treating missing elements as 0."
+  }},
+  "task": "Implement the sumArrays function.",
+  "examples": [
+    {{
+      "input": "sumArrays([1, 2, 3], [4, 5, 6])",
+      "output": "[5, 7, 9]",
+      "explanation": "Each element is the sum of the corresponding elements in the input arrays."
+    }}
+  ],
+  "constraints": [
+    "Input arrays will contain only integers.",
+    "Input arrays will have at least one element."
+  ],
+  "tags": ["Array", "Basic"],
+  "testCases": [
+    {{
+      "label": "Test 1",
+      "input": "sumArrays([1, 2, 3], [4, 5, 6])",
+      "output": "[5, 7, 9]",
+      "description": "Basic functionality test: A simple, expected use case."
+    }},
+    {{
+      "label": "Test 2",
+      "input": "sumArrays([], [1, 2, 3])",
+      "output": "[1, 2, 3]",
+      "description": "Edge case test: Handles empty first array."
+    }},
+    {{
+      "label": "Test 3",
+      "input": "sumArrays([1, 2], ['a', 'b'])",
+      "output": "Error",
+      "description": "Bad input test: Handles non-numeric input."
+    }},
+    {{
+      "label": "Test 4",
+      "input": "sumArrays([1000000, 2000000], [3000000, 4000000])",
+      "output": "[4000000, 6000000]",
+      "description": "Performance test: Test with large numbers."
+    }},
+    {{
+      "label": "Test 5",
+      "input": "sumArrays([1, 2, 3], [4, 5, 6, 7])",
+      "output": "[5, 7, 9, 7]",
+      "description": "Additional complex case: Different array lengths."
+    }}
+  ],
+  "hints": [
+    "Consider iterating through the arrays simultaneously.",
+    "Use a loop to handle the summing of corresponding elements."
+  ],
+  "solution": "function sumArrays(arr1, arr2) {{\\n  return arr1.map((num, idx) => num + (arr2[idx] || 0));\\n}}",
+  "notes": "This problem tests basic array manipulation and handling of different array lengths."
+}}
+"""
 
         try:
             response = openai_client.chat.completions.create(

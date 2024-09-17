@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import DifficultyDisplay from "./DifficultyDisplay";
-import { Question } from "../../types";
+import { Question } from "../../../types";
 
 interface QuestionContentProps {
   tabValue: number;
@@ -26,7 +26,7 @@ const QuestionContent: React.FC<QuestionContentProps> = ({
         </Box>
       )}
       {tabValue === 1 && (
-        <Typography variant="body1">{question.solution}</Typography>
+        <Typography variant="body1">{""}</Typography>
       )}
       {tabValue === 2 && (
         <Typography variant="body1">{question.hints}</Typography>
