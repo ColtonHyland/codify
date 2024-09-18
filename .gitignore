@@ -50,3 +50,6 @@ coverage/
 
 # Windows
 Thumbs.db
+
+# Open Terminal
+start-project.bat
