@@ -120,7 +120,7 @@ const QuestionPage: React.FC = () => {
       <BackButton to="/questions" />
       <Container
         sx={{
-          height: "calc(100vh - 64px)",
+          height: "calc(100vh - 80px)",
           overflow: "hidden",
         }}
       >
