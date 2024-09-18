@@ -38,7 +38,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
           onChange={handleTabChange}
           TabIndicatorProps={{ sx: { backgroundColor: "green" } }}
           sx={{
-            "& .MuiTab-root": { color: "green", fontWeight: "bold" },
+            "& .MuiTab-root": { color: "black", fontWeight: "bold" },
             "& .Mui-selected": { color: "white", backgroundColor: "green", borderRadius: "10px 10px 0 0" },
             "& .MuiTabs-flexContainer": { justifyContent: "space-between" },
             width: "100%",
