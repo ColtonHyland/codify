@@ -26,12 +26,25 @@ const QuestionContent: React.FC<QuestionContentProps> = ({ jsonData }) => {
   };
 
   return (
-    <Paper variant="outlined" sx={{ padding: 2, overflowY: "auto", flexGrow: 1, display: "flex", flexDirection: "column" }}>
+    <Paper
+      variant="outlined"
+      sx={{
+        padding: 2,
+        overflowY: "auto",
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+        border: "2px solid green",
+      }}
+    >
       <Box sx={{ padding: 2 }}>
         {/* Title and ID */}
         <Box display="flex" flexDirection="row" justifyContent="space-between">
           <Box display="flex" flexDirection="row">
-            <Typography variant="body1" sx={{ fontWeight: "500", marginRight: 2 }}>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "500", marginRight: 2 }}
+            >
               <strong>No.</strong> {jsonData.id || "N/A"}
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: "bold" }}>
@@ -41,7 +54,12 @@ const QuestionContent: React.FC<QuestionContentProps> = ({ jsonData }) => {
           <FontAwesomeIcon icon={faJs} style={{ color: "orange" }} size="2x" />
         </Box>
 
-        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ padding: "8px 0" }}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ padding: "8px 0" }}
+        >
           <Box display="flex" flexDirection="row" alignItems="center">
             <BookmarkBorderIcon style={{ color: "green" }} />
             <Box display="flex" flexDirection="row" gap={1}>
@@ -93,17 +111,27 @@ const QuestionContent: React.FC<QuestionContentProps> = ({ jsonData }) => {
           Constraints
         </Typography>
         <List>
-          {JSON.parse(jsonData.input_constraints).map((constraint: string, index: number) => (
-            <ListItem key={index}>
-              <Typography variant="body2">{constraint}</Typography>
-            </ListItem>
-          ))}
+          {JSON.parse(jsonData.input_constraints).map(
+            (constraint: string, index: number) => (
+              <ListItem key={index}>
+                <Typography variant="body2">{constraint}</Typography>
+              </ListItem>
+            )
+          )}
         </List>
 
         <Divider sx={{ my: 2 }} />
 
         <Box display="flex" justifyContent="center">
-          <Button variant="contained" onClick={handleToggleTips} sx={{ color: "white", backgroundColor: "green", "&:hover": { backgroundColor: "black" } }}>
+          <Button
+            variant="contained"
+            onClick={handleToggleTips}
+            sx={{
+              color: "white",
+              backgroundColor: "green",
+              "&:hover": { backgroundColor: "black" },
+            }}
+          >
             Toggle Hints
           </Button>
         </Box>
