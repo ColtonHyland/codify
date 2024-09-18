@@ -9,6 +9,7 @@ const LogoButton: React.FC = () => (
     component={Link}
     to="/"
     sx={{
+      color: "white",
       display: "flex",
       alignItems: "center",
       fontSize: "2rem",

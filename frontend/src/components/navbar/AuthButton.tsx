@@ -14,7 +14,7 @@ const AuthButtons: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={{ color: "white", display: "flex", alignItems: "center" }}>
       {user && (
         <>
           <AccountBoxIcon sx={{ marginRight: 1 }} />
@@ -24,7 +24,7 @@ const AuthButtons: React.FC = () => {
         </>
       )}
       {user ? (
-        <Button color="inherit" onClick={handleLogout}>
+        <Button color="inherit" onClick={handleLogout} >
           <LogoutIcon sx={{ marginLeft: 1 }} />
           Logout
         </Button>

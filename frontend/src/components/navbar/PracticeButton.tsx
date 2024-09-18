@@ -9,6 +9,7 @@ const PracticeButton: React.FC = () => (
     component={Link}
     to="/questions"
     sx={{
+      color: "white",
       fontSize: "1rem",
       padding: "6px 12px",
       border: "2px solid white",
