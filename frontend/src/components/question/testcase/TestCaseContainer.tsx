@@ -11,9 +11,10 @@ interface TestCaseContainerProps {
   tests: string;
   passedTests: string[];
   failedTests: string[];
+  loading: boolean;
 }
 
-const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTests, failedTests }) => {
+const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTests, failedTests, loading }) => {
   const parsedTests: TestCaseType[] = JSON.parse(tests);
 
   return (
@@ -33,6 +34,7 @@ const TestCaseContainer: React.FC<TestCaseContainerProps> = ({ tests, passedTest
               output={testCase.output}
               testNumber={idx + 1}
               status={status}
+              loading={loading}
             />
           </ListItem>
         );

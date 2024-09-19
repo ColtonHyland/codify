@@ -7,9 +7,10 @@ interface TestTabProps {
   jsonData: Question;
   passedTests: string[];
   failedTests: string[];
+  loading: boolean;
 }
 
-const TestTab: React.FC<TestTabProps> = ({ jsonData, passedTests, failedTests }) => {
+const TestTab: React.FC<TestTabProps> = ({ jsonData, passedTests, failedTests, loading }) => {
   return (
     <Paper
       variant="outlined"
@@ -26,6 +27,7 @@ const TestTab: React.FC<TestTabProps> = ({ jsonData, passedTests, failedTests })
         tests={jsonData.tests || ""}
         passedTests={passedTests}
         failedTests={failedTests}
+        loading={loading}
       />
     </Paper>
   );

@@ -89,18 +89,13 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
         tabIndex === 0 && <QuestionContent jsonData={jsonData as Question} />
       )}
 
-      {tabIndex === 1 && loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <CircularProgress />
-        </Box>
-      ) : (
-        tabIndex === 1 && (
+      {tabIndex === 1 && (
           <TestTab
             jsonData={jsonData as Question}
             passedTests={passedTests}
             failedTests={failedTests}
+            loading={loading}
           />
-        )
       )}
     </Box>
   );

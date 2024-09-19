@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import NotInterestedIcon from "@mui/icons-material/NotInterested";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CircularProgress from "@mui/material/CircularProgress";
 import { red, green } from "@mui/material/colors";
 
 interface TestCaseProps {
@@ -11,6 +12,7 @@ interface TestCaseProps {
   output: string;
   testNumber: number;
   status: number;  // 0 = not run, 1 = passed, -1 = failed
+  loading: boolean;
 }
 
 export const TestCase: React.FC<TestCaseProps> = ({
@@ -18,26 +20,33 @@ export const TestCase: React.FC<TestCaseProps> = ({
   output,
   testNumber,
   status,
+  loading,
 }) => {
   let IconComponent;
   let borderColor;
   let iconColor;
 
-  switch (status) {
-    case 1:
-      IconComponent = CheckCircleOutlineIcon;
-      borderColor = green[500];
-      iconColor = green[500];
-      break;
-    case -1:
-      IconComponent = NotInterestedIcon;
-      borderColor = red[500];
-      iconColor = red[500];
-      break;
-    default:
-      IconComponent = RadioButtonUncheckedIcon;
-      borderColor = "grey.300";
-      iconColor = "inherit";
+  if (loading) {
+    IconComponent = CircularProgress;
+    borderColor = "grey.300";
+    iconColor = "inherit"; 
+  } else {
+    switch (status) {
+      case 1:
+        IconComponent = CheckCircleOutlineIcon;
+        borderColor = green[500];
+        iconColor = green[500];
+        break;
+      case -1:
+        IconComponent = NotInterestedIcon;
+        borderColor = red[500];
+        iconColor = red[500];
+        break;
+      default:
+        IconComponent = RadioButtonUncheckedIcon;
+        borderColor = "grey.300";
+        iconColor = "inherit";
+    }
   }
 
   return (
