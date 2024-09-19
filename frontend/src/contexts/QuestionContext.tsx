@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useCallback
 } from "react";
 import axios from "axios";
 import { Question } from "../types";
@@ -23,7 +24,7 @@ interface QuestionContextType {
     code: string,
     passedTests: string[],
     failedTests: string[]
-  ) => Promise<void>; // Add the updateProgress method to the interface
+  ) => Promise<void>;
 }
 
 const QuestionContext = createContext<QuestionContextType | undefined>(
@@ -51,40 +52,38 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
   const [userProgress, setUserProgress] = useState<{ [key: string]: any }>({});
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
-      if (!isFetching) {
-        setIsFetching(true);
-        const token = localStorage.getItem("token");
+      setIsFetching(true);
+      const token = localStorage.getItem("token");
 
-        // Fetch questions
-        const questionsResponse = await axios.get(
-          "http://localhost:8000/api/questions/list_questions/",
-          { headers: { Authorization: `Token ${token}` } }
-        );
-        setQuestions(questionsResponse.data);
+      // Fetch questions
+      const questionsResponse = await axios.get(
+        "http://localhost:8000/api/questions/list_questions/",
+        { headers: { Authorization: `Token ${token}` } }
+      );
+      setQuestions(questionsResponse.data);
 
-        // Fetch user progress
-        const progressResponse = await axios.get(
-          "http://localhost:8000/api/user-progress/",
-          { headers: { Authorization: `Token ${token}` } }
-        );
+      // Fetch user progress
+      const progressResponse = await axios.get(
+        "http://localhost:8000/api/user-progress/",
+        { headers: { Authorization: `Token ${token}` } }
+      );
 
-        const progressData = progressResponse.data.reduce(
-          (acc: { [key: string]: any }, progress: any) => {
-            acc[progress.question] = progress;
-            return acc;
-          },
-          {}
-        );
-        setUserProgress(progressData);
-      }
+      const progressData = progressResponse.data.reduce(
+        (acc: { [key: string]: any }, progress: any) => {
+          acc[progress.question] = progress;
+          return acc;
+        },
+        {}
+      );
+      setUserProgress(progressData);
     } catch (error) {
       console.error("Error fetching questions or user progress:", error);
     } finally {
       setIsFetching(false);
     }
-  };
+  }, []);
 
   const fetchQuestionById = async (id: number): Promise<Question | null> => {
     try {
@@ -168,7 +167,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
 
   useEffect(() => {
     fetchQuestions();
-  }, []);
+  }, [fetchQuestions]);
 
   return (
     <QuestionContext.Provider
@@ -178,7 +177,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         fetchQuestions,
         fetchQuestionById,
         generateQuestion,
-        updateProgress, // Include updateProgress here
+        updateProgress,
       }}
     >
       {children}
