@@ -1,8 +1,16 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-import { Question } from '../../types';
-import { useQuestionContext } from '../../contexts/QuestionContext';
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+import { Question } from "../../types";
+import { useQuestionContext } from "../../contexts/QuestionContext";
 
 export interface QuestionTableProps {
   questions: Question[];
@@ -16,31 +24,64 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
     navigate(`/questions/${id}`);
   };
 
+  const rows = useMemo(
+    () =>
+      questions.map((question, index) => (
+        <TableRow
+          key={question.id}
+          onClick={() => handleRowClick(question.id)}
+          sx={{
+            cursor: "pointer",
+            backgroundColor: index % 2 === 0 ? "white" : "#f0fff0", // Alternating rows
+            "&:hover": {
+              backgroundColor: "#e0f7e0", // Light hover effect
+            },
+          }}
+        >
+          <TableCell>{question.id}</TableCell>
+          <TableCell>{question.title}</TableCell>
+          <TableCell>{question.categories.join(", ")}</TableCell>
+          <TableCell>{question.difficulty}</TableCell>
+          <TableCell>
+            {userProgress[question.id]?.status || "Not Attempted"}
+          </TableCell>
+        </TableRow>
+      )),
+    [questions, userProgress]
+  );
+
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        margin: "20px auto",
+        border: "2px solid green",
+        borderRadius: "10px",
+        maxWidth: "90%",
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>No.</TableCell>
-            <TableCell>Title</TableCell>
-            <TableCell>Categories</TableCell>
-            <TableCell>Difficulty</TableCell>
-            <TableCell>Progress</TableCell>
+          <TableRow sx={{ backgroundColor: "#e0ffe0" }}>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              No.
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              Title
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              Categories
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              Difficulty
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              Progress
+            </TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
-          {questions.map((question) => (
-            <TableRow key={question.id} onClick={() => handleRowClick(question.id)}>
-              <TableCell>{question.id}</TableCell>
-              <TableCell>{question.title}</TableCell>
-              <TableCell>{question.categories.join(', ')}</TableCell>
-              <TableCell>{question.difficulty}</TableCell>
-              <TableCell>
-                {userProgress[question.id]?.status || 'Not Attempted'}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+        <TableBody>{rows}</TableBody>
       </Table>
     </TableContainer>
   );
