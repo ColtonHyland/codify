@@ -10,7 +10,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
-// Removed ArrowBackIcon import
 import QuestionField from "../components/question/questionfield/QuestionField";
 import MyEditor from "../components/editor/Editor";
 import { useQuestionContext } from "../contexts/QuestionContext";
@@ -26,6 +25,8 @@ const QuestionPage: React.FC = () => {
   const [language, setLanguage] = useState("language");
   const [passedTests, setPassedTests] = useState<string[]>([]);
   const [failedTests, setFailedTests] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     const fetchQuestion = async () => {
@@ -36,12 +37,11 @@ const QuestionPage: React.FC = () => {
             setQuestion(fetchedQuestion);
             setLanguage(fetchedQuestion.language);
 
-            // Load saved user progress or the initial design from fetchedQuestion
             const progress = userProgress[id];
             if (progress && progress.code_progress) {
-              setCode(progress.code_progress); // Load saved progress
+              setCode(progress.code_progress); 
             } else {
-              setCode(fetchedQuestion.design); // Load initial design if no progress
+              setCode(fetchedQuestion.design);
             }
           } else {
             setError("Question not found");
@@ -55,12 +55,16 @@ const QuestionPage: React.FC = () => {
     fetchQuestion();
   }, [id, userProgress, fetchQuestionById]);
 
-  // Print the fetched question design
   useEffect(() => {
     console.log("Fetched question design:", question?.design);
   }, [question]);
 
   const handleSubmit = async () => {
+    setTabIndex(1);
+    setFailedTests([]);
+    setPassedTests([]);
+    setLoading(true);
+
     if (question) {
       try {
         const parsedTests = JSON.parse(question.tests || "[]").map(
@@ -81,9 +85,8 @@ const QuestionPage: React.FC = () => {
           return;
         }
 
-        console.log("Submission result:", data);
+        setLoading(false);
 
-        // If there's an error in the response, treat it as a failed test
         if (data.error) {
           setFailedTests([...data.failed_tests, "Error"]);
         } else {
@@ -100,8 +103,7 @@ const QuestionPage: React.FC = () => {
 
   const handleReset = () => {
     if (question && question.design) {
-      setCode(question.design); // Reset code to the initial design
-      console.log("Resetting code to initial design:", question.design);
+      setCode(question.design);
     }
   };
 
@@ -156,6 +158,9 @@ const QuestionPage: React.FC = () => {
                 jsonText={JSON.stringify(question)}
                 passedTests={passedTests}
                 failedTests={failedTests}
+                tabIndex={tabIndex}
+                setTabIndex={setTabIndex}
+                loading={loading}
               />
             )}
           </Grid>
