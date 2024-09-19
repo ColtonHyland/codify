@@ -61,7 +61,11 @@ export const TestCase: React.FC<TestCaseProps> = ({
       mb={1}
       sx={{ width: "100%" }}
     >
-      <IconComponent sx={{ mr: 1, fontSize: "1.5rem", color: iconColor }} />
+      {loading ? (
+        <CircularProgress sx={{ mr: 1, fontSize: "1.5rem" }} size="1.5rem" />
+      ) : (
+        <IconComponent sx={{ mr: 1, fontSize: "1.5rem", color: iconColor }} />
+      )}
 
       <Typography variant="body1" sx={{ flexGrow: 1 }}>
         Test #{testNumber}
