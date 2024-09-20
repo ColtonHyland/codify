@@ -5,7 +5,7 @@ import { Container, Box } from "@mui/material";
 
 export const GenerateQuestionPage: React.FC = () => {
   const [responseData, setResponseData] = useState<string | null>(null);
-  const [difficulty, setDifficulty] = useState<string>("Easy"); // Set initial difficulty
+  const [difficulty, setDifficulty] = useState<string>("Easy");
   const [category, setCategory] = useState<string>("SQL");
 
   const handleApiResponse = (data: any) => {
@@ -13,7 +13,6 @@ export const GenerateQuestionPage: React.FC = () => {
   };
 
   const handleDifficultyChange = (difficulty: string) => {
-    console.log("Difficulty changed to:", difficulty); // Log when difficulty changes
     setDifficulty(difficulty);
   };
 
@@ -25,14 +24,14 @@ export const GenerateQuestionPage: React.FC = () => {
     <Container maxWidth="md" sx={{ padding: "20px" }}>
       <Box mb={2}>
         <DropdownSelector
-          onDifficultyChange={handleDifficultyChange} // Update the difficulty state
+          onDifficultyChange={handleDifficultyChange}
           onCategoryChange={handleCategoryChange}
         />
       </Box>
       <Box mb={2}>
         <GenerateButton
           onApiResponse={handleApiResponse}
-          difficulty={difficulty} // Pass the selected difficulty to the GenerateButton
+          difficulty={difficulty}
           category={category}
         />
       </Box>

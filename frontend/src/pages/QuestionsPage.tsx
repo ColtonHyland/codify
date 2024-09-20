@@ -10,7 +10,7 @@ const QuestionsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (questions.length > 0) {
+    if (questions.length >= 0) {
       setLoading(false);
     }
   }, [questions]);
@@ -35,7 +35,16 @@ const QuestionsPage: React.FC = () => {
         sx={{ height: "calc(100vh - 80px)", display: "flex", flexDirection: "column" }}
       >
         {loading ? (
+          <Container
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
           <CircularProgress />
+        </Container>
         ) : (
           <QuestionTable questions={questions} />
         )}

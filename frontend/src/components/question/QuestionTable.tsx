@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -9,6 +9,8 @@ import {
   TableRow,
   Paper,
   TableSortLabel,
+  Box,
+  Typography,
 } from "@mui/material";
 import { Question } from "../../types";
 import { useQuestionContext } from "../../contexts/QuestionContext";
@@ -70,36 +72,6 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
         return "black";
     }
   };
-
-  const rows = useMemo(
-    () =>
-      questions.map((question, index) => (
-        <TableRow
-          key={question.id}
-          onClick={() => handleRowClick(question.id)}
-          sx={{
-            cursor: "pointer",
-            backgroundColor: index % 2 === 0 ? "white" : "#f0fff0",
-            "&:hover": {
-              backgroundColor: "#e0f7e0",
-            },
-          }}
-        >
-          <TableCell>{question.id}</TableCell>
-          <TableCell>{question.title}</TableCell>
-          <TableCell>{question.categories.join(", ")}</TableCell>
-          <TableCell
-            sx={{ fontWeight: "bold", color: difficultyColour(question.difficulty) }}
-          >
-            {question.difficulty}
-          </TableCell>
-          <TableCell>
-            {userProgress[question.id]?.status || "Not Attempted"}
-          </TableCell>
-        </TableRow>
-      )),
-    [questions, userProgress]
-  );
 
   return (
     <TableContainer
@@ -179,31 +151,57 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
         </TableHead>
 
         <TableBody>
-          {sortedQuestions.map((question, index) => (
-            <TableRow
-              key={question.id}
-              onClick={() => handleRowClick(question.id)}
-              sx={{
-                cursor: "pointer",
-                backgroundColor: index % 2 === 0 ? "white" : "#f0fff0",
-                "&:hover": {
-                  backgroundColor: "#e0f7e0",
-                },
-              }}
-            >
-              <TableCell>{question.id}</TableCell>
-              <TableCell>{question.title}</TableCell>
-              <TableCell>{question.categories.join(", ")}</TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", color: difficultyColour(question.difficulty) }}
-              >
-                {question.difficulty}
-              </TableCell>
-              <TableCell>
-                {userProgress[question.id]?.status || "Not Attempted"}
+          {questions.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} sx={{ height: '100%' }}>
+                <Box
+                  sx={{
+                    height: '100%', // Adjust based on table height
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                  }}
+                >
+                  <Typography variant="body1" gutterBottom>
+                    No questions yet.
+                  </Typography>
+                  <Typography variant="h5">
+                    <Link to="/questions/new" style={{ textDecoration: 'none', color: 'green' }}>
+                      Generate some!
+                    </Link>
+                  </Typography>
+                </Box>
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            sortedQuestions.map((question, index) => (
+              <TableRow
+                key={question.id}
+                onClick={() => handleRowClick(question.id)}
+                sx={{
+                  cursor: "pointer",
+                  backgroundColor: index % 2 === 0 ? "white" : "#f0fff0",
+                  "&:hover": {
+                    backgroundColor: "#e0f7e0",
+                  },
+                }}
+              >
+                <TableCell>{question.id}</TableCell>
+                <TableCell>{question.title}</TableCell>
+                <TableCell>{question.categories.join(", ")}</TableCell>
+                <TableCell
+                  sx={{ fontWeight: "bold", color: difficultyColour(question.difficulty) }}
+                >
+                  {question.difficulty}
+                </TableCell>
+                <TableCell>
+                  {userProgress[question.id]?.status || "Not Attempted"}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>
