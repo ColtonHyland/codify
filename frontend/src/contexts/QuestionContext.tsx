@@ -92,6 +92,7 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         `http://localhost:8000/api/questions/get_question/${id}/`,
         { headers: { Authorization: `Token ${token}` } }
       );
+      console.log("Fetched question response data:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching question:", error);

@@ -1,43 +1,41 @@
-import React, { useState } from 'react';
-import { GenerateButton } from '../components/question/GenerateButton';
-// import { QuestionField } from '../components/question/QuestionField';
-import { DropdownSelector } from '../components/question/DropdownSelector';
-import { Solution } from '../components/question/Solution';
-import { Container, Typography, Box } from '@mui/material';
+import React, { useState } from "react";
+import { GenerateButton } from "../components/question/GenerateButton";
+import { DropdownSelector } from "../components/question/DropdownSelector";
+import { Container, Box } from "@mui/material";
 
 export const GenerateQuestionPage: React.FC = () => {
   const [responseData, setResponseData] = useState<string | null>(null);
-  const [difficulty, setDifficulty] = useState<string>('Easy');
-  const [category, setCategory] = useState<string>('SQL');
+  const [difficulty, setDifficulty] = useState<string>("Easy"); // Set initial difficulty
+  const [category, setCategory] = useState<string>("SQL");
 
   const handleApiResponse = (data: any) => {
     setResponseData(JSON.stringify(data, null, 2)); // Format JSON with 2-space indentation
   };
 
-  let solution = '';
-  let formattedData = responseData ? JSON.parse(responseData) : null;
-  if (formattedData && !formattedData.error) {
-    solution = formattedData.solution;
-    delete formattedData.solution;
-  }
+  const handleDifficultyChange = (difficulty: string) => {
+    console.log("Difficulty changed to:", difficulty); // Log when difficulty changes
+    setDifficulty(difficulty);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setCategory(category);
+  };
 
   return (
-    <Container maxWidth="md" sx={{ padding: '20px' }}>
+    <Container maxWidth="md" sx={{ padding: "20px" }}>
       <Box mb={2}>
-        <DropdownSelector 
-          onDifficultyChange={setDifficulty} 
-          onCategoryChange={setCategory} 
+        <DropdownSelector
+          onDifficultyChange={handleDifficultyChange} // Update the difficulty state
+          onCategoryChange={handleCategoryChange}
         />
       </Box>
       <Box mb={2}>
-        <GenerateButton 
-          onApiResponse={handleApiResponse} 
-          difficulty={difficulty} 
-          category={category} 
+        <GenerateButton
+          onApiResponse={handleApiResponse}
+          difficulty={difficulty} // Pass the selected difficulty to the GenerateButton
+          category={category}
         />
       </Box>
-      {/* {responseData && <QuestionField jsonText={responseData} />} */}
-      {solution && <Solution solution={solution} />}
     </Container>
   );
 };

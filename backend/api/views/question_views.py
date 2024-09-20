@@ -129,6 +129,10 @@ Please provide a new question following this format. The problem should include 
 - Performance considerations
 - Additional complex cases
 
+**The difficulty of the problem must match the "{difficulty}" level exactly, as specified in this request.**
+
+**Ensure that the solution provided is valid for all test cases included in the question.**
+
 Example:
 {{
   "title": "Sum Two Arrays",

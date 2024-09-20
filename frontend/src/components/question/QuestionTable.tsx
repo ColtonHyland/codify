@@ -24,6 +24,19 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
     navigate(`/questions/${id}`);
   };
 
+  const difficultyColour = (difficulty: string): string => {
+    switch (difficulty) {
+      case "Easy":
+        return "green";
+      case "Medium":
+        return "orange";
+      case "Hard":
+        return "red";
+      default:
+        return "black";
+    }
+  };
+
   const rows = useMemo(
     () =>
       questions.map((question, index) => (
@@ -32,16 +45,20 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
           onClick={() => handleRowClick(question.id)}
           sx={{
             cursor: "pointer",
-            backgroundColor: index % 2 === 0 ? "white" : "#f0fff0", // Alternating rows
+            backgroundColor: index % 2 === 0 ? "white" : "#f0fff0",
             "&:hover": {
-              backgroundColor: "#e0f7e0", // Light hover effect
+              backgroundColor: "#e0f7e0",
             },
           }}
         >
           <TableCell>{question.id}</TableCell>
           <TableCell>{question.title}</TableCell>
           <TableCell>{question.categories.join(", ")}</TableCell>
-          <TableCell>{question.difficulty}</TableCell>
+          <TableCell
+            sx={{ fontWeight: "bold", color: difficultyColour(question.difficulty) }}
+          >
+            {question.difficulty}
+          </TableCell>
           <TableCell>
             {userProgress[question.id]?.status || "Not Attempted"}
           </TableCell>

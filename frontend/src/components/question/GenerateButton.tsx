@@ -16,6 +16,7 @@ export const GenerateButton: React.FC<ButtonProps> = ({
   const { generateQuestion } = useQuestionContext();
 
   const handleClick = () => {
+    console.log("Generating question with difficulty:", difficulty); // Log the difficulty
     generateQuestion(difficulty, [category], onApiResponse);
   };
 
