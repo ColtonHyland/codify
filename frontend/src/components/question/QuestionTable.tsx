@@ -20,8 +20,6 @@ export interface QuestionTableProps {
 
 type Order = 'asc' | 'desc';
 
-
-
 const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
   const navigate = useNavigate();
   const { userProgress } = useQuestionContext();

@@ -18,7 +18,7 @@ import { executeJavaScriptCode } from "../services/codeExecute";
 import BackButton from "../components/utils/BackButton";
 const QuestionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { fetchQuestionById, userProgress } = useQuestionContext();
+  const { fetchQuestionById, userProgress, updateProgress } = useQuestionContext();
   const [question, setQuestion] = useState<Question | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -38,6 +38,7 @@ const QuestionPage: React.FC = () => {
             setLanguage(fetchedQuestion.language);
 
             const progress = userProgress[id];
+            console.log("Current question progress:", progress?.status || "Not Attempted");
             if (progress && progress.code_progress) {
               setCode(progress.code_progress); 
             } else {
@@ -87,19 +88,22 @@ const QuestionPage: React.FC = () => {
 
         setLoading(false);
 
-        if (data.error) {
-          setFailedTests([...data.failed_tests, "Error"]);
-        } else {
-          setFailedTests(data.failed_tests || []);
-        }
-
-        setPassedTests(data.passed_tests || []);
-      } catch (error) {
-        console.error("Error executing code", error);
-        setFailedTests([...failedTests, "Execution Error"]);
+        const allTestsPassed = data.failed_tests.length === 0;
+      if (allTestsPassed) {
+        console.log("All test cases passed!");
+        updateProgress(question.id, code, data.passed_tests, []); // Mark as 'Completed'
+      } else {
+        setFailedTests(data.failed_tests || []);
+        updateProgress(question.id, code, data.passed_tests, data.failed_tests); // Mark as 'In Progress'
       }
+
+      setPassedTests(data.passed_tests || []);
+    } catch (error) {
+      console.error("Error executing code", error);
+      setFailedTests([...failedTests, "Execution Error"]);
     }
-  };
+  }
+};
 
   const handleReset = () => {
     if (question && question.design) {
