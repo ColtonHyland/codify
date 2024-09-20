@@ -81,7 +81,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
         flexGrow: 1,
       }}
     >
-      <Table>
+      <Table stickyHeader>
         <TableHead>
           <TableRow sx={{ backgroundColor: "#e0ffe0" }}>
             <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
