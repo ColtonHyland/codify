@@ -108,6 +108,8 @@ const QuestionPage: React.FC = () => {
   const handleReset = () => {
     if (question && question.design) {
       setCode(question.design);
+      setPassedTests([]);
+      setFailedTests([]);
     }
   };
 
