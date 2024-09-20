@@ -87,18 +87,6 @@ const MyEditor: React.FC<EditorProps> = ({
 
 export default MyEditor;
 
-// function uniquePaths(m, n) {
-//   const dp = Array(m).fill().map(() => Array(n).fill(1));
-
-//   for (let i = 1; i < m; i++) {
-//     for (let j = 1; j < n; j++) {
-//       dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
-//     }
-//   }
-
-//   return dp[m - 1][n - 1];
-// }
-
 // colors: {
 //   'editor.background': '#fafbfc', // Light background
 //   'editor.foreground': '#24292e', // Dark gray text

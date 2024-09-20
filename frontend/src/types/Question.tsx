@@ -2,7 +2,7 @@ export interface Question {
   id: string;
   problem_id: string;
   title: string;
-  difficulty: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
   categories: string[];
   language: string;
   description: string;

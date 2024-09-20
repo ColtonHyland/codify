@@ -52,6 +52,8 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
         user = request.user
         question_id = request.data.get('question_id')
         code = request.data.get('code')
+        passed_tests = request.data.get('passed_tests', [])
+        failed_tests = request.data.get('failed_tests', [])
 
         if not question_id or not code:
             return Response({"error": "question_id and code are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -60,6 +62,15 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
             progress, created = UserQuestionProgress.objects.get_or_create(
                 user=user, question_id=question_id
             )
+            
+            # Update the status based on the progress
+            if len(passed_tests) == len(failed_tests) == 0:
+                progress.status = 'In Progress'
+            elif len(failed_tests) == 0 and len(passed_tests) > 0:
+                progress.status = 'Completed'
+            else:
+                progress.status = 'In Progress'
+
             progress.code_progress = code
             progress.attempts += 1
             progress.save()
