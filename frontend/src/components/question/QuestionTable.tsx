@@ -71,11 +71,14 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
     <TableContainer
       component={Paper}
       sx={{
+        height: '100%',
+        overflowY: 'auto', 
         margin: "20px auto",
         border: "2px solid green",
         borderRadius: "10px",
         maxWidth: "90%",
         boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+        flexGrow: 1,
       }}
     >
       <Table>

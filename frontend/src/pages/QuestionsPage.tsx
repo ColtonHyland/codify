@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useQuestionContext } from '../contexts/QuestionContext';
-import QuestionTable from '../components/question/QuestionTable';
-import { Button, Container, Typography, CircularProgress } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { useQuestionContext } from "../contexts/QuestionContext";
+import QuestionTable from "../components/question/QuestionTable";
+import { Button, Container, Typography, CircularProgress } from "@mui/material";
 import BackButton from "../components/utils/BackButton";
 
 const QuestionsPage: React.FC = () => {
@@ -11,7 +11,7 @@ const QuestionsPage: React.FC = () => {
 
   useEffect(() => {
     if (questions.length > 0) {
-      setLoading(false); 
+      setLoading(false);
     }
   }, [questions]);
 
@@ -30,8 +30,10 @@ const QuestionsPage: React.FC = () => {
 
   return (
     <>
-      <BackButton to='/'/>
-      <Container>
+      <BackButton to="/" />
+      <Container
+        sx={{ height: "calc(100vh - 80px)", display: "flex", flexDirection: "column" }}
+      >
         {loading ? (
           <CircularProgress />
         ) : (
