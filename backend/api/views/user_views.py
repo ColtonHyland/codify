@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.middleware.csrf import get_token
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
@@ -62,14 +63,15 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
             progress, created = UserQuestionProgress.objects.get_or_create(
                 user=user, question_id=question_id
             )
-            
-            # Update the status based on the progress
-            if len(passed_tests) == len(failed_tests) == 0:
-                progress.status = 'In Progress'
-            elif len(failed_tests) == 0 and len(passed_tests) > 0:
-                progress.status = 'Completed'
-            else:
-                progress.status = 'In Progress'
+
+            if progress.status != 'completed':
+                if len(passed_tests) == len(failed_tests) == 0:
+                    progress.status = 'in_progress'
+                elif len(failed_tests) == 0 and len(passed_tests) > 0:
+                    progress.status = 'completed'
+                    progress.completed_at = timezone.now()
+                else:
+                    progress.status = 'in_progress'
 
             progress.code_progress = code
             progress.attempts += 1
