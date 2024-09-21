@@ -60,6 +60,7 @@ const QuestionPage: React.FC = () => {
 
   useEffect(() => {
     console.log("Fetched question design:", question?.design);
+    console.log("Fetched question test results:", userProgress[question?.id || ""]);
   }, [question]);
 
   const handleSubmit = async () => {
@@ -113,6 +114,7 @@ const QuestionPage: React.FC = () => {
       setCode(question.design);
       setPassedTests([]);
       setFailedTests([]);
+      updateProgress(question.id, question.design, [], []);
     }
   };
 

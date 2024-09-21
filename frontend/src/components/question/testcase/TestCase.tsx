@@ -75,7 +75,7 @@ export const TestCase: React.FC<TestCaseProps> = ({
         variant="subtitle2"
         sx={{ mx: 1, fontFamily: "monospace", fontSize: "0.875rem" }}
       >
-        {input} {'=>'}
+        {input} {'→'}
       </Typography>
 
       <Typography
