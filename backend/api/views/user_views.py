@@ -64,15 +64,16 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
                 user=user, question_id=question_id
             )
 
-            if len(passed_tests) == 0 and len(failed_tests) == 0 and progress.code_progress == code:
+            # Update progress and status based on the code and tests
+            progress.code_progress = code
+            if len(passed_tests) == 0 and len(failed_tests) == 0:
                 progress.status = 'not_attempted'
-            elif len(passed_tests) == len(failed_tests) == 0 or len(failed_tests) > 0:
+            elif len(failed_tests) > 0:
                 progress.status = 'in_progress'
             elif len(passed_tests) > 0 and len(failed_tests) == 0:
                 progress.status = 'completed'
                 progress.completed_at = timezone.now()
 
-            progress.code_progress = code
             progress.passed_tests = passed_tests
             progress.failed_tests = failed_tests
             progress.attempts += 1
@@ -82,7 +83,6 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
             return Response({"error": "Unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
           
 def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")

@@ -39,8 +39,10 @@ const QuestionPage: React.FC = () => {
 
             const progress = userProgress[id];
             console.log("Current question progress:", progress?.status || "Not Attempted");
-            if (progress && progress.code_progress) {
-              setCode(progress.code_progress); 
+            if (progress) {
+              setCode(progress.code_progress || fetchedQuestion.design);
+              setPassedTests(progress.passed_tests || []);
+              setFailedTests(progress.failed_tests || []);
             } else {
               setCode(fetchedQuestion.design);
             }
@@ -89,21 +91,22 @@ const QuestionPage: React.FC = () => {
         setLoading(false);
 
         const allTestsPassed = data.failed_tests.length === 0;
-      if (allTestsPassed) {
-        console.log("All test cases passed!");
-        updateProgress(question.id, code, data.passed_tests, []); // Mark as 'Completed'
-      } else {
-        setFailedTests(data.failed_tests || []);
-        updateProgress(question.id, code, data.passed_tests, data.failed_tests); // Mark as 'In Progress'
-      }
+        if (allTestsPassed) {
+          console.log("All test cases passed!");
+          updateProgress(question.id, code, data.passed_tests, []); // Mark as 'Completed'
+        } else {
+          setFailedTests(data.failed_tests || []);
+          updateProgress(question.id, code, data.passed_tests, data.failed_tests); // Mark as 'In Progress'
+        }
 
-      setPassedTests(data.passed_tests || []);
-    } catch (error) {
-      console.error("Error executing code", error);
-      setFailedTests([...failedTests, "Execution Error"]);
+        setPassedTests(data.passed_tests || []);
+      } catch (error) {
+        console.error("Error executing code", error);
+        setFailedTests([...failedTests, "Execution Error"]);
+        setLoading(false);
+      }
     }
-  }
-};
+  };
 
   const handleReset = () => {
     if (question && question.design) {

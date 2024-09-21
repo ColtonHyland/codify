@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { debounce } from "lodash";
 import Editor from "@monaco-editor/react";
 import { useQuestionContext } from "../../contexts/QuestionContext";
-import * as monacoEditor from "monaco-editor"; // Import Monaco types
+import * as monacoEditor from "monaco-editor";
 import { EditorProps } from "../../types";
-import { Box, Typography } from "@mui/material"; // Import MUI components
+import { Box, Typography } from "@mui/material";
 
 const MyEditor: React.FC<EditorProps> = ({
   language = "javascript",
@@ -14,6 +14,13 @@ const MyEditor: React.FC<EditorProps> = ({
   const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
   const { updateProgress } = useQuestionContext();
   const [themeError, setThemeError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const questionId = window.location.pathname.split("/").pop();
+    if (questionId) {
+      updateProgress(questionId, code, [], []); 
+    }
+  }, []);
 
   const loadTheme = async (monacoInstance: typeof monacoEditor) => {
     try {
@@ -49,15 +56,12 @@ const MyEditor: React.FC<EditorProps> = ({
   };
 
   const handleCodeChange = debounce((newCode: string) => {
-    console.log("Code changed:", newCode); // Log when the code changes
     setCode(newCode || "");
 
     // Get the question ID from the URL or props
     const questionId = window.location.pathname.split("/").pop();
-    console.log("Question ID:", questionId); // Log the question ID
 
     if (questionId) {
-      console.log("Calling updateProgress with code:", newCode); // Log before calling updateProgress
       updateProgress(questionId, newCode, [], []); // Empty test result arrays, as this is for saving progress
     }
   }, 500);
