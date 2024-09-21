@@ -157,7 +157,7 @@ const QuestionPage: React.FC = () => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  height: "100%",  // Ensure it occupies full height
+                  height: "100%",
                 }}
               >
                 <CircularProgress />
@@ -243,7 +243,7 @@ const QuestionPage: React.FC = () => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: "100%",  // Ensure it occupies full height
+                    height: "100%",
                   }}
                 >
                   <CircularProgress />
