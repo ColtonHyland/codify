@@ -126,6 +126,8 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
     passedTests: string[],
     failedTests: string[]
   ) => {
+    console.log("updateProgress called with:", { questionId, code, passedTests, failedTests });
+
     try {
       const token = localStorage.getItem("token");
       console.log("Sending data to update_progress:", {

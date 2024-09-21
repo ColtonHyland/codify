@@ -27,9 +27,9 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
   const { userProgress } = useQuestionContext();
 
   const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] = useState<keyof Question>("id");
+  const [orderBy, setOrderBy] = useState<keyof Question | "progress">("id");
 
-  const handleRequestSort = (property: keyof Question) => {
+  const handleRequestSort = (property: keyof Question | "progress") => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -37,6 +37,31 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
 
   const sortedQuestions = useMemo(() => {
     return [...questions].sort((a, b) => {
+      if (orderBy === "progress") {
+        // Define sorting order for progress: Not Attempted < In Progress < Completed
+        const progressOrder: { [key: string]: number } = {
+          "Not Attempted": 1,
+          "In Progress": 2,
+          "Completed": 3,
+        };
+  
+        const getProgressStatus = (questionId: string): keyof typeof progressOrder => {
+          const progress = userProgress[questionId];
+          console.log("Progress for question:", questionId, progress);
+          if (!progress) return "Not Attempted";
+          // Determine progress based on whether code has been edited
+          if (progress.code_progress && progress.status !== "completed") {
+            return "In Progress";
+          }
+          return progress?.status as keyof typeof progressOrder || "Not Attempted";
+        };
+  
+        const aProgress = progressOrder[getProgressStatus(a.id)];
+        const bProgress = progressOrder[getProgressStatus(b.id)];
+  
+        return order === "asc" ? aProgress - bProgress : bProgress - aProgress;
+      }
+  
       if (orderBy === "difficulty") {
         // Custom difficulty sorting (Easy -> Medium -> Hard)
         const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
@@ -46,6 +71,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
           ? aDifficulty - bDifficulty
           : bDifficulty - aDifficulty;
       }
+  
       const aValue = a[orderBy] as string | number;
       const bValue = b[orderBy] as string | number;
       if (aValue < bValue) {
@@ -56,7 +82,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
       }
       return 0;
     });
-  }, [questions, order, orderBy]);
+  }, [questions, order, orderBy, userProgress]);
 
   const handleRowClick = (id: string) => {
     navigate(`/questions/${id}`);
@@ -151,9 +177,22 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
               </TableSortLabel>
             </TableCell>
 
-            {/* Column: Progress (no sorting) */}
-            <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
-              Progress
+             {/* Column: Progress */}
+             <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+              <TableSortLabel
+                active={orderBy === "progress"}
+                direction={orderBy === "progress" ? order : "asc"}
+                onClick={() => handleRequestSort("progress")}
+              >
+                Progress
+                {orderBy === "progress" ? (
+                  <span style={visuallyHidden}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </span>
+                ) : null}
+              </TableSortLabel>
             </TableCell>
           </TableRow>
         </TableHead>

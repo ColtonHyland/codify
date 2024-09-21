@@ -50,11 +50,14 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def update_progress(self, request):
+        print(f"Received progress update: {request.data}")
         user = request.user
         question_id = request.data.get('question_id')
         code = request.data.get('code')
         passed_tests = request.data.get('passed_tests', [])
         failed_tests = request.data.get('failed_tests', [])
+        
+        print(f"Updating progress for question {question_id} by user {user.id}")
 
         if not question_id or not code:
             return Response({"error": "question_id and code are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -65,20 +68,21 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
             )
 
             # Update progress and status based on the code and tests
-            progress.code_progress = code
-            if len(passed_tests) == 0 and len(failed_tests) == 0:
-                progress.status = 'not_attempted'
-            elif len(failed_tests) > 0:
+            if code != progress.code_progress:
                 progress.status = 'in_progress'
             elif len(passed_tests) > 0 and len(failed_tests) == 0:
                 progress.status = 'completed'
                 progress.completed_at = timezone.now()
+            elif len(failed_tests) > 0:
+                progress.status = 'in_progress'
+            else:
+                progress.status = 'not_attempted'
 
-            progress.passed_tests = passed_tests
+            progress.passed_tests = passed_tests    
             progress.failed_tests = failed_tests
             progress.attempts += 1
             progress.save()
-
+            print(f"Progress updated: {progress}")
             return Response({"message": "Progress updated"}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
