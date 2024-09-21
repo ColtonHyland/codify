@@ -36,12 +36,14 @@ class UserQuestionProgress(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)  # Ensure this is correct
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_attempted')
     attempts = models.IntegerField(default=0)
     last_attempted = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    code_progress = models.TextField(blank=True, null=True)  # Save the current code written by the user
+    code_progress = models.TextField(blank=True, null=True)
+    passed_tests = models.JSONField(default=list)
+    failed_tests = models.JSONField(default=list)
 
     def __str__(self):
         return f"{self.user.username} - {self.question.title} - {self.status}"

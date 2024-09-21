@@ -197,7 +197,7 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
                   {question.difficulty}
                 </TableCell>
                 <TableCell>
-                  {userProgress[question.id]?.status || "Not Attempted"}
+                  {userProgress[question.id]?.status}
                 </TableCell>
               </TableRow>
             ))
