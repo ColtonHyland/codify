@@ -1,5 +1,17 @@
 import React from 'react';
-import { Avatar, Button, CssBaseline, TextField, Link, Grid, Box, Typography, Container, FormControlLabel, Checkbox } from '@mui/material';
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+  FormControlLabel,
+  Checkbox,
+} from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Formik, Field, Form, ErrorMessage, FormikHelpers } from 'formik';
@@ -50,11 +62,11 @@ const SignIn: React.FC = () => {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: 'success.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign In
+          <Typography component="h1" variant="h5" color="success.main">
+            Log In
           </Typography>
           <Formik<LoginValues>
             initialValues={{ email: '', password: '' }}
@@ -76,6 +88,22 @@ const SignIn: React.FC = () => {
                   autoFocus
                   helperText={<ErrorMessage name="email" />}
                   error={Boolean(status?.email)}
+                  InputLabelProps={{ style: { color: 'green' } }} // Add green to input label
+                  InputProps={{
+                    sx: {
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'green',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'green',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'green',
+                        },
+                      },
+                    },
+                  }}
                 />
                 <Field
                   as={TextField}
@@ -90,6 +118,22 @@ const SignIn: React.FC = () => {
                   autoComplete="current-password"
                   helperText={<ErrorMessage name="password" />}
                   error={Boolean(status?.password)}
+                  InputLabelProps={{ style: { color: 'green' } }}
+                  InputProps={{
+                    sx: {
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'green',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'green',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'green',
+                        },
+                      },
+                    },
+                  }}
                 />
                 {status?.submit && (
                   <Typography color="error" variant="body2">
@@ -97,26 +141,33 @@ const SignIn: React.FC = () => {
                   </Typography>
                 )}
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
+                  control={<Checkbox value="remember" color="success" />}
                   label="Remember me"
                 />
                 <Button
                   type="submit"
                   fullWidth
                   variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{
+                    mt: 3,
+                    mb: 2,
+                    bgcolor: 'success.main',
+                    '&:hover': {
+                      bgcolor: 'success.dark',
+                    },
+                  }}
                   disabled={isSubmitting}
                 >
-                  Sign In
+                  Log In
                 </Button>
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
+                    <Link href="#" variant="body2" color="success.main">
                       Forgot password?
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link href="/signup" variant="body2">
+                    <Link href="/signup" variant="body2" color="success.main">
                       {"Don't have an account? Sign Up"}
                     </Link>
                   </Grid>
