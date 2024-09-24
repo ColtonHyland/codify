@@ -70,7 +70,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
         display="flex"
         justifyContent="center"
         alignItems="center"
-        sx={{ borderBottom: "2px solid #ddd", width: "100%", margin: "0 auto" }}
+        sx={{ width: "100%", margin: "0 auto" }}
       >
         <Tabs
           value={tabIndex}
