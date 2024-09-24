@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'backend.middleware.redirect_authenticated_users.RedirectAuthenticatedUserMiddleware',
 ]
 
 REST_FRAMEWORK = {
