@@ -49,7 +49,8 @@ const MyEditor: React.FC<EditorProps> = ({
   };
 
   const handleCodeChange = debounce((newCode: string) => {
-    console.log("Code changed:", newCode); // Log when the code changes
+    console.log("Code change detected:", newCode);  // Log the new code
+
     setCode(newCode || "");
 
     // Get the question ID from the URL or props

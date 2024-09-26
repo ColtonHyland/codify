@@ -47,7 +47,6 @@ const QuestionTable: React.FC<QuestionTableProps> = ({ questions }) => {
   
         const getProgressStatus = (questionId: string): keyof typeof progressOrder => {
           const progress = userProgress[questionId];
-          console.log("Progress for question:", questionId, progress);
           if (!progress) return "Not Attempted";
           // Determine progress based on whether code has been edited
           if (progress.code_progress && progress.status !== "completed") {

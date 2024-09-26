@@ -38,7 +38,6 @@ const QuestionPage: React.FC = () => {
             setLanguage(fetchedQuestion.language);
 
             const progress = userProgress[id];
-            console.log("Current question progress:", progress?.status || "Not Attempted");
             if (progress) {
               setCode(progress.code_progress || fetchedQuestion.design);
               setPassedTests(progress.passed_tests || []);
@@ -58,26 +57,23 @@ const QuestionPage: React.FC = () => {
     fetchQuestion();
   }, [id, userProgress, fetchQuestionById]);
 
-  useEffect(() => {
-    console.log("Fetched question design:", question?.design);
-    console.log("Fetched question test results:", userProgress[question?.id || ""]);
-  }, [question]);
-
   const handleSubmit = async () => {
     setTabIndex(1);
     setFailedTests([]);
     setPassedTests([]);
     setLoading(true);
-
+  
     if (question) {
       try {
-        const parsedTests = JSON.parse(question.tests || "[]").map(
-          (test: any) => ({
-            input: test.input,
-            expected_output: test.output,
-          })
-        );
 
+        console.log("Submitting code:", code);  // Log the submitted code
+        console.log("Test cases:", question.tests);
+
+        const parsedTests = JSON.parse(question.tests || "[]").map((test: any) => ({
+          input: test.input,
+          expected_output: test.output,
+        }));
+  
         let data;
         if (language === "javascript") {
           data = await executeJavaScriptCode({
@@ -88,18 +84,26 @@ const QuestionPage: React.FC = () => {
           console.error(`Execution for ${language} is not yet implemented.`);
           return;
         }
+        console.log("Test execution response:", data);  // Log the response from code execution
 
         setLoading(false);
 
+        if (data.error) {
+          console.error("Code execution error:", data.error);  // Log the error
+          setFailedTests(["Execution Error"]);  // Add "Execution Error" to failed tests
+          return;
+        }
+  
         const allTestsPassed = data.failed_tests.length === 0;
         if (allTestsPassed) {
-          console.log("All test cases passed!");
-          updateProgress(question.id, code, data.passed_tests, []); // Mark as 'Completed'
+          console.log("All tests passed. Marking as completed.");
+          updateProgress(question.id, code, data.passed_tests, []);  // Mark as 'Completed'
         } else {
+          console.log("Tests failed:", data.failed_tests);  // Log the failed tests
           setFailedTests(data.failed_tests || []);
-          updateProgress(question.id, code, data.passed_tests, data.failed_tests); // Mark as 'In Progress'
+          updateProgress(question.id, code, data.passed_tests, data.failed_tests);  // Mark as 'In Progress'
         }
-
+  
         setPassedTests(data.passed_tests || []);
       } catch (error) {
         console.error("Error executing code", error);
@@ -108,6 +112,7 @@ const QuestionPage: React.FC = () => {
       }
     }
   };
+  
 
   const handleReset = () => {
     if (question && question.design) {

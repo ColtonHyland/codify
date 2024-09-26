@@ -77,7 +77,6 @@ const TestPage: React.FC = () => {
           expected_output: test.expected_output,  // Now passing arrays directly
         })),
       });
-      console.log("Test Execution Result:", response);
       alert(JSON.stringify(response, null, 2));
     } catch (error) {
       console.error("Error executing test code:", error);

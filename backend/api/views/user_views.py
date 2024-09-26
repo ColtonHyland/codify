@@ -50,7 +50,7 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def update_progress(self, request):
-        print(f"Received progress update: {request.data}")
+        print(f"Received progress update: {request.data}")  # Log incoming data
         user = request.user
         question_id = request.data.get('question_id')
         code = request.data.get('code')
@@ -58,6 +58,8 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
         failed_tests = request.data.get('failed_tests', [])
         
         print(f"Updating progress for question {question_id} by user {user.id}")
+        print(f"Code submitted: {code}")
+        print(f"Passed tests: {passed_tests}, Failed tests: {failed_tests}")
 
         if not question_id or not code:
             return Response({"error": "question_id and code are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -68,15 +70,17 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
             )
 
             # Update progress and status based on the code and tests
-            if code != progress.code_progress:
-                progress.status = 'in_progress'
-            elif len(passed_tests) > 0 and len(failed_tests) == 0:
+            progress.code_progress = code  # Always update the code_progress field
+
+            if len(passed_tests) > 0 and len(failed_tests) == 0:
                 progress.status = 'completed'
                 progress.completed_at = timezone.now()
-            elif len(failed_tests) > 0:
+            elif progress.code_progress != "" and len(failed_tests) > 0:
                 progress.status = 'in_progress'
-            else:
+            elif not progress.code_progress or len(passed_tests) == 0:
                 progress.status = 'not_attempted'
+            else:
+                progress.status = 'in_progress'
 
             progress.passed_tests = passed_tests    
             progress.failed_tests = failed_tests
@@ -86,7 +90,7 @@ class UserQuestionProgressViewSet(viewsets.ModelViewSet):
             return Response({"message": "Progress updated"}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Unexpected error: {str(e)}")
-            return Response({"error": "Unexpected error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-          
+            return Response({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 def home(request):
     return HttpResponse("<h1>Welcome to Codify</h1>")

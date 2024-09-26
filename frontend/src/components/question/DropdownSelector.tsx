@@ -13,7 +13,6 @@ export const DropdownSelector: React.FC<DropdownSelectorProps> = ({
   // Handle difficulty change event and ensure correct type
   const handleDifficultyChange = (e: SelectChangeEvent) => {
     const selectedDifficulty = e.target.value as string;
-    console.log("Selected Difficulty:", selectedDifficulty); // Log the selected difficulty
     onDifficultyChange(selectedDifficulty);
   };
 

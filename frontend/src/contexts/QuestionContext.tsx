@@ -4,7 +4,7 @@ import React, {
   useState,
   useEffect,
   ReactNode,
-  useCallback
+  useCallback,
 } from "react";
 import axios from "axios";
 import { Question } from "../types";
@@ -92,7 +92,6 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
         `http://localhost:8000/api/questions/get_question/${id}/`,
         { headers: { Authorization: `Token ${token}` } }
       );
-      console.log("Fetched question response data:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching question:", error);
@@ -126,20 +125,24 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
     passedTests: string[],
     failedTests: string[]
   ) => {
-    console.log("updateProgress called with:", { questionId, code, passedTests, failedTests });
+    console.log("updateProgress called with:", {
+      questionId,
+      code,
+      passedTests,
+      failedTests,
+    }); // Log progress
 
     try {
       const token = localStorage.getItem("token");
       console.log("Sending data to update_progress:", {
-        question_id: questionId,
+        questionId,
         code,
-        passed_tests: passedTests,
-        failed_tests: failedTests,
-      });
+        passedTests,
+        failedTests,
+      }); // Log request data
 
       const response = await axios.post(
         "http://localhost:8000/api/user-progress/update_progress/",
-
         {
           question_id: questionId,
           code,
@@ -150,21 +153,12 @@ export const QuestionProvider: React.FC<QuestionProviderProps> = ({
       );
 
       if (response.status === 200) {
-        console.log("Progress successfully saved");
+        console.log("Progress successfully saved"); // Log success
       } else {
         console.error("Failed to save progress:", response.statusText);
       }
-    } catch (error: unknown) {
-      // Use a type guard to check if the error is an AxiosError
-      if (axios.isAxiosError(error)) {
-        // Log detailed Axios error information
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        console.error("Error headers:", error.response?.headers);
-      } else {
-        // Handle generic errors
-        console.error("Unexpected error:", error);
-      }
+    } catch (error) {
+      console.error("Unexpected error saving progress:", error);
     }
   };
 
