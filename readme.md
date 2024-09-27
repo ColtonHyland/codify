@@ -1,6 +1,6 @@
 # Codify Development Setup
 
-This guide will help you set up the development environment for the Codify project.
+Codify is a full-stack web application that allows users to generate coding challenges, write code, and execute it in a real-time testing environment. Currently, only JavaScript is supported for code execution. The application provides feedback based on predefined test cases, tracking and saving user progress for future sessions. The frontend is built using React and Material-UI, while the backend uses Django with Docker to handle JavaScript code execution. Known bugs exist with some question generation features, which may produce errors in certain cases. The platform is intended to provide an interactive coding environment for practicing problem-solving skills.
 
 ## Prerequisites
 
